@@ -31,8 +31,11 @@ enum PersistenceController {
     /// Falls back to a local-only store, then to an in-memory store, rather than crashing on
     /// launch: an unavailable iCloud account or a schema CloudKit refuses must never leave
     /// the user staring at a dead app with their trips inside it.
+    /// - Parameter cloudKitEnabled: the user's preference. It is honoured only when the
+    ///   build is genuinely entitled to the container — see `CloudKitAvailability`, and note
+    ///   that getting this wrong is a launch crash, not a degraded feature.
     static func makeContainerWithFallback(cloudKitEnabled: Bool) -> ModelContainer {
-        if cloudKitEnabled, let container = try? makeContainer(cloudKitEnabled: true) {
+        if cloudKitEnabled, CloudKitAvailability.isEntitled, let container = try? makeContainer(cloudKitEnabled: true) {
             return container
         }
         if let container = try? makeContainer(cloudKitEnabled: false) {

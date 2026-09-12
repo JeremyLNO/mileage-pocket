@@ -10,7 +10,7 @@ actor RulePackUpdater {
     private let logger = Logger(subsystem: "company.lno.mileage", category: "RulePackUpdater")
     private let endpoint: URL
     private let store: RulePackStore
-    private let session: URLSession
+    private let injectedSession: URLSession?
     private let cacheDirectory: URL?
 
     init(
@@ -23,16 +23,23 @@ actor RulePackUpdater {
         self.store = store
         self.cacheDirectory = cacheDirectory
 
-        if let session {
-            self.session = session
-        } else {
-            let configuration = URLSessionConfiguration.ephemeral
-            // Any network call reachable from a launch path carries a timeout. Without one,
-            // a hung connection is indistinguishable from a hung app.
-            configuration.timeoutIntervalForRequest = 10
-            configuration.timeoutIntervalForResource = 20
-            self.session = URLSession(configuration: configuration)
-        }
+        self.injectedSession = session
+    }
+
+    /// Built on first use, not at init.
+    ///
+    /// Constructing a `URLSession` costs a `dlopen` of CFNetwork's proxy plug-in, which the
+    /// iOS 18.6 simulator runtime crashes on under this toolchain — and doing it in `init`
+    /// put that on the app's launch path for a request that may never be made. Nothing here
+    /// needs a session until a refresh actually runs.
+    private func makeSession() -> URLSession {
+        if let injectedSession { return injectedSession }
+        let configuration = URLSessionConfiguration.ephemeral
+        // Any network call reachable from a launch path carries a timeout. Without one, a
+        // hung connection is indistinguishable from a hung app.
+        configuration.timeoutIntervalForRequest = 10
+        configuration.timeoutIntervalForResource = 20
+        return URLSession(configuration: configuration)
     }
 
     @discardableResult
@@ -40,7 +47,7 @@ actor RulePackUpdater {
         guard let publicKey = RulePackVerifier.defaultPublicKey() else { return false }
 
         do {
-            let (data, response) = try await session.data(from: endpoint)
+            let (data, response) = try await makeSession().data(from: endpoint)
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return false }
 
             let bundle = try JSONDecoder().decode(SignedRuleBundle.self, from: data)

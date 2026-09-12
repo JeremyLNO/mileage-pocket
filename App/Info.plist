@@ -62,6 +62,8 @@
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>CloudKitAvailable</key>
+	<string>$(CLOUDKIT_AVAILABLE)</string>
 	<key>RulePackURL</key>
 	<string>$(RULE_PACK_URL)</string>
 	<key>PrivacyPolicyURL</key>

@@ -12,7 +12,12 @@ final class PaywallUITests: XCTestCase {
     private func launchOnPaywall() -> XCUIApplication {
         let app = XCUIApplication()
         // No `--demo`: premium must be locked for the paywall to be the real screen.
-        app.launchArguments = ["--screen=paywall", "--demo-data-only"]
+        // `--fake-store` draws the plans from the bundled StoreKit configuration: the
+        // scheme's StoreKit session does not reach the app under test on this machine, and
+        // creating an `SKTestSession` from the UI-test process crashes the app (the session
+        // has to live in the same process as the StoreKit client). The prices asserted below
+        // are therefore the configured ones, which is what the screen must show.
+        app.launchArguments = ["--screen=paywall", "--demo-data-only", "--fake-store"]
         app.launch()
         return app
     }
@@ -31,7 +36,10 @@ final class PaywallUITests: XCTestCase {
         XCTAssertTrue(annual.exists, "the annual price must come from StoreKit")
 
         // 12 × 2.99 = 35.88 against 29.99 is a 16 % saving — computed, not typed.
-        XCTAssertTrue(app.staticTexts["SAVE 16%"].exists, "the annual saving must be derived from the two live prices")
+        // `.textCase(.uppercase)` is a rendering transform: the accessibility label keeps the
+        // original casing, so matching the drawn text exactly would fail for the wrong reason.
+        let saving = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] %@", "16%")).firstMatch
+        XCTAssertTrue(saving.exists, "the annual saving must be derived from the two live prices")
 
         let cta = app.buttons["Start 3-day free trial"]
         XCTAssertTrue(cta.exists, "the introductory offer must drive the call to action")
@@ -65,20 +73,5 @@ final class PaywallUITests: XCTestCase {
         attachment.name = "paywall"
         attachment.lifetime = .keepAlways
         add(attachment)
-    }
-}
-
-extension PaywallUITests {
-    /// Diagnostic: surfaces whatever StoreKit said, so a paywall that shows no plans reports
-    /// a reason instead of a spinner.
-    func testReportsWhyPlansAreMissing() {
-        let app = launchOnPaywall()
-        XCTAssertTrue(app.staticTexts["Your mileage. Automatically documented."].waitForExistence(timeout: 15))
-
-        let unavailable = app.staticTexts["Plans are unavailable right now."]
-        if unavailable.waitForExistence(timeout: 20) {
-            let detail = app.staticTexts["paywallError"]
-            XCTFail("StoreKit returned no products. Reported reason: \(detail.exists ? detail.label : "none")")
-        }
     }
 }

@@ -25,12 +25,19 @@ enum DemoMode {
     /// `--export-report` renders the current month's PDF and CSV into the app's Documents
     /// directory at launch, so they can be pulled off the simulator and looked at.
     static var exportsReport: Bool { CommandLine.arguments.contains("--export-report") }
+
+    /// `--fake-store` draws the paywall from the bundled StoreKit configuration instead of a
+    /// live query. It exists for one reason: App Store Connect requires a review screenshot
+    /// of the paywall before the subscriptions can be submitted, and StoreKit answers
+    /// nothing for an app the store has never seen.
+    static var usesBundledStoreConfiguration: Bool { CommandLine.arguments.contains("--fake-store") }
     #else
     static var isEnabled: Bool { false }
     static var initialTab: String? { nil }
     static var initialScreen: String? { nil }
     static var pretendsSubscribed: Bool { false }
     static var exportsReport: Bool { false }
+    static var usesBundledStoreConfiguration: Bool { false }
     #endif
 
     private static func value(forArgument name: String) -> String? {

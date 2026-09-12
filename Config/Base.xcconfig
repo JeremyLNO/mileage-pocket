@@ -19,6 +19,12 @@ SUPPORT_URL = https:$(SLASH)$(SLASH)crazybeelabs.com/support/
 // Endpoint de mise à jour des barèmes — pas encore déployé en V1 : l'échec est silencieux.
 RULE_PACK_URL = https:$(SLASH)$(SLASH)www.crazybeelabs.com/api/mileage-rules/v1
 
+// NO while the App Group and the CloudKit container do not exist on the developer portal:
+// the provisioning profile authorises iCloud with an empty container list, so naming the
+// container fails code signing, and opening a CloudKit store without it crashes at launch.
+// Flip to YES in the same commit that re-adds the container to App/MileagePocket.entitlements.
+CLOUDKIT_AVAILABLE = NO
+
 DEVELOPMENT_TEAM = 2E6D4Q69QB
 CODE_SIGN_STYLE = Automatic
 IPHONEOS_DEPLOYMENT_TARGET = 18.0

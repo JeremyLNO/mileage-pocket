@@ -8272,6 +8272,47 @@
           }
         }
       }
+    },
+    "settings.icloud.unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud sync is not available in this build. Your trips are stored on this iPhone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La synchronisation iCloud n'est pas disponible dans cette version. Vos trajets sont stockés sur cet iPhone."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronización con iCloud no está disponible en esta versión. Tus viajes se guardan en este iPhone."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die iCloud-Synchronisierung ist in dieser Version nicht verfügbar. Deine Fahrten liegen auf diesem iPhone."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sincronizzazione iCloud non è disponibile in questa versione. I tuoi viaggi restano su questo iPhone."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sincronização com o iCloud não está disponível nesta versão. As suas viagens ficam neste iPhone."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

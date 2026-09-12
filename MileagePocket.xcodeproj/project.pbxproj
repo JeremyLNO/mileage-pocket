@@ -21,6 +21,7 @@
 		6A6D00F8BBCDEFF5273AA7F5 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FFD3C21306BED536A83EA9 /* AppLanguage.swift */; };
 		6C07FB9F5362170E7C3C4EE2 /* LanguageResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6425EE3746E22689C0E15B /* LanguageResolver.swift */; };
 		5746F1CD8149E292DCF88676 /* LocalizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A58779428C78D83799E0D4D /* LocalizationService.swift */; };
+		1E1F8E202DC1CAFEB54653A6 /* CloudKitAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10628472297CCA24928CB7C0 /* CloudKitAvailability.swift */; };
 		2F14CA0D691B2FCE4E62F32A /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 059EB25E2825B69058176ABB /* PersistenceController.swift */; };
 		DE9A8826C492537B0D7510A9 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62834E0A49F6222939B0126 /* SettingsStore.swift */; };
 		8E66345AEEE7E3741E5957D4 /* ActiveTripState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF587376844F462C750F5D09 /* ActiveTripState.swift */; };
@@ -63,6 +64,7 @@
 		B1A859552A1AEF6EB68ED4D0 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FD9045EF708D43EB57ED36E /* HomeView.swift */; };
 		ACC0652660957FAFA29F0DF2 /* ManualTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2883CFECF0B3B036ED73C50 /* ManualTripView.swift */; };
 		F3741C6DD23CA432D6B28307 /* OnboardingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0F316BDDEDD0229391CCA0 /* OnboardingFlow.swift */; };
+		DEF2A19C29DE91A295B79A33 /* PaywallPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F4E74B8A1B3270ECA197972 /* PaywallPlan.swift */; };
 		BEC5681829A0ECE0D03D48BA /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB7FD6D0E9A8A53A3C95972 /* PaywallView.swift */; };
 		E2DEBF65B7107C0E2E32A214 /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E14E7E9BFCD3A7EC8E4BE4AB /* ReportsView.swift */; };
 		1E5E0DE4CAC29DF40EEDD361 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 128876BA9CB203F0B32BD069 /* SettingsView.swift */; };
@@ -125,6 +127,7 @@
 		22FFD3C21306BED536A83EA9 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppLanguage.swift"; sourceTree = "<group>"; };
 		5A6425EE3746E22689C0E15B /* LanguageResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LanguageResolver.swift"; sourceTree = "<group>"; };
 		2A58779428C78D83799E0D4D /* LocalizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizationService.swift"; sourceTree = "<group>"; };
+		10628472297CCA24928CB7C0 /* CloudKitAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CloudKitAvailability.swift"; sourceTree = "<group>"; };
 		059EB25E2825B69058176ABB /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceController.swift"; sourceTree = "<group>"; };
 		C62834E0A49F6222939B0126 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore.swift"; sourceTree = "<group>"; };
 		2E1A1EE92FA5C88E1AF4EBE9 /* ActiveTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActiveTripView.swift"; sourceTree = "<group>"; };
@@ -133,6 +136,7 @@
 		6FD9045EF708D43EB57ED36E /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeView.swift"; sourceTree = "<group>"; };
 		A2883CFECF0B3B036ED73C50 /* ManualTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManualTripView.swift"; sourceTree = "<group>"; };
 		6C0F316BDDEDD0229391CCA0 /* OnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingFlow.swift"; sourceTree = "<group>"; };
+		6F4E74B8A1B3270ECA197972 /* PaywallPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PaywallPlan.swift"; sourceTree = "<group>"; };
 		CEB7FD6D0E9A8A53A3C95972 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PaywallView.swift"; sourceTree = "<group>"; };
 		E14E7E9BFCD3A7EC8E4BE4AB /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReportsView.swift"; sourceTree = "<group>"; };
 		128876BA9CB203F0B32BD069 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsView.swift"; sourceTree = "<group>"; };
@@ -317,6 +321,7 @@
 		E9305FC3F4C469DBC9CD22ED /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
+				10628472297CCA24928CB7C0 /* CloudKitAvailability.swift */,
 				059EB25E2825B69058176ABB /* PersistenceController.swift */,
 				C62834E0A49F6222939B0126 /* SettingsStore.swift */,
 			);
@@ -469,6 +474,7 @@
 		BE8BC377DFC4F2AF4CB325F7 /* Paywall */ = {
 			isa = PBXGroup;
 			children = (
+				6F4E74B8A1B3270ECA197972 /* PaywallPlan.swift */,
 				CEB7FD6D0E9A8A53A3C95972 /* PaywallView.swift */,
 			);
 			path = Paywall;
@@ -857,6 +863,7 @@
 				6A6D00F8BBCDEFF5273AA7F5 /* AppLanguage.swift in Sources */,
 				6C07FB9F5362170E7C3C4EE2 /* LanguageResolver.swift in Sources */,
 				5746F1CD8149E292DCF88676 /* LocalizationService.swift in Sources */,
+				1E1F8E202DC1CAFEB54653A6 /* CloudKitAvailability.swift in Sources */,
 				2F14CA0D691B2FCE4E62F32A /* PersistenceController.swift in Sources */,
 				DE9A8826C492537B0D7510A9 /* SettingsStore.swift in Sources */,
 				8E66345AEEE7E3741E5957D4 /* ActiveTripState.swift in Sources */,
@@ -899,6 +906,7 @@
 				B1A859552A1AEF6EB68ED4D0 /* HomeView.swift in Sources */,
 				ACC0652660957FAFA29F0DF2 /* ManualTripView.swift in Sources */,
 				F3741C6DD23CA432D6B28307 /* OnboardingFlow.swift in Sources */,
+				DEF2A19C29DE91A295B79A33 /* PaywallPlan.swift in Sources */,
 				BEC5681829A0ECE0D03D48BA /* PaywallView.swift in Sources */,
 				E2DEBF65B7107C0E2E32A214 /* ReportsView.swift in Sources */,
 				1E5E0DE4CAC29DF40EEDD361 /* SettingsView.swift in Sources */,

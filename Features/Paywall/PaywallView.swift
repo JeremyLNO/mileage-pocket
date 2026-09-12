@@ -24,6 +24,10 @@ struct PaywallView: View {
         service.products.first { $0.id == selectedProductID }
     }
 
+    private var selectedPlan: PaywallPlan? {
+        service.plans.first { $0.id == selectedProductID }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -73,7 +77,7 @@ struct PaywallView: View {
 
     private var features: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ForEach(Self.featureKeys, id: \.self) { key in
+            ForEach(Self.featureKeys(), id: \.self) { key in
                 HStack(spacing: 10) {
                     Image(systemName: "checkmark")
                         .font(.system(size: 13, weight: .bold))
@@ -88,18 +92,25 @@ struct PaywallView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    static let featureKeys = [
-        "paywall.feature.tracking",
-        "paywall.feature.calculations",
-        "paywall.feature.pdf",
-        "paywall.feature.csv",
-        "paywall.feature.vehicles",
-        "paywall.feature.icloud",
-    ]
+    /// iCloud backup is listed only when the build can actually do it. Promising a backup
+    /// that does not happen is the one claim on this screen that could cost someone data.
+    static func featureKeys() -> [String] {
+        var keys = [
+            "paywall.feature.tracking",
+            "paywall.feature.calculations",
+            "paywall.feature.pdf",
+            "paywall.feature.csv",
+            "paywall.feature.vehicles",
+        ]
+        if CloudKitAvailability.isEntitled {
+            keys.append("paywall.feature.icloud")
+        }
+        return keys
+    }
 
     @ViewBuilder
     private var plans: some View {
-        if service.products.isEmpty {
+        if service.plans.isEmpty {
             // A paywall that spins forever is a dead end. When the store cannot be reached,
             // say so and offer a retry — and never leave the user with no way off the screen.
             VStack(spacing: 10) {
@@ -124,20 +135,20 @@ struct PaywallView: View {
             .frame(height: 120)
         } else {
             HStack(spacing: 12) {
-                ForEach(service.products, id: \.id) { product in
-                    planCard(product)
+                ForEach(service.plans) { plan in
+                    planCard(plan)
                 }
             }
         }
     }
 
-    private func planCard(_ product: Product) -> some View {
-        let isSelected = product.id == selectedProductID
+    private func planCard(_ plan: PaywallPlan) -> some View {
+        let isSelected = plan.id == selectedProductID
         return Button {
-            selectedProductID = product.id
+            selectedProductID = plan.id
         } label: {
             VStack(spacing: 6) {
-                if ProductIDs.isAnnual(product.id), let saving = service.annualSavingsPercent {
+                if plan.isAnnual, let saving = service.annualSavingsPercent {
                     Text(L.format("paywall.save", saving))
                         .eyebrowStyle(.white)
                         .padding(.horizontal, 8)
@@ -147,15 +158,15 @@ struct PaywallView: View {
                     Color.clear.frame(height: 19)
                 }
 
-                Text(ProductIDs.isAnnual(product.id) ? "paywall.plan.annual" : "paywall.plan.monthly")
+                Text(plan.isAnnual ? "paywall.plan.annual" : "paywall.plan.monthly")
                     .eyebrowStyle(Theme.textSecondary)
 
-                Text(product.displayPrice)
+                Text(plan.displayPrice)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(Theme.textPrimary)
 
-                Text(product.id == ProductIDs.annual ? "paywall.per.year" : "paywall.per.month")
+                Text(plan.isAnnual ? "paywall.per.year" : "paywall.per.month")
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -178,13 +189,13 @@ struct PaywallView: View {
         VStack(spacing: 10) {
             PrimaryButton(
                 title: hasIntroductoryOffer ? "paywall.cta.trial" : "paywall.cta.subscribe",
-                isEnabled: selectedProduct != nil && !isPurchasing
+                isEnabled: selectedPlan != nil && !isPurchasing
             ) {
                 Task { await purchase() }
             }
 
-            if let product = selectedProduct {
-                Text(footerText(for: product))
+            if let plan = selectedPlan {
+                Text(footerText(for: plan))
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
@@ -192,21 +203,15 @@ struct PaywallView: View {
         }
     }
 
-    private var hasIntroductoryOffer: Bool {
-        guard let selectedProduct else { return false }
-        return service.introductoryOffer(for: selectedProduct) != nil
-    }
+    private var hasIntroductoryOffer: Bool { selectedPlan?.hasIntroductoryOffer ?? false }
 
     /// "3 days free, then €29.99. Cancel anytime." — the price is the store's own string, so
     /// the sentence is correct in every currency.
-    private func footerText(for product: Product) -> String {
-        if service.introductoryOffer(for: product) != nil {
-            return String(
-                format: String(localized: "paywall.footer.trial"),
-                product.displayPrice
-            )
+    private func footerText(for plan: PaywallPlan) -> String {
+        if plan.hasIntroductoryOffer {
+            return String(format: String(localized: "paywall.footer.trial"), plan.displayPrice)
         }
-        return String(format: String(localized: "paywall.footer.plain"), product.displayPrice)
+        return String(format: String(localized: "paywall.footer.plain"), plan.displayPrice)
     }
 
     private var legal: some View {

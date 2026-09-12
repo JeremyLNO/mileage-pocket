@@ -176,15 +176,24 @@ struct SettingsView: View {
     }
 
     private var dataSection: some View {
-        Section("settings.data") {
+        Section {
             Toggle("settings.icloud", isOn: Binding(
-                get: { settings.iCloudSyncEnabled },
+                get: { settings.iCloudSyncEnabled && CloudKitAvailability.isEntitled },
                 set: { settings.iCloudSyncEnabled = $0; dependencies.settingsStore.save() }
             ))
+            // Shown as off and disabled rather than on-and-doing-nothing: a sync switch that
+            // lies about syncing is how someone loses data they believed was backed up.
+            .disabled(!CloudKitAvailability.isEntitled)
             Button("settings.export.all") {
                 if let url = dependencies.exportAllData() { exportFile = ExportedFile(url: url) }
             }
             Button("settings.delete.all", role: .destructive) { showsDeleteConfirmation = true }
+        } header: {
+            Text("settings.data")
+        } footer: {
+            if !CloudKitAvailability.isEntitled {
+                Text("settings.icloud.unavailable")
+            }
         }
     }
 

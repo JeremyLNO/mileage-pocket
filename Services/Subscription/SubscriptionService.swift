@@ -22,6 +22,17 @@ final class SubscriptionService {
         updatesTask = nil
     }
 
+    /// What the paywall draws. Live products normally; the bundled configuration only under
+    /// the DEBUG `--fake-store` switch, so the screen has one layout either way.
+    var plans: [PaywallPlan] {
+        if products.isEmpty, DemoMode.usesBundledStoreConfiguration {
+            #if DEBUG
+            return PaywallPlan.fromBundledConfiguration()
+            #endif
+        }
+        return products.map(PaywallPlan.init(product:))
+    }
+
     var monthly: Product? { products.first { $0.id == ProductIDs.monthly } }
     var annual: Product? { products.first { $0.id == ProductIDs.annual } }
 
@@ -29,11 +40,33 @@ final class SubscriptionService {
     /// the live StoreKit prices — never a number typed into the UI, which would be wrong in
     /// every storefront but one.
     var annualSavingsPercent: Int? {
-        guard let monthly, let annual else { return nil }
+        guard let monthly, let annual else { return fakeAnnualSavingsPercent }
         let twelveMonths = monthly.price * 12
         guard twelveMonths > 0, annual.price < twelveMonths else { return nil }
         let ratio = (twelveMonths - annual.price) / twelveMonths * 100
         return Int(NSDecimalNumber(decimal: ratio).doubleValue.rounded())
+    }
+
+    private var fakeAnnualSavingsPercent: Int? {
+        #if DEBUG
+        guard DemoMode.usesBundledStoreConfiguration else { return nil }
+        let plans = PaywallPlan.fromBundledConfiguration()
+        guard plans.count == 2 else { return nil }
+        // Parsed back out of the formatted strings so the figure is derived from the same
+        // numbers the cards show, never typed twice.
+        let amounts = plans.map { plan -> Decimal in
+            let digits = plan.displayPrice.filter { $0.isNumber || $0 == "." || $0 == "," }
+                .replacingOccurrences(of: ",", with: ".")
+            return Decimal(string: digits) ?? 0
+        }
+        guard let monthlyPrice = amounts.first, let annualPrice = amounts.last, monthlyPrice > 0 else { return nil }
+        let twelveMonths = monthlyPrice * 12
+        guard annualPrice < twelveMonths else { return nil }
+        let ratio = (twelveMonths - annualPrice) / twelveMonths * 100
+        return Int(NSDecimalNumber(decimal: ratio).doubleValue.rounded())
+        #else
+        return nil
+        #endif
     }
 
     /// The introductory offer on a plan, if the account is still eligible for it.
