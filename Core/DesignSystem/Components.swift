@@ -165,7 +165,12 @@ struct StatTile: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(label).eyebrowStyle()
+            // Shrinks rather than wraps: one tile wrapping to two lines pushes its value out
+            // of alignment with the tiles beside it.
+            Text(label)
+                .eyebrowStyle()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             Text(value)
                 .font(.meterSmall)
                 .monospacedDigit()

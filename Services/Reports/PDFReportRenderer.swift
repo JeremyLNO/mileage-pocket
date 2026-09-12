@@ -82,7 +82,7 @@ struct PDFReportRenderer {
 
     // MARK: - Layout
 
-    private var columns: [CGFloat] { [58, 108, 108, 92, 56, 40, 45] }
+    private var columns: [CGFloat] { [62, 92, 92, 86, 66, 52, 57] }
 
     private func columnX(_ index: Int) -> CGFloat {
         margin + columns.prefix(index).reduce(0, +)
@@ -147,10 +147,19 @@ struct PDFReportRenderer {
             drawLabelledValue(label, value, at: CGPoint(x: margin, y: cursor), width: contentWidth / 2 - 12)
             cursor += 28
         }
+
         var rightCursor = columnStart
         for (label, value) in right {
-            drawLabelledValue(label, value, at: CGPoint(x: margin + contentWidth / 2, y: rightCursor), width: contentWidth / 2)
-            rightCursor += 28
+            // The rule's own name is long and is the one field a reader checks: it wraps
+            // rather than ending in an ellipsis.
+            let wraps = label == "Rule"
+            let used = drawLabelledValue(
+                label, value,
+                at: CGPoint(x: margin + contentWidth / 2, y: rightCursor),
+                width: contentWidth / 2,
+                wraps: wraps
+            )
+            rightCursor += max(28, used)
         }
 
         let bottom = max(cursor, rightCursor)
@@ -208,7 +217,7 @@ struct PDFReportRenderer {
             row.to,
             purpose,
             Fmt.distanceValue(meters: row.distanceMeters, unit: profile.unit, locale: profile.locale),
-            row.rate.map { Fmt.money($0, currencyCode: row.currencyCode ?? "EUR", locale: profile.locale) } ?? "—",
+            row.rate.map { Fmt.rateAmount($0, currencyCode: row.currencyCode ?? "EUR", locale: profile.locale) } ?? "—",
             row.amount.map { Fmt.money($0, currencyCode: row.currencyCode ?? "EUR", locale: profile.locale) } ?? "—",
         ]
 
@@ -291,9 +300,18 @@ struct PDFReportRenderer {
 
     // MARK: - Drawing primitives
 
-    private func drawLabelledValue(_ label: String, _ value: String, at point: CGPoint, width: CGFloat) {
+    /// - Returns: the height this row actually occupied, so a wrapped value pushes the next
+    ///   label down instead of being overlapped by it.
+    @discardableResult
+    private func drawLabelledValue(_ label: String, _ value: String, at point: CGPoint, width: CGFloat, wraps: Bool = false) -> CGFloat {
         draw(label.uppercased(), at: point, font: .systemFont(ofSize: 7.5, weight: .semibold), color: .secondaryLabel)
-        _ = draw(value, in: CGRect(x: point.x, y: point.y + 11, width: width, height: 14), font: .systemFont(ofSize: 10.5, weight: .medium))
+        let valueHeight = draw(
+            value,
+            in: CGRect(x: point.x, y: point.y + 11, width: width, height: wraps ? 0 : 14),
+            font: .systemFont(ofSize: wraps ? 9 : 10.5, weight: .medium),
+            wraps: wraps
+        )
+        return 11 + max(14, valueHeight) + 3
     }
 
     private func drawRule(y: CGFloat) {

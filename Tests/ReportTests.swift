@@ -252,3 +252,30 @@ final class ReportTests: XCTestCase {
         XCTAssertTrue(text.contains("No business trips recorded"), text)
     }
 }
+
+extension ReportTests {
+    /// Distance × rate must equal the amount printed beside it. A rate rounded to two
+    /// decimals silently breaks that: France's electric uplift gives 0.7632 €/km, and "0.76"
+    /// turns a correct 18.55 into a row that does not add up.
+    func testCSVRateKeepsEnoughPrecisionForTheRowToReconcile() {
+        let trip = trip(date(2026, 9, 1), km: 24.3, amount: "18.55")
+        trip.mileageRate = Decimal(string: "0.7632")
+        let data = ReportBuilder.build(trips: [trip], period: .month(year: 2026, month: 9), calendar: calendar)
+        let csv = CSVExporter.csv(data, profile: profile)
+
+        XCTAssertTrue(csv.contains("\"0.7632\""), csv)
+
+        let row = csv.components(separatedBy: "\r\n")[1].components(separatedBy: "\",\"")
+        let distance = try! XCTUnwrap(Double(row[4]))
+        let rate = try! XCTUnwrap(Double(row[5]))
+        let amount = try! XCTUnwrap(Double(row[6].replacingOccurrences(of: "\"", with: "")))
+        XCTAssertEqual(distance * rate, amount, accuracy: 0.01, "the printed row must reconcile")
+    }
+
+    func testCSVRateStillShowsTwoDecimalsWhenThatIsAllThereIs() {
+        let trip = trip(date(2026, 9, 1), km: 10, amount: "5.50")
+        trip.mileageRate = Decimal(string: "0.55")
+        let data = ReportBuilder.build(trips: [trip], period: .month(year: 2026, month: 9), calendar: calendar)
+        XCTAssertTrue(CSVExporter.csv(data, profile: profile).contains("\"0.55\""))
+    }
+}

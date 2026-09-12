@@ -237,15 +237,27 @@ struct OnboardingFlow: View {
         }
     }
 
+    /// Content is centred in the space left above the action, but still scrolls when it does
+    /// not fit — which it will not at the larger Dynamic Type sizes. A plain `ScrollView`
+    /// pins short content to the top and leaves a void above the button.
     private func stepLayout<Content: View, Action: View>(
         @ViewBuilder content: () -> Content,
         @ViewBuilder action: () -> Action
     ) -> some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 24)
-            ScrollView { content().padding(.horizontal, 24) }
-            Spacer(minLength: 12)
-            action().padding(.horizontal, 24).padding(.bottom, 24)
+        // The builders are evaluated once, here: `GeometryReader`'s closure escapes, and a
+        // @ViewBuilder parameter does not.
+        let body = content()
+        let footer = action()
+        return VStack(spacing: 0) {
+            GeometryReader { proxy in
+                ScrollView {
+                    body
+                        .padding(.horizontal, 24)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: proxy.size.height, alignment: .center)
+                }
+            }
+            footer.padding(.horizontal, 24).padding(.top, 12).padding(.bottom, 24)
         }
     }
 

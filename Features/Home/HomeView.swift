@@ -63,13 +63,13 @@ struct HomeView: View {
             )
 
             if let model, model.monthAmount > 0 {
-                Text("home.estimated \(Fmt.money(model.monthAmount, currencyCode: model.currencyCode, locale: locale))")
+                Text(L.format("home.estimated", Fmt.money(model.monthAmount, currencyCode: model.currencyCode, locale: locale)))
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(Theme.textSecondary)
             }
 
             if let model, model.businessTripCount > 0 {
-                Text("home.business.trips \(model.businessTripCount)")
+                Text(L.plural("home.business.trips", model.businessTripCount))
                     .font(.system(size: 14))
                     .foregroundStyle(Theme.textSecondary)
                     .padding(.top, 2)

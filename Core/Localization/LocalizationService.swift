@@ -38,3 +38,19 @@ final class LocalizationService {
         )
     }
 }
+
+/// Interpolating inside a `Text("key \(value)")` literal does **not** look up `key`: SwiftUI
+/// builds the key `"key %@"`, which is not in the catalog, so the raw key is drawn on screen.
+/// These helpers do the lookup first and format second, which is the only combination that
+/// resolves — and, for a count, the only one that applies the language's plural rule.
+enum L {
+    static func format(_ key: String, _ arguments: CVarArg...) -> String {
+        String(format: NSLocalizedString(key, comment: ""), arguments: arguments)
+    }
+
+    /// Plural-aware. The catalog entry carries `one`/`other` variations; the rule is applied
+    /// here, at format time, exactly as a `.stringsdict` entry is.
+    static func plural(_ key: String, _ count: Int) -> String {
+        String.localizedStringWithFormat(NSLocalizedString(key, comment: ""), count)
+    }
+}

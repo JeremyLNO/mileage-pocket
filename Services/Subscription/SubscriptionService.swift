@@ -133,6 +133,7 @@ final class SubscriptionService {
     }
 
     func canAccess(_ feature: PremiumFeature) -> Bool {
-        entitlement.isActive
+        // The demo switch exists only in DEBUG; see `DemoMode`.
+        entitlement.isActive || DemoMode.pretendsSubscribed
     }
 }

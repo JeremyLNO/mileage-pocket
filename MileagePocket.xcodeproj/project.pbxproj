@@ -13,6 +13,7 @@
 		020ADF5043E5591121EA4BD5 /* MileagePocketApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35513ED3D57158239A87DAE /* MileagePocketApp.swift */; };
 		89747BD45088447E6FD467BE /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A01F56928DFCE630027E76A /* RootView.swift */; };
 		E46D0B7516DC3E3796E7EC0B /* CountryCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3B54F4C9D267DE9456BEB5 /* CountryCatalog.swift */; };
+		47DC2F36564B3FF750CDF14B /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92914F57925F3DFE070C7DF2 /* DemoMode.swift */; };
 		1A0DBB9334581BB5FC6198D4 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C042AACAE1B575F399224 /* Components.swift */; };
 		AF77CB0A3DE5173629913F5A /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D535C95B366362BC90522B /* Theme.swift */; };
 		5486E0F2B4402DBE935D608E /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40B94BE13BC451928C72F457 /* Typography.swift */; };
@@ -112,6 +113,7 @@
 		D35513ED3D57158239A87DAE /* MileagePocketApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileagePocketApp.swift"; sourceTree = "<group>"; };
 		6A01F56928DFCE630027E76A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RootView.swift"; sourceTree = "<group>"; };
 		8D3B54F4C9D267DE9456BEB5 /* CountryCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CountryCatalog.swift"; sourceTree = "<group>"; };
+		92914F57925F3DFE070C7DF2 /* DemoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DemoMode.swift"; sourceTree = "<group>"; };
 		9F2C042AACAE1B575F399224 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components.swift"; sourceTree = "<group>"; };
 		B5D535C95B366362BC90522B /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Theme.swift"; sourceTree = "<group>"; };
 		40B94BE13BC451928C72F457 /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Typography.swift"; sourceTree = "<group>"; };
@@ -269,6 +271,14 @@
 			path = Country;
 			sourceTree = "<group>";
 		};
+		C976A5929DB90F8840BADC85 /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				92914F57925F3DFE070C7DF2 /* DemoMode.swift */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
 		C8AE16C6559C217996DDF7A0 /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
@@ -310,6 +320,7 @@
 			isa = PBXGroup;
 			children = (
 				C123314F69260D6FD35AEEC5 /* Country */,
+				C976A5929DB90F8840BADC85 /* Debug */,
 				C8AE16C6559C217996DDF7A0 /* DesignSystem */,
 				B8FC07315A99417DD30C59DA /* Formatting */,
 				2000957DC03A95C32A802CDA /* Localization */,
@@ -827,6 +838,7 @@
 				020ADF5043E5591121EA4BD5 /* MileagePocketApp.swift in Sources */,
 				89747BD45088447E6FD467BE /* RootView.swift in Sources */,
 				E46D0B7516DC3E3796E7EC0B /* CountryCatalog.swift in Sources */,
+				47DC2F36564B3FF750CDF14B /* DemoMode.swift in Sources */,
 				1A0DBB9334581BB5FC6198D4 /* Components.swift in Sources */,
 				AF77CB0A3DE5173629913F5A /* Theme.swift in Sources */,
 				5486E0F2B4402DBE935D608E /* Typography.swift in Sources */,

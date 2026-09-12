@@ -64,10 +64,15 @@ enum Fmt {
         return Duration.seconds(max(0, seconds)).formatted(style.locale(locale))
     }
 
-    static func rate(_ rate: Decimal, currencyCode: String, unit: DistanceUnit, locale: Locale) -> String {
-        let amount = rate.formatted(
-            .currency(code: currencyCode).presentation(.narrow).precision(.fractionLength(2...3)).locale(locale)
+    /// Up to four decimals, never two flat: an effective rate of 0.7632 shown as 0.76 makes
+    /// distance × rate stop matching the amount printed beside it.
+    static func rateAmount(_ rate: Decimal, currencyCode: String, locale: Locale) -> String {
+        rate.formatted(
+            .currency(code: currencyCode).presentation(.narrow).precision(.fractionLength(2...4)).locale(locale)
         )
-        return "\(amount)/\(unitAbbreviation(unit, locale: locale))"
+    }
+
+    static func rate(_ rate: Decimal, currencyCode: String, unit: DistanceUnit, locale: Locale) -> String {
+        "\(rateAmount(rate, currencyCode: currencyCode, locale: locale))/\(unitAbbreviation(unit, locale: locale))"
     }
 }

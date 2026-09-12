@@ -5,7 +5,7 @@
   "validUntil": null,
   "currencyCode": "EUR",
   "distanceUnit": "kilometers",
-  "source": "impots.gouv.fr — Bareme kilometrique, aide du simulateur de l'impot sur les revenus 2025 (declaration 2026) ; identique a BOI-BAREME-000001",
+  "source": "impots.gouv.fr — Barème kilométrique, aide du simulateur de l'impôt sur les revenus 2025 (déclaration 2026) ; identique à BOI-BAREME-000001",
   "sourceURL": "https://simulateur-ir-ifi.impots.gouv.fr/calcul_impot/2026/aides/frais.htm",
   "lastVerified": "2026-09-12",
   "schemes": [

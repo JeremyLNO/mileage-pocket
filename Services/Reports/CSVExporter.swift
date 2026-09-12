@@ -22,7 +22,7 @@ enum CSVExporter {
                 entry.to,
                 entry.purpose,
                 decimalString(profile.unit.value(fromMeters: entry.distanceMeters), places: 1),
-                entry.rate.map { plain($0) } ?? "",
+                entry.rate.map { rateString($0) } ?? "",
                 entry.amount.map { plain($0) } ?? "",
             ]))
         }
@@ -76,6 +76,19 @@ enum CSVExporter {
     /// a column of amounts.
     private static func plain(_ value: Decimal) -> String {
         String(format: "%.2f", NSDecimalNumber(decimal: value).doubleValue)
+    }
+
+    /// Rates keep up to four decimals. Two is not enough: France's electric uplift gives
+    /// 0.7632 €/km, and printing it as "0.76" makes every row fail to reconcile — distance ×
+    /// rate no longer equals the amount, which is the first thing an accountant checks.
+    private static func rateString(_ value: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 4
+        return formatter.string(from: NSDecimalNumber(decimal: value)) ?? plain(value)
     }
 
     private static func unitLabel(_ unit: DistanceUnit) -> String {

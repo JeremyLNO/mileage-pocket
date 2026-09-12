@@ -4,6 +4,7 @@ import SwiftUI
 /// sheet that follows a trip. Nothing else in the app makes that decision.
 struct RootView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @State private var showsForcedScreen = DemoMode.initialScreen == "paywall"
 
     var body: some View {
         @Bindable var dependencies = dependencies
@@ -22,6 +23,9 @@ struct RootView: View {
         .environment(\.locale, dependencies.localization.locale)
         .sheet(item: $dependencies.finishedTrip) { trip in
             TripSummarySheet(trip: trip)
+        }
+        .sheet(isPresented: $showsForcedScreen) {
+            PaywallView()
         }
         .animation(.snappy(duration: 0.25), value: dependencies.isRecording)
     }

@@ -61,14 +61,39 @@ final class AppDependencies {
     }
 
     func bootstrap() {
+        if DemoMode.seed(context: context, settings: settingsStore.settings) {
+            // Seeded trips go through the same calculation path as recorded ones — a demo
+            // that skipped it would show a screen no real user ever sees.
+            for trip in (try? context.fetch(FetchDescriptor<Trip>())) ?? [] {
+                applyCalculation(to: trip)
+            }
+            try? context.save()
+        }
         subscriptions.start()
         try? recorder.resumeIfNeeded()
         syncRecorderState()
+        exportDemoReportIfRequested()
         // Fire-and-forget: a rule pack refresh must never hold up a launch, and the endpoint
         // is not deployed yet, so failing is the expected path in V1.
         Task.detached(priority: .background) { [rulePackUpdater] in
             await rulePackUpdater?.refresh()
         }
+    }
+
+    /// Development affordance: writes the month's report where `simctl get_app_container` can
+    /// reach it. Compiled out of Release with the rest of `DemoMode`.
+    private func exportDemoReportIfRequested() {
+        guard DemoMode.exportsReport else { return }
+        let trips = (try? context.fetch(FetchDescriptor<Trip>())) ?? []
+        let data = ReportBuilder.build(
+            trips: trips,
+            period: .current(),
+            vehicleNames: vehicleNames(),
+            fallbackCurrency: settingsStore.settings.currencyCode
+        )
+        guard let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        _ = try? PDFReportRenderer().render(data, profile: reportProfile(), to: documents.appendingPathComponent("report.pdf"))
+        try? CSVExporter.write(CSVExporter.csv(data, profile: reportProfile()), to: documents.appendingPathComponent("report.csv"))
     }
 
     // MARK: - Trip lifecycle

@@ -40,10 +40,13 @@ struct DeclarativeMileageRule: MileageRule {
 
         let before = cumulative(alreadyDriven, bands: bands, mode: scheme.bandMode)
         let after = cumulative(alreadyDriven + tripDistance, bands: bands, mode: scheme.bandMode)
-        let amount = MileageRounding.money(max(0, after - before))
+        let exact = max(0, after - before)
+        let amount = MileageRounding.money(exact)
 
+        // Derived from `exact`, not from `amount`: dividing the rounded money by the distance
+        // makes a fixed rate wobble in the last decimals from one row to the next.
         let effectiveRate = tripDistance > 0
-            ? MileageRounding.rate(amount / Decimal(tripDistance))
+            ? MileageRounding.rate(exact / Decimal(tripDistance))
             : 0
 
         return MileageCalculation(

@@ -4,19 +4,20 @@ import SwiftUI
 /// bar is the only navigation chrome in the app.
 struct MainTabView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @State private var selection = DemoMode.initialTab ?? "home"
 
     var body: some View {
-        TabView {
-            Tab("tab.home", systemImage: "car.fill") {
+        TabView(selection: $selection) {
+            Tab("tab.home", systemImage: "car.fill", value: "home") {
                 HomeView()
             }
-            Tab("tab.trips", systemImage: "list.bullet") {
+            Tab("tab.trips", systemImage: "list.bullet", value: "trips") {
                 TripsView()
             }
-            Tab("tab.reports", systemImage: "doc.text") {
+            Tab("tab.reports", systemImage: "doc.text", value: "reports") {
                 ReportsView()
             }
-            Tab("tab.settings", systemImage: "gearshape") {
+            Tab("tab.settings", systemImage: "gearshape", value: "settings") {
                 SettingsView()
             }
         }

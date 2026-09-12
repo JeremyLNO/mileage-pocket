@@ -45,21 +45,32 @@ struct SettingsView: View {
     }
 
     private var accountSection: some View {
+        // Labelled rather than placeholder-only: a placeholder disappears the moment a value
+        // is typed, and "Jane Doe" on its own does not say which field it is.
         Section("settings.account") {
-            TextField("settings.name", text: Binding(
-                get: { settings.userName ?? "" },
-                set: { settings.userName = $0.isEmpty ? nil : $0; dependencies.settingsStore.save() }
-            ))
-            TextField("settings.company", text: Binding(
-                get: { settings.companyName ?? "" },
-                set: { settings.companyName = $0.isEmpty ? nil : $0; dependencies.settingsStore.save() }
-            ))
-            TextField("settings.email", text: Binding(
-                get: { settings.email ?? "" },
-                set: { settings.email = $0.isEmpty ? nil : $0; dependencies.settingsStore.save() }
-            ))
-            .keyboardType(.emailAddress)
-            .textInputAutocapitalization(.never)
+            LabeledContent("settings.name") {
+                TextField("settings.name", text: Binding(
+                    get: { settings.userName ?? "" },
+                    set: { settings.userName = $0.isEmpty ? nil : $0; dependencies.settingsStore.save() }
+                ))
+                .multilineTextAlignment(.trailing)
+            }
+            LabeledContent("settings.company") {
+                TextField("settings.company", text: Binding(
+                    get: { settings.companyName ?? "" },
+                    set: { settings.companyName = $0.isEmpty ? nil : $0; dependencies.settingsStore.save() }
+                ))
+                .multilineTextAlignment(.trailing)
+            }
+            LabeledContent("settings.email") {
+                TextField("settings.email", text: Binding(
+                    get: { settings.email ?? "" },
+                    set: { settings.email = $0.isEmpty ? nil : $0; dependencies.settingsStore.save() }
+                ))
+                .multilineTextAlignment(.trailing)
+                .keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never)
+            }
         }
     }
 

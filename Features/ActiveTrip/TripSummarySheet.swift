@@ -114,7 +114,7 @@ struct TripSummarySheet: View {
             } label: {
                 HStack {
                     Image(systemName: "sparkles")
-                    Text("summary.suggestion \(name)")
+                    Text(L.format("summary.suggestion", name))
                         .font(.system(size: 15, weight: .medium))
                     Spacer()
                     Text("summary.suggestion.apply").eyebrowStyle(Theme.signal)

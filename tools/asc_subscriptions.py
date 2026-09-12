@@ -16,6 +16,8 @@ import json, os, sys, time, threading, argparse
 import urllib.request, urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+import hashlib
+
 import jwt
 
 # ---------------------------------------------------------------- config
@@ -582,6 +584,57 @@ def ensure_intro_offers(sid, plan, territories, workers=8):
     return have, failures
 
 
+# ------------------------------------------------- capture de revue (paywall)
+
+def upload_review_screenshot(sid, plan, path):
+    """Derniere piece manquante : la capture du paywall.
+    Elle ne peut etre produite qu'une fois l'app construite.
+    Verifie : avec la capture l'abonnement passe MISSING_METADATA -> READY_TO_SUBMIT.
+    """
+    existing = None
+    try:
+        existing = get(f"/v1/subscriptions/{sid}/appStoreReviewScreenshot").get("data")
+    except ApiError as e:
+        if e.status != 404:
+            raise
+    data = open(path, "rb").read()
+    if existing:
+        a = existing["attributes"]
+        if a.get("fileSize") == len(data) and (a.get("assetDeliveryState") or {}).get("state") == "COMPLETE":
+            log(f"[sub {plan['key']}/capture] deja posee et identique - OK")
+            return existing["id"]
+        request("DELETE", f"/v1/subscriptionAppStoreReviewScreenshots/{existing['id']}")
+        log(f"[sub {plan['key']}/capture] ancienne capture retiree")
+
+    r = post("/v1/subscriptionAppStoreReviewScreenshots", {"data": {
+        "type": "subscriptionAppStoreReviewScreenshots",
+        "attributes": {"fileName": os.path.basename(path), "fileSize": len(data)},
+        "relationships": {"subscription": {"data": {"type": "subscriptions", "id": sid}}}}})
+    shot_id = r["data"]["id"]
+    for op in r["data"]["attributes"]["uploadOperations"]:
+        chunk = data[op["offset"]:op["offset"] + op["length"]]
+        req = urllib.request.Request(op["url"], data=chunk, method=op["method"])
+        for h in op.get("requestHeaders", []):
+            req.add_header(h["name"], h["value"])
+        with urllib.request.urlopen(req, timeout=180) as resp:
+            if resp.status >= 300:
+                raise RuntimeError(f"upload HTTP {resp.status}")
+    patch(f"/v1/subscriptionAppStoreReviewScreenshots/{shot_id}", {"data": {
+        "type": "subscriptionAppStoreReviewScreenshots", "id": shot_id,
+        "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()}}})
+    # "upload accepte" != "asset COMPLETE" : on attend l'etat reel
+    for _ in range(30):
+        time.sleep(4)
+        st = (get(f"/v1/subscriptionAppStoreReviewScreenshots/{shot_id}")
+              ["data"]["attributes"].get("assetDeliveryState") or {})
+        if st.get("state") == "COMPLETE":
+            log(f"[sub {plan['key']}/capture] COMPLETE ({shot_id})")
+            return shot_id
+        if st.get("state") == "FAILED":
+            raise RuntimeError(f"capture refusee: {st}")
+    raise RuntimeError("capture toujours pas COMPLETE apres 2 min")
+
+
 # ---------------------------------------------------------------- verif
 
 def verify(gid, sub_ids, territories):
@@ -655,6 +708,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--verify", action="store_true", help="verification seule")
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--screenshot", metavar="PNG",
+                    help="capture du paywall (>=640x920) a poser sur les deux abos ; "
+                         "c'est la seule piece qui exige un build de l'app")
     args = ap.parse_args()
 
     check_lengths()
@@ -666,6 +722,12 @@ def main():
     sub_ids = {}
     for plan in PLANS:
         sub_ids[plan["key"]] = ensure_subscription(gid, plan)
+
+    if args.screenshot:
+        for plan in PLANS:
+            upload_review_screenshot(sub_ids[plan["key"]], plan, args.screenshot)
+        verify(gid, sub_ids, territories)
+        return
 
     if args.verify:
         verify(gid, sub_ids, territories)

@@ -117,7 +117,7 @@ struct PaywallView: View {
         } label: {
             VStack(spacing: 6) {
                 if ProductIDs.isAnnual(product.id), let saving = service.annualSavingsPercent {
-                    Text("paywall.save \(saving)")
+                    Text(L.format("paywall.save", saving))
                         .eyebrowStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
