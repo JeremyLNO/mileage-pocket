@@ -117,6 +117,7 @@ struct HomeView: View {
                         HStack(spacing: 10) {
                             Text(Fmt.distance(meters: trip.distanceMeters, unit: unit, locale: locale))
                                 .monospacedDigit()
+                                .accessibilityIdentifier("lastTripDistance")
                             if let amount = trip.calculatedAmount, let currency = trip.currencyCode {
                                 Text(Fmt.money(amount, currencyCode: currency, locale: locale))
                                     .monospacedDigit()

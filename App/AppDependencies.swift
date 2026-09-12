@@ -31,6 +31,13 @@ final class AppDependencies {
     /// callers poke the counter, so the reason for a redraw stays greppable.
     func invalidate() { recorderRevision += 1 }
     private(set) var activeRoute: [CLLocationCoordinate2D] = []
+    /// Mirrors of the recorder's live state. `TripRecorder` is a service and is not
+    /// `@Observable`: a SwiftUI body that reads it directly observes nothing and never
+    /// redraws — which is exactly what kept the trip screen from opening after START.
+    private(set) var isRecording = false
+    private(set) var isTripPaused = false
+    private(set) var activeDistanceMeters: Double = 0
+    private(set) var activeStartedAt: Date?
     /// Set the moment a trip stops, cleared when the summary sheet is done with it.
     var finishedTrip: Trip?
 
@@ -61,6 +68,7 @@ final class AppDependencies {
     }
 
     func bootstrap() {
+        recorder.onUpdate = { [weak self] in self?.syncRecorderState() }
         if DemoMode.seed(context: context, settings: settingsStore.settings) {
             // Seeded trips go through the same calculation path as recorded ones — a demo
             // that skipped it would show a screen no real user ever sees.
@@ -98,22 +106,8 @@ final class AppDependencies {
 
     // MARK: - Trip lifecycle
 
-    var isRecording: Bool {
-        if case .idle = recorder.state { return false }
-        return true
-    }
-
-    var isTripPaused: Bool {
-        if case .paused = recorder.state { return true }
-        return false
-    }
-
-    /// Read from the recorder, not from `state`: `RecorderState.distanceMeters` is zero while
-    /// paused, and a driver waiting at a light must not watch their distance drop to 0 km.
-    var activeDistanceMeters: Double { recorder.currentDistanceMeters }
-
     func activeDuration(now: Date) -> TimeInterval {
-        guard let startedAt = recorder.startedAt else { return 0 }
+        guard let startedAt = activeStartedAt else { return 0 }
         return max(0, now.timeIntervalSince(startedAt))
     }
 
@@ -122,6 +116,12 @@ final class AppDependencies {
     }
 
     func startTrip() {
+        // Asked here, not only in onboarding: someone who skipped that step still presses
+        // START, and a trip that records nothing because nobody ever asked is the worst
+        // possible outcome — it looks like it is working.
+        if recorder.authorizationStatus == .notDetermined {
+            recorder.requestPermission()
+        }
         let vehicleID = settingsStore.settings.defaultVehicleID ?? defaultVehicle()?.id
         do {
             try recorder.start(vehicleID: vehicleID)
@@ -176,8 +176,30 @@ final class AppDependencies {
     }
 
     func syncRecorderState() {
+        switch recorder.state {
+        case .idle:
+            isRecording = false
+            isTripPaused = false
+        case .recording:
+            isRecording = true
+            isTripPaused = false
+        case .paused:
+            isRecording = true
+            isTripPaused = true
+        }
+        // Read from the recorder, not from `state`: `RecorderState.distanceMeters` is zero
+        // while paused, and a driver waiting at a light must not watch it drop to 0 km.
+        activeDistanceMeters = recorder.currentDistanceMeters
+        activeStartedAt = recorder.startedAt
         activeRoute = recorder.routeSamples.map {
             CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude)
+        }
+        if isRecording, let startedAt = activeStartedAt {
+            liveActivity.update(
+                distanceMeters: activeDistanceMeters,
+                startedAt: startedAt,
+                unit: settingsStore.settings.distanceUnit
+            )
         }
         recorderRevision += 1
     }

@@ -88,6 +88,7 @@
 		6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */; };
 		547BCB0E5CF93F5A6F0F4116 /* RouteFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B87813E46E7FAA074042AE /* RouteFixtures.swift */; };
 		F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90E39E390D840036CEECC96 /* LaunchUITests.swift */; };
+		D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */; };
 		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
 		CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */; };
 		F98F180A21F88E7E9433F27E /* TripLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E9038CCAF678F8ABC8DF7D /* TripLiveActivity.swift */; };
@@ -191,6 +192,7 @@
 		20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripGroupingTests.swift"; sourceTree = "<group>"; };
 		4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripRecorderTests.swift"; sourceTree = "<group>"; };
 		E90E39E390D840036CEECC96 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchUITests.swift"; sourceTree = "<group>"; };
+		8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripFlowUITests.swift"; sourceTree = "<group>"; };
 		8D7172619DB15AD08404D409 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4A32475C0821BB76773C2A37 /* MileageRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MileageRules; sourceTree = "<group>"; };
 		2E88A5130923D54E34C2E978 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -568,6 +570,7 @@
 			isa = PBXGroup;
 			children = (
 				E90E39E390D840036CEECC96 /* LaunchUITests.swift */,
+				8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */,
 			);
 			path = UITests;
 			sourceTree = "<group>";
@@ -927,6 +930,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */,
+				D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

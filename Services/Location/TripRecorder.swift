@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 import SwiftData
 
@@ -21,6 +22,11 @@ enum RecorderState: Equatable, Sendable {
 @MainActor
 protocol TripRecording: AnyObject {
     var state: RecorderState { get }
+    /// Called on the main actor after every accepted fix. The recorder is deliberately not
+    /// `@Observable` — it is a service, not view state — so this is how the UI learns that
+    /// the distance moved.
+    var onUpdate: (() -> Void)? { get set }
+    var authorizationStatus: CLAuthorizationStatus { get }
     /// When the trip began. Read this for the on-screen stopwatch rather than digging it out
     /// of `state`: the `.paused` case carries no payload, and a stopwatch that resets at
     /// every red light is worse than no stopwatch.
@@ -57,6 +63,8 @@ final class TripRecorder: TripRecording {
     private(set) var state: RecorderState = .idle
     /// Live distance, valid in every state — including `.paused`, which the enum cannot carry.
     private(set) var currentDistanceMeters: Double = 0
+    var onUpdate: (() -> Void)?
+
     /// Accepted fixes so far, for the live map. Rebuilt from the store after a resume.
     private(set) var routeSamples: [LocationSample] = []
     private(set) var startedAt: Date?
@@ -121,6 +129,8 @@ final class TripRecorder: TripRecording {
 
         listen()
     }
+
+    var authorizationStatus: CLAuthorizationStatus { provider.authorization }
 
     func requestPermission() {
         provider.requestAlways()
@@ -256,8 +266,12 @@ final class TripRecorder: TripRecording {
             state = .paused
 
         case .rejected:
-            break
+            // A rejected fix still means time passed; the UI's clock is driven by its own
+            // timer, so there is nothing to publish here.
+            return
         }
+
+        onUpdate?()
     }
 
     // MARK: - Store

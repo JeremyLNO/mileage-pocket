@@ -1,3 +1,4 @@
+import CoreLocation
 import MapKit
 import SwiftUI
 
@@ -10,7 +11,13 @@ struct ActiveTripView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.locale) private var locale
 
-    @State private var camera: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var camera: MapCameraPosition = .userLocation(
+        followsHeading: false,
+        fallback: .region(MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 48.8566, longitude: 2.3522),
+            span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+        ))
+    )
     @State private var now = Date.now
 
     private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -30,6 +37,13 @@ struct ActiveTripView: View {
         .background(Theme.ink)
         .preferredColorScheme(.dark)
         .onReceive(tick) { now = $0 }
+        .onChange(of: dependencies.activeRoute.count) { _, _ in
+            guard let last = dependencies.activeRoute.last else { return }
+            camera = .region(MKCoordinateRegion(
+                center: last,
+                span: MKCoordinateSpan(latitudeDelta: 0.012, longitudeDelta: 0.012)
+            ))
+        }
         .statusBarHidden(false)
     }
 
