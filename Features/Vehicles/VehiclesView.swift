@@ -66,7 +66,7 @@ struct VehiclesView: View {
     }
 
     private func vehicleSubtitle(_ vehicle: Vehicle) -> String {
-        [vehicle.registration, String(localized: String.LocalizationValue("vehicle.type.\(vehicle.vehicleTypeRaw)"))]
+        [vehicle.registration, L.string("vehicle.type.\(vehicle.vehicleTypeRaw)")]
             .compactMap { $0 }
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
@@ -100,7 +100,7 @@ struct VehicleEditor: View {
                     TextField("vehicle.name", text: $vehicle.name)
                     Picker("vehicle.type", selection: $vehicle.vehicleTypeRaw) {
                         ForEach(VehicleType.allCases, id: \.rawValue) { type in
-                            Text(LocalizedStringKey("vehicle.type.\(type.rawValue)")).tag(type.rawValue)
+                            Text(L.string("vehicle.type.\(type.rawValue)")).tag(type.rawValue)
                         }
                     }
                     TextField("vehicle.registration", text: Binding(

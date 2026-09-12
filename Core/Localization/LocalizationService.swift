@@ -44,6 +44,17 @@ final class LocalizationService {
 /// These helpers do the lookup first and format second, which is the only combination that
 /// resolves — and, for a count, the only one that applies the language's plural rule.
 enum L {
+    /// Looks up a key that is only known at runtime.
+    ///
+    /// `LocalizedStringKey("vehicle.type.\(raw)")` and
+    /// `String.LocalizationValue("vehicle.type.\(raw)")` do **not** look up the composed
+    /// string: both are `ExpressibleByStringInterpolation`, so the key becomes
+    /// `"vehicle.type.%@"` with an argument. Nothing matches it, and SwiftUI draws the
+    /// interpolated text — the raw key — on screen.
+    static func string(_ key: String) -> String {
+        NSLocalizedString(key, comment: "")
+    }
+
     static func format(_ key: String, _ arguments: CVarArg...) -> String {
         String(format: NSLocalizedString(key, comment: ""), arguments: arguments)
     }

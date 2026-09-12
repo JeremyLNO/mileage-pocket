@@ -115,8 +115,9 @@ extension AppDependencies {
     func activeRuleSource() -> URL? { currentRule().sourceURL }
 
     func ruleAvailabilityMessage(for countryCode: String) -> String {
-        if let pack = ruleEngine.officialPack(for: countryCode) {
-            return String(format: String(localized: "onboarding.country.official"), pack.source)
+        if ruleEngine.officialPack(for: countryCode) != nil {
+            let name = CountryCatalog.info(for: countryCode, locale: localization.locale)?.name ?? countryCode
+            return String(format: String(localized: "onboarding.country.official"), name)
         }
         return String(localized: "onboarding.country.custom")
     }

@@ -31,6 +31,15 @@ enum DemoMode {
     /// of the paywall before the subscriptions can be submitted, and StoreKit answers
     /// nothing for an app the store has never seen.
     static var usesBundledStoreConfiguration: Bool { CommandLine.arguments.contains("--fake-store") }
+
+    /// `--reset-onboarding` sends the app back to its first-run screens.
+    static var resetsOnboarding: Bool {
+        CommandLine.arguments.contains("--reset-onboarding") || onboardingStep != nil
+    }
+
+    /// `--onboarding-step=3` opens the flow directly on one screen, so each can be captured
+    /// without chaining timed taps through the ones before it.
+    static var onboardingStep: Int? { value(forArgument: "--onboarding-step").flatMap(Int.init) }
     #else
     static var isEnabled: Bool { false }
     static var initialTab: String? { nil }
@@ -38,6 +47,8 @@ enum DemoMode {
     static var pretendsSubscribed: Bool { false }
     static var exportsReport: Bool { false }
     static var usesBundledStoreConfiguration: Bool { false }
+    static var resetsOnboarding: Bool { false }
+    static var onboardingStep: Int? { nil }
     #endif
 
     private static func value(forArgument name: String) -> String? {

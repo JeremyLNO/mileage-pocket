@@ -133,9 +133,9 @@ struct TripSummarySheet: View {
                 HStack(spacing: 8) {
                     ForEach(TripPurposePreset.allCases, id: \.self) { preset in
                         Button {
-                            purpose = String(localized: String.LocalizationValue("purpose.\(preset.rawValue)"))
+                            purpose = L.string("purpose.\(preset.rawValue)")
                         } label: {
-                            Text(String(localized: String.LocalizationValue("purpose.\(preset.rawValue)")))
+                            Text(L.string("purpose.\(preset.rawValue)"))
                                 .font(.system(size: 14, weight: .medium))
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)

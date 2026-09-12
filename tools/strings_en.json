@@ -176,7 +176,7 @@
   "onboarding.welcome.subtitle": "Start your trip. Drive. Stop. Your mileage report is ready.",
   "onboarding.country.title": "Your country",
   "onboarding.country.subtitle": "This sets your currency, your units and the mileage rule applied to your trips.",
-  "onboarding.country.official": "Official scale available: %@",
+  "onboarding.country.official": "An official mileage scale is built in for %@.",
   "onboarding.country.custom": "No official scale is built in for this country. You will set your own rate, and everything else works the same.",
   "onboarding.vehicle.title": "Your vehicle",
   "onboarding.vehicle.subtitle": "Only what your country's mileage rule actually needs.",

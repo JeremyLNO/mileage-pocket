@@ -68,7 +68,13 @@ final class TripFlowUITests: XCTestCase {
         let metres = Double(lastTrip.label.replacingOccurrences(of: ",", with: ".")
             .components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted)
             .first(where: { !$0.isEmpty }) ?? "0") ?? 0
-        XCTAssertGreaterThan(metres, 0.05, "an 18-second drive at 25 m/s must record more than 50 m, got \(lastTrip.label)")
+        XCTAssertGreaterThan(
+            metres, 0.05,
+            """
+            Recorded \(lastTrip.label) for an 18-second drive at 25 m/s.
+            Either the app recorded nothing, or nothing was moving — run this through             tools/run-tests.sh, which grants location permission and feeds a simulated drive.             Those preconditions failing look identical to a tracking bug from here.
+            """
+        )
     }
 
     /// Counts the taps the daily loop costs. Three is the design budget: START, STOP,

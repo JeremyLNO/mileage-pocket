@@ -2495,40 +2495,40 @@
     "onboarding.country.official": {
       "extractionState": "manual",
       "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Offizielle Pauschale verfügbar: %@"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Official scale available: %@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Baremo oficial disponible: %@"
+            "value": "An official mileage scale is built in for %@."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Barème officiel disponible : %@"
+            "value": "Un barème kilométrique officiel est intégré pour %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se incluye un baremo kilométrico oficial para %@."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für %@ ist eine offizielle Kilometerpauschale hinterlegt."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tabella ufficiale disponibile: %@"
+            "value": "Per %@ è incluso un rimborso chilometrico ufficiale."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tabela oficial disponível: %@"
+            "value": "Está incluída uma tabela oficial de quilometragem para %@."
           }
         }
       }

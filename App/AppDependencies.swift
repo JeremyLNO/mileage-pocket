@@ -77,6 +77,7 @@ final class AppDependencies {
             }
             try? context.save()
         }
+        applyDebugOnboardingState()
         subscriptions.start()
         try? recorder.resumeIfNeeded()
         syncRecorderState()
@@ -86,6 +87,17 @@ final class AppDependencies {
         Task.detached(priority: .background) { [rulePackUpdater] in
             await rulePackUpdater?.refresh()
         }
+    }
+
+    /// Onboarding state is set from the launch flags on **every** launch, not only when the
+    /// demo data is first seeded. Deciding it inside the seeding branch made it stick from a
+    /// previous run: a test that had reset onboarding left every later `--demo` launch
+    /// sitting on the welcome screen, and five UI tests failed looking for a control that was
+    /// one screen away.
+    private func applyDebugOnboardingState() {
+        guard DemoMode.isEnabled || DemoMode.resetsOnboarding else { return }
+        settingsStore.settings.hasCompletedOnboarding = !DemoMode.resetsOnboarding
+        settingsStore.save()
     }
 
     /// Development affordance: writes the month's report where `simctl get_app_container` can

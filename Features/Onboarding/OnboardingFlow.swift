@@ -11,7 +11,7 @@ struct OnboardingFlow: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.locale) private var locale
 
-    @State private var step = 0
+    @State private var step = DemoMode.onboardingStep ?? 0
     @State private var country = CountryCatalog.detectedCountryCode()
     @State private var vehicleName = ""
     @State private var vehicleType = VehicleType.car
@@ -101,6 +101,7 @@ struct OnboardingFlow: View {
                     .font(.system(size: 14))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         } action: {
             PrimaryButton(title: "common.continue") {
@@ -124,7 +125,7 @@ struct OnboardingFlow: View {
 
                 Picker("vehicle.type", selection: $vehicleType) {
                     ForEach(VehicleType.allCases, id: \.self) { type in
-                        Text(LocalizedStringKey("vehicle.type.\(type.rawValue)")).tag(type)
+                        Text(L.string("vehicle.type.\(type.rawValue)")).tag(type)
                     }
                 }
                 .pickerStyle(.menu)
@@ -230,10 +231,14 @@ struct OnboardingFlow: View {
                 .font(.system(size: 27, weight: .bold))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Theme.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
             Text(subtitle)
                 .font(.system(size: 16))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Theme.textSecondary)
+                // Without this the subtitle loses its layout negotiation against the controls
+                // below it and is truncated to one line — "…and the mile…" on the country step.
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
