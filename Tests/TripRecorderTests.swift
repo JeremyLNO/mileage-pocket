@@ -16,10 +16,11 @@ final class TripRecorderTests: XCTestCase {
         var authorization: CLAuthorizationStatus = .authorizedAlways
         private(set) var startCount = 0
         private(set) var stopCount = 0
+        private(set) var requestAlwaysCount = 0
 
         func startUpdates() { startCount += 1 }
         func stopUpdates() { stopCount += 1 }
-        func requestAlways() {}
+        func requestAlways() { requestAlwaysCount += 1 }
         func emit(_ sample: LocationSample) { onSample?(sample) }
     }
 
@@ -208,7 +209,7 @@ final class TripRecorderTests: XCTestCase {
 
             let stored = try XCTUnwrap(rig.context.fetch(FetchDescriptor<ActiveTripState>()).first)
             if stored.lastUpdatedAt == sample.timestamp,
-               abs(stored.distanceMeters - rig.recorder.distanceMeters) < 1e-9 {
+               abs(stored.distanceMeters - rig.recorder.currentDistanceMeters) < 1e-9 {
                 writes += 1
             }
         }
@@ -251,6 +252,56 @@ final class TripRecorderTests: XCTestCase {
             "the fixture has to actually straddle midnight or this test proves nothing"
         )
         XCTAssertEqual(trip.duration, 300, accuracy: 0.001, "duration is wall time, not a day offset")
+    }
+
+    // MARK: - Pausing
+
+    func testPausingKeepsTheDistanceTheStateCannotCarry() throws {
+        let rig = try makeRig()
+        try rig.recorder.start(vehicleID: nil)
+        let line = RouteFixtures.straightLine()
+        emit(line, into: rig)
+        let driven = rig.recorder.currentDistanceMeters
+        XCTAssertGreaterThan(driven, 900)
+
+        // Three minutes at a standstill: long enough for the filter to call it a stop.
+        let last = line[line.count - 1]
+        emit(RouteFixtures.stationary(
+            pointCount: 37, intervalSeconds: 5, noiseSigma: 3,
+            latitude: last.latitude, longitude: last.longitude,
+            startingAt: last.timestamp.addingTimeInterval(5)
+        ), into: rig)
+
+        XCTAssertEqual(rig.recorder.state, .paused)
+        XCTAssertEqual(
+            rig.recorder.state.distanceMeters, 0,
+            "the enum has nowhere to put the distance while paused — that is the point of this test"
+        )
+        XCTAssertEqual(
+            rig.recorder.currentDistanceMeters, driven, accuracy: 1,
+            "the driver must not watch their mileage drop to zero at a red light"
+        )
+        XCTAssertEqual(rig.recorder.startedAt, RouteFixtures.epoch, "the stopwatch keeps its origin too")
+    }
+
+    // MARK: - Permission
+
+    func testRequestPermissionForwardsToTheProvider() throws {
+        let rig = try makeRig()
+        XCTAssertEqual(rig.provider.requestAlwaysCount, 0)
+        rig.recorder.requestPermission()
+        XCTAssertEqual(
+            rig.provider.requestAlwaysCount, 1,
+            "the onboarding screen asks through the recorder, never through CoreLocation itself"
+        )
+    }
+
+    func testRouteSamplesFollowTheAcceptedFixes() throws {
+        let rig = try makeRig()
+        XCTAssertTrue(rig.recorder.routeSamples.isEmpty)
+        try rig.recorder.start(vehicleID: nil)
+        emit(RouteFixtures.straightLine(pointCount: 5, stepMeters: 25, speedMetersPerSecond: 25), into: rig)
+        XCTAssertEqual(rig.recorder.routeSamples.count, 5, "the live map draws from these")
     }
 
     // MARK: - Guards

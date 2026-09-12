@@ -71,11 +71,11 @@ enum CSVExporter {
         String(format: "%.\(places)f", value)
     }
 
+    /// Always two decimals, always a dot. `NSDecimalNumber.description` drops trailing
+    /// zeros, so a total of 20 euros came out as "20" — which reads as a different figure in
+    /// a column of amounts.
     private static func plain(_ value: Decimal) -> String {
-        var input = value
-        var rounded = Decimal()
-        NSDecimalRound(&rounded, &input, 2, .plain)
-        return NSDecimalNumber(decimal: rounded).description(withLocale: Locale(identifier: "en_US_POSIX"))
+        String(format: "%.2f", NSDecimalNumber(decimal: value).doubleValue)
     }
 
     private static func unitLabel(_ unit: DistanceUnit) -> String {

@@ -200,6 +200,41 @@ final class LocationFilterTests: XCTestCase {
         )
     }
 
+    func testAJumpTheFilterRefusedIsNeverBridgedAfterwards() {
+        // A receiver stuck 5 km away keeps reporting the same wrong place. As the seconds
+        // pass, the implied speed from the last good fix falls back under the cap — and a
+        // filter that bridges on geometry alone would then hand the driver 5 km of expenses
+        // for a car that never moved.
+        let line = RouteFixtures.straightLine(pointCount: 400, stepMeters: 10)
+        var filter = LocationFilter()
+        _ = filter.accept(line[0], now: line[0].timestamp)
+        _ = filter.accept(line[1], now: line[1].timestamp)
+        let banked = filter.totalDistanceMeters
+
+        let stuck = RouteFixtures.offset(
+            latitude: line[2].latitude, longitude: line[2].longitude,
+            eastMeters: 5_000, northMeters: 0
+        )
+        var decisions: [FilterDecision] = []
+        for index in 2..<line.count {
+            let sample = LocationSample(
+                latitude: stuck.latitude, longitude: stuck.longitude,
+                horizontalAccuracy: 5, altitude: 35, speed: 10,
+                timestamp: line[index].timestamp
+            )
+            decisions.append(filter.accept(sample, now: sample.timestamp))
+        }
+
+        XCTAssertFalse(
+            decisions.contains { if case .bridged = $0 { return true } else { return false } },
+            "bridging is for silence, not for fixes we spent two minutes refusing"
+        )
+        XCTAssertEqual(
+            filter.totalDistanceMeters, banked, accuracy: 1,
+            "a receiver glitch must not turn into distance once enough time has passed"
+        )
+    }
+
     // MARK: - 9. Exact boundaries
 
     func testHorizontalAccuracyBoundaryIsInclusive() {

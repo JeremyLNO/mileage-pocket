@@ -14,8 +14,12 @@ final class SubscriptionService {
 
     init() {}
 
-    deinit {
+    // No `deinit` cancelling `updatesTask`: the service lives for the whole app session by
+    // design, and a `deinit` on a `@MainActor` type cannot touch main-actor state under
+    // Swift 6 anyway. `stop()` exists for tests, which do need to tear it down.
+    func stop() {
         updatesTask?.cancel()
+        updatesTask = nil
     }
 
     var monthly: Product? { products.first { $0.id == ProductIDs.monthly } }

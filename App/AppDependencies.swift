@@ -26,6 +26,10 @@ final class AppDependencies {
     /// Bumped whenever a trip starts, stops or is saved. Views observe it to recompute their
     /// figures — a value that changes is cheaper to watch than the whole store.
     private(set) var recorderRevision = 0
+
+    /// Tells the views something in the store changed under them. Named rather than letting
+    /// callers poke the counter, so the reason for a redraw stays greppable.
+    func invalidate() { recorderRevision += 1 }
     private(set) var activeRoute: [CLLocationCoordinate2D] = []
     /// Set the moment a trip stops, cleared when the summary sheet is done with it.
     var finishedTrip: Trip?
@@ -49,7 +53,11 @@ final class AppDependencies {
 
         self.notifications = NotificationService()
         self.liveActivity = TripActivityController()
-        self.recorder = recorderFactory?(context) ?? TripRecorder(context: context)
+        self.recorder = recorderFactory?(context) ?? TripRecorder(
+            context: context,
+            provider: CoreLocationProvider(),
+            geocoder: GeocodingService()
+        )
     }
 
     func bootstrap() {
@@ -75,13 +83,9 @@ final class AppDependencies {
         return false
     }
 
-    var activeDistanceMeters: Double {
-        switch recorder.state {
-        case .idle: return 0
-        case let .recording(_, distance, _): return distance
-        case .paused: return recorder.currentDistanceMeters
-        }
-    }
+    /// Read from the recorder, not from `state`: `RecorderState.distanceMeters` is zero while
+    /// paused, and a driver waiting at a light must not watch their distance drop to 0 km.
+    var activeDistanceMeters: Double { recorder.currentDistanceMeters }
 
     func activeDuration(now: Date) -> TimeInterval {
         guard let startedAt = recorder.startedAt else { return 0 }
@@ -147,7 +151,9 @@ final class AppDependencies {
     }
 
     func syncRecorderState() {
-        activeRoute = recorder.routeCoordinates
+        activeRoute = recorder.routeSamples.map {
+            CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude)
+        }
         recorderRevision += 1
     }
 

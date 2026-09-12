@@ -81,6 +81,7 @@
 		29F01CF783864F75F09713A8 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */; };
 		8CE47921986DAC1F3107C529 /* ReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399A886023A07C16F0DE0D2A /* ReportTests.swift */; };
 		0E860F49CCD87C75481C71AA /* RouteCompactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */; };
+		996305294A1DD93E6593CD58 /* RulePackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */; };
 		29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */; };
 		4EBFCC94CE9B21EB8ECD38E0 /* TripGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */; };
 		6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */; };
@@ -183,6 +184,7 @@
 		3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceTests.swift"; sourceTree = "<group>"; };
 		399A886023A07C16F0DE0D2A /* ReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReportTests.swift"; sourceTree = "<group>"; };
 		B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RouteCompactorTests.swift"; sourceTree = "<group>"; };
+		769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RulePackTests.swift"; sourceTree = "<group>"; };
 		B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmokeTests.swift"; sourceTree = "<group>"; };
 		20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripGroupingTests.swift"; sourceTree = "<group>"; };
 		4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripRecorderTests.swift"; sourceTree = "<group>"; };
@@ -543,6 +545,7 @@
 				3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */,
 				399A886023A07C16F0DE0D2A /* ReportTests.swift */,
 				B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */,
+				769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */,
 				B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */,
 				20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */,
 				4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */,
@@ -899,6 +902,7 @@
 				29F01CF783864F75F09713A8 /* PersistenceTests.swift in Sources */,
 				8CE47921986DAC1F3107C529 /* ReportTests.swift in Sources */,
 				0E860F49CCD87C75481C71AA /* RouteCompactorTests.swift in Sources */,
+				996305294A1DD93E6593CD58 /* RulePackTests.swift in Sources */,
 				29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */,
 				4EBFCC94CE9B21EB8ECD38E0 /* TripGroupingTests.swift in Sources */,
 				6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */,

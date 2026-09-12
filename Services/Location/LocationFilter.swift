@@ -94,6 +94,9 @@ struct LocationFilter {
     private var velocityEast: Double?
     private var velocityNorth: Double?
     private var stationarySince: Date?
+    /// Set when a fix was refused as a GPS jump, cleared on the next resync. It blocks
+    /// bridging: see the guard in `accept(_:now:)`.
+    private var refusedJump = false
 
     init(config: FilterConfig = FilterConfig(), startingDistanceMeters: Double = 0) {
         self.config = config
@@ -140,6 +143,7 @@ struct LocationFilter {
         // 3 — implausible jump. The anchor is deliberately left where it was: the vehicle is
         // almost certainly still near it, and the next good fix should measure from there.
         guard impliedSpeed <= config.maxSpeed else {
+            refusedJump = true
             return .rejected(.implausibleSpeed)
         }
 
@@ -166,8 +170,18 @@ struct LocationFilter {
         // 5b — bridgeable silence: short enough, and the straight line across it matches how
         // fast the vehicle was going when it went quiet.
         if elapsed > Self.bridgeMinGap {
+            // Bridging is for *silence*. A receiver that was talking the whole time and had
+            // every word refused as a jump is a receiver we do not believe, and believing
+            // its geometry later — once enough time has passed for the implied speed to look
+            // reasonable — would hand the user kilometres they never drove. Rejoin the fix,
+            // count nothing.
+            guard !refusedJump else {
+                resync(to: sample)
+                return .rejected(.gapTooLong)
+            }
             let plausible = max(lastKnownSpeed * Self.bridgeSpeedTolerance, Self.bridgeSpeedFloor)
             guard impliedSpeed <= plausible else {
+                refusedJump = true
                 return .rejected(.implausibleSpeed)
             }
             totalDistanceMeters += straightLine
@@ -210,6 +224,7 @@ struct LocationFilter {
         lastKnownSpeed = max(sample.speed, 0)
         stationarySince = (sample.speed >= 0 && sample.speed < config.stopSpeed)
             ? sample.timestamp : nil
+        refusedJump = false
     }
 
     /// Drops the estimator onto a raw fix: used after a gap, where the track between the two
@@ -224,6 +239,7 @@ struct LocationFilter {
         velocityNorth = nil
         lastKnownSpeed = max(sample.speed, 0)
         stationarySince = nil
+        refusedJump = false
     }
 
     /// One α-β update, returning the filtered position.

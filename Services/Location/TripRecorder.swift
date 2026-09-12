@@ -21,9 +21,22 @@ enum RecorderState: Equatable, Sendable {
 @MainActor
 protocol TripRecording: AnyObject {
     var state: RecorderState { get }
+    /// When the trip began. Read this for the on-screen stopwatch rather than digging it out
+    /// of `state`: the `.paused` case carries no payload, and a stopwatch that resets at
+    /// every red light is worse than no stopwatch.
+    var startedAt: Date? { get }
+    /// Distance accumulated so far, valid in **every** state. `RecorderState.distanceMeters`
+    /// reports 0 while paused because the enum has nowhere to put it; the distance itself
+    /// does not evaporate when the car stops.
+    var currentDistanceMeters: Double { get }
+    /// Accepted fixes so far, for drawing the live route.
+    var routeSamples: [LocationSample] { get }
     func start(vehicleID: UUID?) throws
     func stop() async throws -> Trip
     func resumeIfNeeded() throws
+    /// Asks for the location permission. The screen that asks does not need to know a
+    /// `LocationProviding` exists.
+    func requestPermission()
 }
 
 enum RecorderError: Error, Equatable {
@@ -43,9 +56,10 @@ enum RecorderError: Error, Equatable {
 final class TripRecorder: TripRecording {
     private(set) var state: RecorderState = .idle
     /// Live distance, valid in every state — including `.paused`, which the enum cannot carry.
-    private(set) var distanceMeters: Double = 0
+    private(set) var currentDistanceMeters: Double = 0
     /// Accepted fixes so far, for the live map. Rebuilt from the store after a resume.
-    private(set) var route: [LocationSample] = []
+    private(set) var routeSamples: [LocationSample] = []
+    private(set) var startedAt: Date?
 
     /// How hard the stored route is thinned. 10 m is invisible at any zoom a phone map
     /// offers and cuts a one-hour drive to a few hundred points.
@@ -60,7 +74,6 @@ final class TripRecorder: TripRecording {
     private var filter: LocationFilter
     private var activeState: ActiveTripState?
     private var tripID: UUID?
-    private var startedAt: Date?
     private var vehicleID: UUID?
     private var startCoordinate: (latitude: Double, longitude: Double)?
     private var lastCoordinate: (latitude: Double, longitude: Double)?
@@ -100,13 +113,17 @@ final class TripRecorder: TripRecording {
         self.vehicleID = vehicleID
         activeState = active
         filter = LocationFilter(config: config)
-        distanceMeters = 0
-        route = []
+        currentDistanceMeters = 0
+        routeSamples = []
         startCoordinate = nil
         lastCoordinate = nil
         state = .recording(startedAt: startTime, distanceMeters: 0, duration: 0)
 
         listen()
+    }
+
+    func requestPermission() {
+        provider.requestAlways()
     }
 
     func resumeIfNeeded() throws {
@@ -117,7 +134,7 @@ final class TripRecorder: TripRecording {
         startedAt = active.startedAt
         vehicleID = active.vehicleID
         activeState = active
-        distanceMeters = active.distanceMeters
+        currentDistanceMeters = active.distanceMeters
         // Seed the filter with the distance already banked: it restarts with no previous
         // fix, so the first one after a resume simply re-anchors and counts nothing.
         filter = LocationFilter(config: config, startingDistanceMeters: active.distanceMeters)
@@ -127,7 +144,7 @@ final class TripRecorder: TripRecording {
         if let latitude = active.lastLatitude, let longitude = active.lastLongitude {
             lastCoordinate = (latitude, longitude)
         }
-        route = (try? storedPoints(for: active.tripID))?.map(Self.sample(from:)) ?? []
+        routeSamples = (try? storedPoints(for: active.tripID))?.map(Self.sample(from:)) ?? []
         state = .recording(
             startedAt: active.startedAt,
             distanceMeters: active.distanceMeters,
@@ -201,8 +218,8 @@ final class TripRecorder: TripRecording {
 
         switch filter.accept(sample, now: now()) {
         case .accepted, .bridged:
-            distanceMeters = filter.totalDistanceMeters
-            route.append(sample)
+            currentDistanceMeters = filter.totalDistanceMeters
+            routeSamples.append(sample)
             if startCoordinate == nil {
                 startCoordinate = (sample.latitude, sample.longitude)
                 activeState.startLatitude = sample.latitude
@@ -218,10 +235,10 @@ final class TripRecorder: TripRecording {
                 horizontalAccuracy: sample.horizontalAccuracy,
                 altitude: sample.altitude,
                 speed: sample.speed,
-                cumulativeDistanceMeters: distanceMeters
+                cumulativeDistanceMeters: currentDistanceMeters
             ))
 
-            activeState.distanceMeters = distanceMeters
+            activeState.distanceMeters = currentDistanceMeters
             activeState.lastLatitude = sample.latitude
             activeState.lastLongitude = sample.longitude
             activeState.lastUpdatedAt = sample.timestamp
@@ -231,7 +248,7 @@ final class TripRecorder: TripRecording {
 
             state = .recording(
                 startedAt: startedAt,
-                distanceMeters: distanceMeters,
+                distanceMeters: currentDistanceMeters,
                 duration: now().timeIntervalSince(startedAt)
             )
 
@@ -280,8 +297,8 @@ final class TripRecorder: TripRecording {
 
     private func reset() {
         state = .idle
-        distanceMeters = 0
-        route = []
+        currentDistanceMeters = 0
+        routeSamples = []
         filter = LocationFilter(config: config)
         activeState = nil
         tripID = nil

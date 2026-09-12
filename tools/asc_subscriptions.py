@@ -42,6 +42,7 @@ PLANS = [
         "referenceName": "Mileage Pocket Monthly",
         "period": "ONE_MONTH",
         "ref_price": "2.99",          # USD, territoire de reference
+        "nominal": "2.99",            # palier nominal force en USD et EUR
         "loc": {
             "en-US": ("Monthly",   "Unlimited tracking, reports and exports."),
             "fr-FR": ("Mensuel",   "Suivi, rapports et exports illimites."),
@@ -57,6 +58,7 @@ PLANS = [
         "referenceName": "Mileage Pocket Annual",
         "period": "ONE_YEAR",
         "ref_price": "29.99",
+        "nominal": "29.99",
         "loc": {
             "en-US": ("Annual",   "Unlimited tracking, reports and exports."),
             "fr-FR": ("Annuel",   "Suivi, rapports et exports illimites."),
@@ -81,6 +83,18 @@ for p in PLANS:
     for loc in list(p["loc"]):
         if (p["key"], loc) in ACCENTED:
             p["loc"][loc] = ACCENTED[(p["key"], loc)]
+
+REVIEW_NOTE = (
+    "Mileage Pocket Premium unlocks unlimited trip tracking, unlimited reports "
+    "and CSV/PDF exports. Both plans unlock exactly the same features; only the "
+    "billing period differs. Each plan starts with a 3-day free trial."
+)
+
+# Devises dont on force le palier nominal exact (les deux prix de reference
+# donnes par la fiche produit : 2,99 $ / 2,99 EUR et 29,99 $ / 29,99 EUR).
+# L'equalization Apple fait deriver 29.99 USD -> 34.99 EUR, ce qui n'est pas
+# le prix voulu : on corrige explicitement ces territoires.
+NOMINAL_CURRENCIES = {"USD", "EUR"}
 
 INTRO_OFFER = {"offerMode": "FREE_TRIAL", "duration": "THREE_DAYS", "numberOfPeriods": 1}
 
@@ -270,6 +284,17 @@ def ensure_subscription(gid, plan):
     return sid
 
 
+def ensure_review_note(sid, plan):
+    r = get(f"/v1/subscriptions/{sid}")
+    if r["data"]["attributes"].get("reviewNote") == REVIEW_NOTE:
+        log(f"[sub {plan['key']}/note] deja OK")
+        return
+    patch(f"/v1/subscriptions/{sid}",
+          {"data": {"type": "subscriptions", "id": sid,
+                    "attributes": {"reviewNote": REVIEW_NOTE}}})
+    log(f"[sub {plan['key']}/note] posee")
+
+
 def ensure_sub_localizations(sid, plan):
     existing, _ = get_all(f"/v1/subscriptions/{sid}/subscriptionLocalizations?limit=50")
     by_locale = {x["attributes"]["locale"]: x for x in existing}
@@ -303,6 +328,17 @@ def ensure_sub_localizations(sid, plan):
 def all_territories():
     data, _ = get_all("/v1/territories?limit=200")
     return sorted(x["id"] for x in data)
+
+
+_CURRENCIES = None
+
+
+def territory_currencies():
+    global _CURRENCIES
+    if _CURRENCIES is None:
+        data, _ = get_all("/v1/territories?limit=200")
+        _CURRENCIES = {x["id"]: x["attributes"].get("currency") for x in data}
+    return _CURRENCIES
 
 
 def ensure_availability(sid, plan, territories):
@@ -388,7 +424,7 @@ def existing_prices(sid):
 
 def ensure_prices(sid, plan, territories, workers=8):
     """Un abo dispo dans N territoires doit etre tarife dans les N :
-    un POST subscriptionPrices par territoire."""
+    un POST subscriptionPrices par territoire (l'API n'en pose qu'un a la fois)."""
     have = existing_prices(sid)
     log(f"[sub {plan['key']}/prix] deja tarife dans {len(have)} territoires")
     ref_pp = find_ref_price_point(sid, plan)
@@ -398,27 +434,60 @@ def ensure_prices(sid, plan, territories, workers=8):
     eq[REF_TERRITORY] = ref_pp
     log(f"[sub {plan['key']}/prix] equalizations: {len(eq)} territoires")
 
-    todo = [t for t in territories if t not in have]
-    missing_pp = [t for t in todo if t not in eq]
+    cur = territory_currencies()
+    nominal = plan["nominal"]
+
+    # Territoires en USD/EUR dont l'equalization ne tombe pas sur le palier
+    # nominal voulu -> on va chercher le palier exact dans le territoire.
+    to_fix = [t for t in territories
+              if cur.get(t) in NOMINAL_CURRENCIES
+              and (t not in eq or eq[t]["attributes"]["customerPrice"] != nominal)]
+    if to_fix:
+        log(f"[sub {plan['key']}/prix] palier nominal {nominal} a forcer sur "
+            f"{len(to_fix)} territoires {NOMINAL_CURRENCIES}")
+
+        def fetch(t):
+            pps = price_points_for_territory(sid, t)
+            exact = [p for p in pps if p["attributes"]["customerPrice"] == nominal]
+            if exact:
+                return t, exact[0]
+            if not pps:
+                return t, None
+            target = float(nominal)
+            return t, min(pps, key=lambda p: abs(float(p["attributes"]["customerPrice"]) - target))
+
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            for fut in as_completed([ex.submit(fetch, t) for t in to_fix]):
+                t, pp = fut.result()
+                if pp is not None:
+                    eq[t] = pp
+
+    # Territoires sans equalization du tout -> recherche directe
+    missing_pp = [t for t in territories if t not in eq]
     if missing_pp:
-        log(f"[sub {plan['key']}/prix] pas d'equalization pour {len(missing_pp)}: {missing_pp} "
-            f"-> recherche directe")
+        log(f"[sub {plan['key']}/prix] pas d'equalization pour {len(missing_pp)}: "
+            f"{missing_pp} -> recherche directe")
+        target = float(plan["ref_price"])
         for t in missing_pp:
             pps = price_points_for_territory(sid, t)
-            if not pps:
-                continue
-            # palier standard le plus proche du prix de reference converti via l'USD
-            target = float(plan["ref_price"])
-            best = min(pps, key=lambda p: abs(float(p["attributes"]["customerPrice"]) - target))
-            eq[t] = best
+            if pps:
+                eq[t] = min(pps, key=lambda p: abs(float(p["attributes"]["customerPrice"]) - target))
 
-    chosen_log = {}
-    failures = []
-
-    def one(t):
+    todo = []
+    for t in territories:
         pp = eq.get(t)
+        cur_price = have.get(t)
         if pp is None:
-            return (t, None, "aucun price point")
+            continue
+        if cur_price is None:
+            todo.append((t, pp, "nouveau"))
+        elif cur_price["pricePoint"] != pp["id"]:
+            todo.append((t, pp, f"correction {cur_price['customerPrice']} -> "
+                                f"{pp['attributes']['customerPrice']}"))
+
+    chosen_log, failures = {}, []
+
+    def one(t, pp):
         body = {"data": {
             "type": "subscriptionPrices",
             "attributes": {"startDate": None, "preserveCurrentPrice": False},
@@ -435,19 +504,31 @@ def ensure_prices(sid, plan, territories, workers=8):
             return (t, None, err_detail(e))
 
     if todo:
+        log(f"[sub {plan['key']}/prix] {len(todo)} POST a faire")
+        for t, pp, why in todo:
+            if why != "nouveau":
+                log(f"    ~ {t}: {why}")
         with ThreadPoolExecutor(max_workers=workers) as ex:
-            for fut in as_completed([ex.submit(one, t) for t in todo]):
+            futs = [ex.submit(one, t, pp) for t, pp, _ in todo]
+            for fut in as_completed(futs):
                 t, price, err = fut.result()
                 if err:
                     failures.append((t, err))
                 else:
                     chosen_log[t] = price
+    else:
+        log(f"[sub {plan['key']}/prix] rien a poser, tout est deja au bon palier")
+
     for t in sorted(chosen_log):
         log(f"    prix {plan['key']:7s} {t}: {chosen_log[t]}")
     for t, e in failures:
         log(f"    !! prix {plan['key']} {t}: {e}")
     have = existing_prices(sid)
     log(f"[sub {plan['key']}/prix] total relu: {len(have)} territoires tarifes")
+    wrong = [(t, have[t]["customerPrice"]) for t in territories
+             if t in have and t in eq and have[t]["pricePoint"] != eq[t]["id"]]
+    if wrong:
+        log(f"    !! {len(wrong)} territoires encore au mauvais palier: {wrong[:10]}")
     return have, failures
 
 
@@ -594,6 +675,7 @@ def main():
     for plan in PLANS:
         sid = sub_ids[plan["key"]]
         ensure_sub_localizations(sid, plan)
+        ensure_review_note(sid, plan)
 
     for plan in PLANS:
         sid = sub_ids[plan["key"]]

@@ -95,8 +95,12 @@ struct PDFReportRenderer {
     /// what keeps the last page from overflowing silently.
     private func paginate(_ data: ReportData) -> [[ReportRow]] {
         guard !data.rows.isEmpty else { return [] }
-        let firstPageCapacity = Int((pageSize.height - margin * 2 - 210 - headerRowHeight - 90) / rowHeight)
-        let otherPageCapacity = Int((pageSize.height - margin * 2 - headerRowHeight - 40) / rowHeight)
+        // The closing block — totals plus up to five wrapped disclaimer lines — has to fit
+        // under the last page's rows. Reserving for it here is what keeps it from being
+        // pushed off the page, where it would vanish without any error.
+        let closingBlockHeight: CGFloat = 130
+        let firstPageCapacity = Int((pageSize.height - margin * 2 - 210 - headerRowHeight - closingBlockHeight) / rowHeight)
+        let otherPageCapacity = Int((pageSize.height - margin * 2 - headerRowHeight - closingBlockHeight) / rowHeight)
 
         var pages: [[ReportRow]] = []
         var remaining = data.rows[...]
@@ -122,7 +126,7 @@ struct PDFReportRenderer {
 
     private func drawDocumentHeader(_ data: ReportData, profile: ReportProfile, at y: CGFloat) -> CGFloat {
         var cursor = y
-        draw("MILEAGE REPORT", at: CGPoint(x: margin, y: cursor), font: .systemFont(ofSize: 10, weight: .semibold), color: .systemOrange, tracking: 1.6)
+        draw("MILEAGE REPORT", at: CGPoint(x: margin, y: cursor), font: .systemFont(ofSize: 10, weight: .semibold), color: .systemOrange)
         cursor += 16
         draw(data.period.title(locale: profile.locale), at: CGPoint(x: margin, y: cursor), font: .systemFont(ofSize: 26, weight: .bold))
         cursor += 34
@@ -164,7 +168,7 @@ struct PDFReportRenderer {
         let tileWidth = contentWidth / CGFloat(tiles.count)
         for (index, tile) in tiles.enumerated() {
             let x = margin + CGFloat(index) * tileWidth
-            draw(tile.0.uppercased(), at: CGPoint(x: x, y: y), font: .systemFont(ofSize: 8, weight: .semibold), color: .secondaryLabel, tracking: 1)
+            draw(tile.0.uppercased(), at: CGPoint(x: x, y: y), font: .systemFont(ofSize: 8, weight: .semibold), color: .secondaryLabel)
             draw(tile.1, at: CGPoint(x: x, y: y + 12), font: .monospacedDigitSystemFont(ofSize: 17, weight: .semibold))
         }
         return y + 38
@@ -184,8 +188,7 @@ struct PDFReportRenderer {
                 in: CGRect(x: columnX(index) + 5, y: y + 8, width: columns[index] - 10, height: 14),
                 font: .systemFont(ofSize: 7.5, weight: .semibold),
                 color: .secondaryLabel,
-                alignment: alignment,
-                tracking: 0.6
+                alignment: alignment
             )
         }
         return y + headerRowHeight
@@ -261,9 +264,10 @@ struct PDFReportRenderer {
         for line in lines {
             let height = draw(
                 line,
-                in: CGRect(x: margin, y: cursor, width: contentWidth, height: 40),
+                in: CGRect(x: margin, y: cursor, width: contentWidth, height: 0),
                 font: .systemFont(ofSize: 7.5),
-                color: .secondaryLabel
+                color: .secondaryLabel,
+                wraps: true
             )
             cursor += height + 3
         }
@@ -288,7 +292,7 @@ struct PDFReportRenderer {
     // MARK: - Drawing primitives
 
     private func drawLabelledValue(_ label: String, _ value: String, at point: CGPoint, width: CGFloat) {
-        draw(label.uppercased(), at: point, font: .systemFont(ofSize: 7.5, weight: .semibold), color: .secondaryLabel, tracking: 0.8)
+        draw(label.uppercased(), at: point, font: .systemFont(ofSize: 7.5, weight: .semibold), color: .secondaryLabel)
         _ = draw(value, in: CGRect(x: point.x, y: point.y + 11, width: width, height: 14), font: .systemFont(ofSize: 10.5, weight: .medium))
     }
 
@@ -297,10 +301,13 @@ struct PDFReportRenderer {
         UIBezierPath(rect: CGRect(x: margin, y: y, width: contentWidth, height: 0.5)).fill()
     }
 
-    private func draw(_ text: String, at point: CGPoint, font: UIFont, color: UIColor = .label, tracking: CGFloat = 0) {
-        attributed(text, font: font, color: color, tracking: tracking).draw(at: point)
+    private func draw(_ text: String, at point: CGPoint, font: UIFont, color: UIColor = .label) {
+        attributed(text, font: font, color: color).draw(at: point)
     }
 
+    /// - Parameter wraps: table cells truncate to keep a column's width; prose wraps, because
+    ///   a disclaimer cut off mid-sentence is worse than one that takes an extra line — and
+    ///   it fails silently, which is how it survives review.
     @discardableResult
     private func draw(
         _ text: String,
@@ -308,26 +315,28 @@ struct PDFReportRenderer {
         font: UIFont,
         color: UIColor = .label,
         alignment: NSTextAlignment = .left,
-        tracking: CGFloat = 0
+        wraps: Bool = false
     ) -> CGFloat {
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = alignment
-        paragraph.lineBreakMode = .byTruncatingTail
-        let string = attributed(text, font: font, color: color, tracking: tracking, paragraph: paragraph)
+        paragraph.lineBreakMode = wraps ? .byWordWrapping : .byTruncatingTail
+        let string = attributed(text, font: font, color: color, paragraph: paragraph)
         let bounding = string.boundingRect(with: CGSize(width: rect.width, height: .greatestFiniteMagnitude), options: [.usesLineFragmentOrigin], context: nil)
         string.draw(with: CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: max(rect.height, bounding.height)), options: [.usesLineFragmentOrigin], context: nil)
         return bounding.height
     }
 
+    /// No `kern` anywhere in this document. Letter-spacing looks good on screen, but Core
+    /// Text writes each spaced glyph separately and PDF text extraction then yields
+    /// "M I L E A G E   R E P O R T" — the title stops being findable with Cmd-F, and a
+    /// screen reader spells it out. A report exists to be read and searched.
     private func attributed(
         _ text: String,
         font: UIFont,
         color: UIColor,
-        tracking: CGFloat,
         paragraph: NSParagraphStyle? = nil
     ) -> NSAttributedString {
         var attributes: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: color]
-        if tracking != 0 { attributes[.kern] = tracking }
         if let paragraph { attributes[.paragraphStyle] = paragraph }
         return NSAttributedString(string: text, attributes: attributes)
     }

@@ -73,7 +73,7 @@ extension AppDependencies {
             settingsStore.settings.defaultVehicleID = vehicle.id
         }
         try? context.save()
-        recorderRevision += 1
+        invalidate()
     }
 
     func createOnboardingVehicle(
@@ -174,7 +174,7 @@ extension AppDependencies {
         applyCalculation(to: trip)
         try? context.save()
         refreshWidgetSnapshot()
-        recorderRevision += 1
+        invalidate()
     }
 
     func duplicate(_ trip: Trip) {
@@ -199,7 +199,7 @@ extension AppDependencies {
         context.insert(copy)
         applyCalculation(to: copy)
         try? context.save()
-        recorderRevision += 1
+        invalidate()
     }
 
     // MARK: - Exports
@@ -266,7 +266,7 @@ extension AppDependencies {
         for state in (try? context.fetch(FetchDescriptor<ActiveTripState>())) ?? [] { context.delete(state) }
         try? context.save()
         refreshWidgetSnapshot()
-        recorderRevision += 1
+        invalidate()
     }
 
     // MARK: - Widget
