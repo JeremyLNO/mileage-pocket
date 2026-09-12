@@ -1,0 +1,82 @@
+import Foundation
+import SwiftData
+
+/// One recorded drive.
+///
+/// Every property is optional or carries a default and no attribute is `.unique`: CloudKit
+/// rejects a SwiftData schema that has either, and the store then fails to open at launch.
+///
+/// The applied rate is frozen here at save time (`mileageRuleVersion`, `mileageRate`,
+/// `calculatedAmount`). A later rate change, country change or vehicle change never
+/// rewrites an existing trip — only an explicit "Recalculate using current rules" does.
+@Model
+final class Trip {
+    var id: UUID = UUID()
+    var startedAt: Date = Date()
+    var endedAt: Date?
+
+    var startLatitude: Double?
+    var startLongitude: Double?
+    var endLatitude: Double?
+    var endLongitude: Double?
+
+    var startAddress: String?
+    var endAddress: String?
+
+    /// Distance as measured by the GPS filter. Never overwritten by a manual correction.
+    var rawDistanceMeters: Double = 0
+    /// Set only when the user edits the distance by hand; `nil` means "use the raw value".
+    var correctedDistanceMeters: Double?
+
+    var tripTypeRaw: String = TripType.business.rawValue
+    var purpose: String?
+
+    var clientID: UUID?
+    var projectID: UUID?
+    var vehicleID: UUID?
+
+    var countryCode: String = "US"
+    var mileageRuleVersion: String?
+    var mileageRate: Decimal?
+    var calculatedAmount: Decimal?
+    var currencyCode: String?
+    var rateModeRaw: String = RateMode.official.rawValue
+    var isOfficialRate: Bool = false
+
+    var isManuallyEdited: Bool = false
+    var isManualEntry: Bool = false
+
+    /// Simplified polyline, produced by `RouteCompactor` when the trip ends. The raw
+    /// `LocationPoint` rows are deleted at that moment — keeping them would put hundreds of
+    /// thousands of records into the user's CloudKit database for no readable benefit.
+    var encodedRoute: Data?
+
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+
+    init(id: UUID = UUID(), startedAt: Date = Date()) {
+        self.id = id
+        self.startedAt = startedAt
+        self.createdAt = Date()
+        self.updatedAt = Date()
+    }
+
+    var tripType: TripType {
+        get { TripType(rawValue: tripTypeRaw) ?? .business }
+        set { tripTypeRaw = newValue.rawValue }
+    }
+
+    var rateMode: RateMode {
+        get { RateMode(rawValue: rateModeRaw) ?? .official }
+        set { rateModeRaw = newValue.rawValue }
+    }
+
+    /// The distance that counts: the manual correction when there is one, the measured
+    /// distance otherwise.
+    var distanceMeters: Double { correctedDistanceMeters ?? rawDistanceMeters }
+
+    var duration: TimeInterval {
+        guard let endedAt else { return 0 }
+        return endedAt.timeIntervalSince(startedAt)
+    }
+}

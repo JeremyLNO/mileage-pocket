@@ -9,6 +9,17 @@
 /* Begin PBXBuildFile section */
 		020ADF5043E5591121EA4BD5 /* MileagePocketApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35513ED3D57158239A87DAE /* MileagePocketApp.swift */; };
 		89747BD45088447E6FD467BE /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A01F56928DFCE630027E76A /* RootView.swift */; };
+		2F14CA0D691B2FCE4E62F32A /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 059EB25E2825B69058176ABB /* PersistenceController.swift */; };
+		8E66345AEEE7E3741E5957D4 /* ActiveTripState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF587376844F462C750F5D09 /* ActiveTripState.swift */; };
+		069BE0D78D0AF40FDA810A4E /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF8A4CC5730DBB3815159AD /* Client.swift */; };
+		7865B456602FB5ADCA5DA486 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3DD07B8D90D93DFC8026D8 /* Enums.swift */; };
+		1272EAF2ED3B9F7CADA5F57C /* FrequentLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0D0BC690CC9CF90D8A2549 /* FrequentLocation.swift */; };
+		5C8239557C3469D30947DF96 /* LocationPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB9C2D0E1393649347D3968 /* LocationPoint.swift */; };
+		516B2493E8A3943EA909C8A7 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ED6C20B5CC105F205E6388 /* Project.swift */; };
+		A48199DD00EBA99735F68C9C /* Trip.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2718F36F2F9203CD95805E /* Trip.swift */; };
+		1F7E764F9680DDE1EB6E4E71 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF49859969DDC0CEF7764AF9 /* UserSettings.swift */; };
+		FCB4E4D5DEA7BB01B1FFA1EF /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B818C09D146BCD5F0B7580A1 /* Vehicle.swift */; };
+		29F01CF783864F75F09713A8 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */; };
 		29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */; };
 		F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90E39E390D840036CEECC96 /* LaunchUITests.swift */; };
 		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
@@ -28,8 +39,19 @@
 		0FD7488223EA0E20BD335592 /* MileageWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "MileageWidgetsExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D35513ED3D57158239A87DAE /* MileagePocketApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileagePocketApp.swift"; sourceTree = "<group>"; };
 		6A01F56928DFCE630027E76A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RootView.swift"; sourceTree = "<group>"; };
+		059EB25E2825B69058176ABB /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceController.swift"; sourceTree = "<group>"; };
 		E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileageWidgetsBundle.swift"; sourceTree = "<group>"; };
 		6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StartTripWidget.swift"; sourceTree = "<group>"; };
+		AF587376844F462C750F5D09 /* ActiveTripState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActiveTripState.swift"; sourceTree = "<group>"; };
+		5FF8A4CC5730DBB3815159AD /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Client.swift"; sourceTree = "<group>"; };
+		7D3DD07B8D90D93DFC8026D8 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Enums.swift"; sourceTree = "<group>"; };
+		1D0D0BC690CC9CF90D8A2549 /* FrequentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FrequentLocation.swift"; sourceTree = "<group>"; };
+		1BB9C2D0E1393649347D3968 /* LocationPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocationPoint.swift"; sourceTree = "<group>"; };
+		F3ED6C20B5CC105F205E6388 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Project.swift"; sourceTree = "<group>"; };
+		FF2718F36F2F9203CD95805E /* Trip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Trip.swift"; sourceTree = "<group>"; };
+		EF49859969DDC0CEF7764AF9 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettings.swift"; sourceTree = "<group>"; };
+		B818C09D146BCD5F0B7580A1 /* Vehicle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Vehicle.swift"; sourceTree = "<group>"; };
+		3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceTests.swift"; sourceTree = "<group>"; };
 		B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmokeTests.swift"; sourceTree = "<group>"; };
 		E90E39E390D840036CEECC96 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchUITests.swift"; sourceTree = "<group>"; };
 		8D7172619DB15AD08404D409 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -101,11 +123,18 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		E9305FC3F4C469DBC9CD22ED /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				059EB25E2825B69058176ABB /* PersistenceController.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
 		35D315DEBBF45F223B169A61 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				1D75B78C94526A83A92EEBEB /* MileagePocketApp.swift */,
-				E3FB13A2EE69DD0D85780FE4 /* RootView.swift */,
+				E9305FC3F4C469DBC9CD22ED /* Persistence */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -113,8 +142,15 @@
 		A1C86A29E589D48EC70B6A32 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				B8CE0582EE25155A2C8B4F69 /* MileagePocketApp.swift */,
-				44CAAC7CB329950232134C32 /* RootView.swift */,
+				AF587376844F462C750F5D09 /* ActiveTripState.swift */,
+				5FF8A4CC5730DBB3815159AD /* Client.swift */,
+				7D3DD07B8D90D93DFC8026D8 /* Enums.swift */,
+				1D0D0BC690CC9CF90D8A2549 /* FrequentLocation.swift */,
+				1BB9C2D0E1393649347D3968 /* LocationPoint.swift */,
+				F3ED6C20B5CC105F205E6388 /* Project.swift */,
+				FF2718F36F2F9203CD95805E /* Trip.swift */,
+				EF49859969DDC0CEF7764AF9 /* UserSettings.swift */,
+				B818C09D146BCD5F0B7580A1 /* Vehicle.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -122,8 +158,18 @@
 		609874F33224C0C09F1FEE42 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				38876847254EAFFC851AD35A /* ActiveTripState.swift */,
+				BF93917E54D0E49E31948D1A /* Client.swift */,
+				FA109B9B7C150B23CB5FB098 /* Enums.swift */,
+				EB4D01E903472C15EC2A2866 /* FrequentLocation.swift */,
+				9AC77FB804F9E2B0EE70C3D9 /* LocationPoint.swift */,
 				AB328E3071C92746E5DD3AA2 /* MileagePocketApp.swift */,
+				2D43FF062DF77255ED353521 /* Persistence/PersistenceController.swift */,
+				731D7226CE4B1EA3E25AA159 /* Project.swift */,
 				8027A7759C22DF92673AE2A5 /* RootView.swift */,
+				32F58DA623C721FE27DEE205 /* Trip.swift */,
+				6848F91A38C640F05A9EF1CA /* UserSettings.swift */,
+				B4EDEF7878726E91AA3B83F4 /* Vehicle.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -131,8 +177,18 @@
 		984D844B917CCD4C29DE2A97 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				688BB213F6CC595016127416 /* ActiveTripState.swift */,
+				42002830082A8CBB56323EFD /* Client.swift */,
+				BA60F98415ABD511DFE1E22F /* Enums.swift */,
+				AC9FC982ADFB1FC80862C2CA /* FrequentLocation.swift */,
+				83E06137AE79FD652CCE73E3 /* LocationPoint.swift */,
 				375996B173D8066D0D9B82C3 /* MileagePocketApp.swift */,
+				3AEFEF92F9A9A2A9FC1F563C /* Persistence/PersistenceController.swift */,
+				434ED65450EA64A5D8F6E263 /* Project.swift */,
 				F6B01FD1F0C5EC58C7F1BCB4 /* RootView.swift */,
+				FD3A85926E8D14622965D31E /* Trip.swift */,
+				FB50789521B91589C2E7A487 /* UserSettings.swift */,
+				F988475D33845FF4528A5EDA /* Vehicle.swift */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -147,6 +203,7 @@
 		74C0354F987B4FC0FDE2C044 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */,
 				B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */,
 			);
 			path = Tests;
@@ -421,6 +478,16 @@
 			files = (
 				020ADF5043E5591121EA4BD5 /* MileagePocketApp.swift in Sources */,
 				89747BD45088447E6FD467BE /* RootView.swift in Sources */,
+				2F14CA0D691B2FCE4E62F32A /* PersistenceController.swift in Sources */,
+				8E66345AEEE7E3741E5957D4 /* ActiveTripState.swift in Sources */,
+				069BE0D78D0AF40FDA810A4E /* Client.swift in Sources */,
+				7865B456602FB5ADCA5DA486 /* Enums.swift in Sources */,
+				1272EAF2ED3B9F7CADA5F57C /* FrequentLocation.swift in Sources */,
+				5C8239557C3469D30947DF96 /* LocationPoint.swift in Sources */,
+				516B2493E8A3943EA909C8A7 /* Project.swift in Sources */,
+				A48199DD00EBA99735F68C9C /* Trip.swift in Sources */,
+				1F7E764F9680DDE1EB6E4E71 /* UserSettings.swift in Sources */,
+				FCB4E4D5DEA7BB01B1FFA1EF /* Vehicle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,6 +495,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				29F01CF783864F75F09713A8 /* PersistenceTests.swift in Sources */,
 				29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
