@@ -1,3 +1,5 @@
+import CoreLocation
+import MapKit
 import XCTest
 @testable import MileagePocket
 
@@ -67,5 +69,44 @@ final class TripGroupingTests: XCTestCase {
         let recordedAt = tokyo.date(from: DateComponents(year: 2026, month: 9, day: 12, hour: 9))!
 
         XCTAssertEqual(TripGrouping.section(for: recordedAt, now: now, calendar: calendar), .today)
+    }
+}
+
+/// Trip endpoints are named by town. A full street address is the same information rendered
+/// unreadable: it truncates in every list row and every report column.
+final class GeocodingFormatTests: XCTestCase {
+    private func placemark(
+        subThoroughfare: String? = nil,
+        thoroughfare: String? = nil,
+        locality: String? = nil,
+        subAdministrativeArea: String? = nil,
+        administrativeArea: String? = nil,
+        name: String? = nil
+    ) -> CLPlacemark {
+        // `CLPlacemark` cannot be built field by field, so the rule is asserted through
+        // `MKPlacemark`, which can. Absent fields are left out of the dictionary entirely:
+        // writing them as `nil as Any` puts an unusable value in and crashes the lookup.
+        var address: [String: Any] = [:]
+        if let subThoroughfare { address["SubThoroughfare"] = subThoroughfare }
+        if let thoroughfare { address["Thoroughfare"] = thoroughfare }
+        if let locality { address["City"] = locality }
+        if let subAdministrativeArea { address["SubAdministrativeArea"] = subAdministrativeArea }
+        if let administrativeArea { address["State"] = administrativeArea }
+        if let name { address["Name"] = name }
+        return MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 48.8566, longitude: 2.3522), addressDictionary: address)
+    }
+
+    func testATownWinsOverAStreet() {
+        let result = GeocodingService.format(placemark(subThoroughfare: "118", thoroughfare: "Voie Georges Pompidou", locality: "Paris"))
+        XCTAssertEqual(result, "Paris")
+    }
+
+    func testAStreetIsUsedOnlyWhenThereIsNoTown() {
+        let result = GeocodingService.format(placemark(subThoroughfare: "12", thoroughfare: "A6 Autoroute du Soleil"))
+        XCTAssertEqual(result, "12 A6 Autoroute du Soleil")
+    }
+
+    func testFallsBackToTheNameWhenNothingElseIsKnown() {
+        XCTAssertEqual(GeocodingService.format(placemark(name: "Somewhere")), "Somewhere")
     }
 }

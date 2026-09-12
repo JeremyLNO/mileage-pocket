@@ -24,15 +24,22 @@ final class GeocodingService: Geocoding {
         return Self.format(placemark)
     }
 
-    static func format(_ placemark: CLPlacemark) -> String? {
-        // Street then town: enough for the user to recognise the trip in a list, short
-        // enough to fit a report row.
+    /// The town, not the street.
+    ///
+    /// "Paris → Versailles" is what a trip is called; "118 Voie Georges Pompidou, Paris →
+    /// 4 Avenue de…" is the same information rendered unreadable, and it truncates in every
+    /// list row and every report column. The exact position is on the map where it belongs.
+    /// A street name is used only when there is no town to name — a motorway, open country.
+    nonisolated static func format(_ placemark: CLPlacemark) -> String? {
+        if let town = placemark.locality ?? placemark.subAdministrativeArea {
+            return town
+        }
+        if let area = placemark.administrativeArea, !area.isEmpty {
+            return area
+        }
         let street = [placemark.subThoroughfare, placemark.thoroughfare]
             .compactMap { $0 }
             .joined(separator: " ")
-        let town = placemark.locality ?? placemark.subAdministrativeArea ?? placemark.administrativeArea
-        let parts = [street.isEmpty ? nil : street, town].compactMap { $0 }
-        if parts.isEmpty { return placemark.name }
-        return parts.joined(separator: ", ")
+        return street.isEmpty ? placemark.name : street
     }
 }
