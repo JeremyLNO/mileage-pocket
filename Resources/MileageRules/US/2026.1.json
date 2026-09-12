@@ -1,0 +1,32 @@
+{
+  "country": "US",
+  "version": "2026.1",
+  "validFrom": "2026-07-01",
+  "validUntil": "2026-12-31",
+  "currencyCode": "USD",
+  "distanceUnit": "miles",
+  "source": "IRS — Standard mileage rates, business use, July 1 to December 31, 2026",
+  "sourceURL": "https://www.irs.gov/tax-professionals/standard-mileage-rates",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "business",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "car",
+        "van",
+        "electricCar"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": null,
+          "rate": "0.76",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

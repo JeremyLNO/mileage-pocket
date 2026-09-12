@@ -1,0 +1,257 @@
+{
+  "country": "IE",
+  "version": "2026.1",
+  "validFrom": "2022-09-01",
+  "validUntil": null,
+  "currencyCode": "EUR",
+  "distanceUnit": "kilometers",
+  "source": "Revenue — Civil service rates: motor travel rates (effective 1 September 2022), motorcycle rates (5 March 2009), bicycle rate (1 February 2007)",
+  "sourceURL": "https://www.revenue.ie/en/employing-people/employee-expenses/travel-and-subsistence/civil-service-rates.aspx",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "motorTravel",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "car",
+        "van",
+        "electricCar"
+      ],
+      "fuelTypes": null,
+      "powerBands": [
+        {
+          "minPower": null,
+          "maxPower": 1200,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 1500,
+              "rate": "0.4180",
+              "constant": null
+            },
+            {
+              "fromDistance": 1500,
+              "toDistance": 5500,
+              "rate": "0.7264",
+              "constant": null
+            },
+            {
+              "fromDistance": 5500,
+              "toDistance": 25000,
+              "rate": "0.3178",
+              "constant": null
+            },
+            {
+              "fromDistance": 25000,
+              "toDistance": null,
+              "rate": "0.2056",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 1201,
+          "maxPower": 1500,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 1500,
+              "rate": "0.4340",
+              "constant": null
+            },
+            {
+              "fromDistance": 1500,
+              "toDistance": 5500,
+              "rate": "0.7918",
+              "constant": null
+            },
+            {
+              "fromDistance": 5500,
+              "toDistance": 25000,
+              "rate": "0.3179",
+              "constant": null
+            },
+            {
+              "fromDistance": 25000,
+              "toDistance": null,
+              "rate": "0.2385",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 1501,
+          "maxPower": null,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 1500,
+              "rate": "0.5182",
+              "constant": null
+            },
+            {
+              "fromDistance": 1500,
+              "toDistance": 5500,
+              "rate": "0.9063",
+              "constant": null
+            },
+            {
+              "fromDistance": 5500,
+              "toDistance": 25000,
+              "rate": "0.3922",
+              "constant": null
+            },
+            {
+              "fromDistance": 25000,
+              "toDistance": null,
+              "rate": "0.2587",
+              "constant": null
+            }
+          ]
+        }
+      ],
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": 1500,
+          "rate": "0.4340",
+          "constant": null
+        },
+        {
+          "fromDistance": 1500,
+          "toDistance": 5500,
+          "rate": "0.7918",
+          "constant": null
+        },
+        {
+          "fromDistance": 5500,
+          "toDistance": 25000,
+          "rate": "0.3179",
+          "constant": null
+        },
+        {
+          "fromDistance": 25000,
+          "toDistance": null,
+          "rate": "0.2385",
+          "constant": null
+        }
+      ],
+      "powerUnit": "engineCapacity"
+    },
+    {
+      "id": "motorcycle",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "motorcycle",
+        "moped"
+      ],
+      "fuelTypes": null,
+      "powerBands": [
+        {
+          "minPower": null,
+          "maxPower": 150,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 6437,
+              "rate": "0.1448",
+              "constant": null
+            },
+            {
+              "fromDistance": 6437,
+              "toDistance": null,
+              "rate": "0.0937",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 151,
+          "maxPower": 250,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 6437,
+              "rate": "0.2010",
+              "constant": null
+            },
+            {
+              "fromDistance": 6437,
+              "toDistance": null,
+              "rate": "0.1331",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 251,
+          "maxPower": 600,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 6437,
+              "rate": "0.2372",
+              "constant": null
+            },
+            {
+              "fromDistance": 6437,
+              "toDistance": null,
+              "rate": "0.1529",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 601,
+          "maxPower": null,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 6437,
+              "rate": "0.2859",
+              "constant": null
+            },
+            {
+              "fromDistance": 6437,
+              "toDistance": null,
+              "rate": "0.1760",
+              "constant": null
+            }
+          ]
+        }
+      ],
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": 6437,
+          "rate": "0.2372",
+          "constant": null
+        },
+        {
+          "fromDistance": 6437,
+          "toDistance": null,
+          "rate": "0.1529",
+          "constant": null
+        }
+      ],
+      "powerUnit": "engineCapacity"
+    },
+    {
+      "id": "bicycle",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "bicycle"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": null,
+          "rate": "0.08",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

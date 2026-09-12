@@ -1,0 +1,73 @@
+{
+  "country": "GB",
+  "version": "2026.1",
+  "validFrom": "2026-04-06",
+  "validUntil": null,
+  "currencyCode": "GBP",
+  "distanceUnit": "miles",
+  "source": "HMRC — Travel: mileage and fuel rates and allowances (Approved Mileage Allowance Payments, AMAP), tax year 2026 to 2027",
+  "sourceURL": "https://www.gov.uk/government/publications/rates-and-allowances-travel-mileage-and-fuel-allowances/travel-mileage-and-fuel-rates-and-allowances",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "car",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "car",
+        "van",
+        "electricCar"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": 10000,
+          "rate": "0.55",
+          "constant": null
+        },
+        {
+          "fromDistance": 10000,
+          "toDistance": null,
+          "rate": "0.25",
+          "constant": null
+        }
+      ]
+    },
+    {
+      "id": "motorcycle",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "motorcycle",
+        "moped"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": null,
+          "rate": "0.24",
+          "constant": null
+        }
+      ]
+    },
+    {
+      "id": "bicycle",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "bicycle"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": null,
+          "rate": "0.20",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "country": "ES",
+  "version": "2026.1",
+  "validFrom": "2023-07-17",
+  "validUntil": null,
+  "currencyCode": "EUR",
+  "distanceUnit": "kilometers",
+  "source": "Orden HFP/792/2023, de 12 de julio (BOE-A-2023-16461) — gastos de locomocion exceptuados de gravamen, art. 9 Reglamento IRPF",
+  "sourceURL": "https://www.boe.es/buscar/doc.php?id=BOE-A-2023-16461",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "locomocion",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "car",
+        "van",
+        "electricCar",
+        "motorcycle",
+        "moped"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": null,
+          "rate": "0.26",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

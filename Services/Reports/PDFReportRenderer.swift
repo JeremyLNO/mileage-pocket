@@ -1,0 +1,334 @@
+import Foundation
+import PDFKit
+import UIKit
+
+/// Renders the mileage report.
+///
+/// This document is the product's end point: it is what gets emailed to an employer or
+/// handed to an accountant, so it is built to be read by someone who has never heard of the
+/// app — every figure is traceable to the rule that produced it, and the footer names that
+/// rule, its version and its source.
+struct PDFReportRenderer {
+    // A4 at 72 dpi.
+    private let pageSize = CGSize(width: 595.2, height: 841.8)
+    private let margin: CGFloat = 44
+    private let rowHeight: CGFloat = 22
+    private let headerRowHeight: CGFloat = 26
+
+    enum RenderError: Error {
+        case couldNotWriteFile
+    }
+
+    func render(_ data: ReportData, profile: ReportProfile, to url: URL) throws -> URL {
+        let format = UIGraphicsPDFRendererFormat()
+        format.documentInfo = [
+            kCGPDFContextTitle as String: "Mileage Report — \(data.period.title(locale: profile.locale))",
+            kCGPDFContextAuthor as String: profile.userName,
+            kCGPDFContextCreator as String: "Mileage Pocket",
+        ]
+        let renderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pageSize), format: format)
+
+        let pages = paginate(data)
+        let pageCount = max(1, pages.count)
+
+        let pdf = renderer.pdfData { context in
+            for (index, page) in pages.enumerated() {
+                context.beginPage()
+                var y = margin
+
+                if index == 0 {
+                    y = drawDocumentHeader(data, profile: profile, at: y)
+                    y += 12
+                    y = drawSummary(data, profile: profile, at: y)
+                    y += 16
+                }
+
+                y = drawTableHeader(profile: profile, at: y)
+                for row in page {
+                    y = drawRow(row, profile: profile, at: y, alternate: shouldShade(row, in: data))
+                }
+
+                if index == pages.count - 1 {
+                    y += 4
+                    y = drawTotals(data, profile: profile, at: y)
+                    y += 18
+                    drawDisclaimer(profile: profile, data: data, at: y)
+                }
+
+                drawPageFooter(profile: profile, page: index + 1, of: pageCount)
+            }
+
+            // A report with no trips still produces a document: an empty month is itself a
+            // statement, and a missing file would look like a failure.
+            if pages.isEmpty {
+                context.beginPage()
+                var y = margin
+                y = drawDocumentHeader(data, profile: profile, at: y)
+                y += 12
+                y = drawSummary(data, profile: profile, at: y)
+                y += 20
+                draw("No business trips recorded for this period.", at: CGPoint(x: margin, y: y), font: .systemFont(ofSize: 11), color: .secondaryLabel)
+                drawPageFooter(profile: profile, page: 1, of: 1)
+            }
+        }
+
+        do {
+            try pdf.write(to: url, options: .atomic)
+        } catch {
+            throw RenderError.couldNotWriteFile
+        }
+        return url
+    }
+
+    // MARK: - Layout
+
+    private var columns: [CGFloat] { [58, 108, 108, 92, 56, 40, 45] }
+
+    private func columnX(_ index: Int) -> CGFloat {
+        margin + columns.prefix(index).reduce(0, +)
+    }
+
+    private var contentWidth: CGFloat { columns.reduce(0, +) }
+
+    /// Splits rows into pages. The first page carries the header block, so it fits fewer
+    /// rows than the ones after it — computing that instead of assuming a fixed count is
+    /// what keeps the last page from overflowing silently.
+    private func paginate(_ data: ReportData) -> [[ReportRow]] {
+        guard !data.rows.isEmpty else { return [] }
+        let firstPageCapacity = Int((pageSize.height - margin * 2 - 210 - headerRowHeight - 90) / rowHeight)
+        let otherPageCapacity = Int((pageSize.height - margin * 2 - headerRowHeight - 40) / rowHeight)
+
+        var pages: [[ReportRow]] = []
+        var remaining = data.rows[...]
+
+        let first = remaining.prefix(max(1, firstPageCapacity))
+        pages.append(Array(first))
+        remaining = remaining.dropFirst(first.count)
+
+        while !remaining.isEmpty {
+            let slice = remaining.prefix(max(1, otherPageCapacity))
+            pages.append(Array(slice))
+            remaining = remaining.dropFirst(slice.count)
+        }
+        return pages
+    }
+
+    private func shouldShade(_ row: ReportRow, in data: ReportData) -> Bool {
+        guard let index = data.rows.firstIndex(where: { $0.id == row.id }) else { return false }
+        return index.isMultiple(of: 2)
+    }
+
+    // MARK: - Blocks
+
+    private func drawDocumentHeader(_ data: ReportData, profile: ReportProfile, at y: CGFloat) -> CGFloat {
+        var cursor = y
+        draw("MILEAGE REPORT", at: CGPoint(x: margin, y: cursor), font: .systemFont(ofSize: 10, weight: .semibold), color: .systemOrange, tracking: 1.6)
+        cursor += 16
+        draw(data.period.title(locale: profile.locale), at: CGPoint(x: margin, y: cursor), font: .systemFont(ofSize: 26, weight: .bold))
+        cursor += 34
+
+        let left: [(String, String)] = [
+            ("Name", profile.userName),
+            ("Company", profile.companyName ?? "—"),
+            ("Vehicle", profile.vehicleLabel ?? "—"),
+        ]
+        let right: [(String, String)] = [
+            ("Country", profile.countryName),
+            ("Rule", profile.ruleDescription),
+            ("Rule version", profile.ruleVersion),
+        ]
+
+        let columnStart = cursor
+        for (label, value) in left {
+            drawLabelledValue(label, value, at: CGPoint(x: margin, y: cursor), width: contentWidth / 2 - 12)
+            cursor += 28
+        }
+        var rightCursor = columnStart
+        for (label, value) in right {
+            drawLabelledValue(label, value, at: CGPoint(x: margin + contentWidth / 2, y: rightCursor), width: contentWidth / 2)
+            rightCursor += 28
+        }
+
+        let bottom = max(cursor, rightCursor)
+        drawRule(y: bottom + 2)
+        return bottom + 8
+    }
+
+    private func drawSummary(_ data: ReportData, profile: ReportProfile, at y: CGFloat) -> CGFloat {
+        let tiles: [(String, String)] = [
+            ("Business trips", "\(data.businessTripCount)"),
+            ("Total distance", Fmt.distance(meters: data.totalDistanceMeters, unit: profile.unit, locale: profile.locale)),
+            (profile.isOfficialRate ? "Total deduction" : "Total reimbursement",
+             Fmt.money(data.totalAmount, currencyCode: data.currencyCode, locale: profile.locale)),
+        ]
+        let tileWidth = contentWidth / CGFloat(tiles.count)
+        for (index, tile) in tiles.enumerated() {
+            let x = margin + CGFloat(index) * tileWidth
+            draw(tile.0.uppercased(), at: CGPoint(x: x, y: y), font: .systemFont(ofSize: 8, weight: .semibold), color: .secondaryLabel, tracking: 1)
+            draw(tile.1, at: CGPoint(x: x, y: y + 12), font: .monospacedDigitSystemFont(ofSize: 17, weight: .semibold))
+        }
+        return y + 38
+    }
+
+    private func drawTableHeader(profile: ReportProfile, at y: CGFloat) -> CGFloat {
+        let unit = profile.unit == .kilometers ? "km" : "mi"
+        let titles = ["Date", "From", "To", "Purpose", "Distance (\(unit))", "Rate", "Amount"]
+        let rect = CGRect(x: margin, y: y, width: contentWidth, height: headerRowHeight)
+        UIColor.systemGray6.setFill()
+        UIBezierPath(roundedRect: rect, cornerRadius: 4).fill()
+
+        for (index, title) in titles.enumerated() {
+            let alignment: NSTextAlignment = index >= 4 ? .right : .left
+            draw(
+                title,
+                in: CGRect(x: columnX(index) + 5, y: y + 8, width: columns[index] - 10, height: 14),
+                font: .systemFont(ofSize: 7.5, weight: .semibold),
+                color: .secondaryLabel,
+                alignment: alignment,
+                tracking: 0.6
+            )
+        }
+        return y + headerRowHeight
+    }
+
+    private func drawRow(_ row: ReportRow, profile: ReportProfile, at y: CGFloat, alternate: Bool) -> CGFloat {
+        if alternate {
+            UIColor(white: 0.97, alpha: 1).setFill()
+            UIBezierPath(rect: CGRect(x: margin, y: y, width: contentWidth, height: rowHeight)).fill()
+        }
+
+        let dateStyle = Date.FormatStyle.dateTime.day(.twoDigits).month(.twoDigits).year().locale(profile.locale)
+        let purpose = row.isManuallyEdited ? "\(row.purpose) (edited)" : row.purpose
+        let values = [
+            row.date.formatted(dateStyle),
+            row.from,
+            row.to,
+            purpose,
+            Fmt.distanceValue(meters: row.distanceMeters, unit: profile.unit, locale: profile.locale),
+            row.rate.map { Fmt.money($0, currencyCode: row.currencyCode ?? "EUR", locale: profile.locale) } ?? "—",
+            row.amount.map { Fmt.money($0, currencyCode: row.currencyCode ?? "EUR", locale: profile.locale) } ?? "—",
+        ]
+
+        for (index, value) in values.enumerated() {
+            let numeric = index >= 4
+            draw(
+                value,
+                in: CGRect(x: columnX(index) + 5, y: y + 6, width: columns[index] - 10, height: 14),
+                font: numeric ? .monospacedDigitSystemFont(ofSize: 8, weight: .regular) : .systemFont(ofSize: 8),
+                color: .label,
+                alignment: numeric ? .right : .left
+            )
+        }
+        return y + rowHeight
+    }
+
+    private func drawTotals(_ data: ReportData, profile: ReportProfile, at y: CGFloat) -> CGFloat {
+        drawRule(y: y)
+        let cursor = y + 6
+        draw("TOTAL — \(data.businessTripCount) business trips", at: CGPoint(x: margin + 5, y: cursor + 4), font: .systemFont(ofSize: 9, weight: .semibold))
+        draw(
+            Fmt.distanceValue(meters: data.totalDistanceMeters, unit: profile.unit, locale: profile.locale),
+            in: CGRect(x: columnX(4) + 5, y: cursor + 4, width: columns[4] - 10, height: 14),
+            font: .monospacedDigitSystemFont(ofSize: 9, weight: .semibold),
+            alignment: .right
+        )
+        draw(
+            Fmt.money(data.totalAmount, currencyCode: data.currencyCode, locale: profile.locale),
+            in: CGRect(x: columnX(6) - 40, y: cursor + 4, width: columns[6] + 35, height: 14),
+            font: .monospacedDigitSystemFont(ofSize: 9, weight: .bold),
+            alignment: .right
+        )
+        return cursor + 22
+    }
+
+    private func drawDisclaimer(profile: ReportProfile, data: ReportData, at y: CGFloat) {
+        var cursor = y
+        var lines = [
+            "Generated on \(Date.now.formatted(date: .abbreviated, time: .shortened)) by Mileage Pocket.",
+            "Country: \(profile.countryName) (\(profile.countryCode)) · Rule: \(profile.ruleDescription) · Version: \(profile.ruleVersion)",
+        ]
+        if let source = profile.ruleSourceURL {
+            lines.append("Source: \(source.absoluteString)")
+        }
+        if data.ruleVersions.count > 1 {
+            lines.append("Note: more than one rule version applies inside this period (\(data.ruleVersions.joined(separator: ", "))). Each trip keeps the rate in force on its own date.")
+        }
+        if !profile.isOfficialRate {
+            lines.append("This report uses a rate you configured yourself, not an official published scale.")
+        }
+        lines.append("Calculated using the applicable mileage rate configured in Mileage Pocket. Verify eligibility according to your local tax regulations. This document is not a certified tax statement.")
+
+        for line in lines {
+            let height = draw(
+                line,
+                in: CGRect(x: margin, y: cursor, width: contentWidth, height: 40),
+                font: .systemFont(ofSize: 7.5),
+                color: .secondaryLabel
+            )
+            cursor += height + 3
+        }
+    }
+
+    private func drawPageFooter(profile: ReportProfile, page: Int, of total: Int) {
+        draw(
+            "Mileage Pocket",
+            in: CGRect(x: margin, y: pageSize.height - margin + 8, width: contentWidth / 2, height: 12),
+            font: .systemFont(ofSize: 7.5),
+            color: .tertiaryLabel
+        )
+        draw(
+            "Page \(page) of \(total)",
+            in: CGRect(x: margin + contentWidth / 2, y: pageSize.height - margin + 8, width: contentWidth / 2, height: 12),
+            font: .systemFont(ofSize: 7.5),
+            color: .tertiaryLabel,
+            alignment: .right
+        )
+    }
+
+    // MARK: - Drawing primitives
+
+    private func drawLabelledValue(_ label: String, _ value: String, at point: CGPoint, width: CGFloat) {
+        draw(label.uppercased(), at: point, font: .systemFont(ofSize: 7.5, weight: .semibold), color: .secondaryLabel, tracking: 0.8)
+        _ = draw(value, in: CGRect(x: point.x, y: point.y + 11, width: width, height: 14), font: .systemFont(ofSize: 10.5, weight: .medium))
+    }
+
+    private func drawRule(y: CGFloat) {
+        UIColor.systemGray4.setFill()
+        UIBezierPath(rect: CGRect(x: margin, y: y, width: contentWidth, height: 0.5)).fill()
+    }
+
+    private func draw(_ text: String, at point: CGPoint, font: UIFont, color: UIColor = .label, tracking: CGFloat = 0) {
+        attributed(text, font: font, color: color, tracking: tracking).draw(at: point)
+    }
+
+    @discardableResult
+    private func draw(
+        _ text: String,
+        in rect: CGRect,
+        font: UIFont,
+        color: UIColor = .label,
+        alignment: NSTextAlignment = .left,
+        tracking: CGFloat = 0
+    ) -> CGFloat {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = alignment
+        paragraph.lineBreakMode = .byTruncatingTail
+        let string = attributed(text, font: font, color: color, tracking: tracking, paragraph: paragraph)
+        let bounding = string.boundingRect(with: CGSize(width: rect.width, height: .greatestFiniteMagnitude), options: [.usesLineFragmentOrigin], context: nil)
+        string.draw(with: CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: max(rect.height, bounding.height)), options: [.usesLineFragmentOrigin], context: nil)
+        return bounding.height
+    }
+
+    private func attributed(
+        _ text: String,
+        font: UIFont,
+        color: UIColor,
+        tracking: CGFloat,
+        paragraph: NSParagraphStyle? = nil
+    ) -> NSAttributedString {
+        var attributes: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: color]
+        if tracking != 0 { attributes[.kern] = tracking }
+        if let paragraph { attributes[.paragraphStyle] = paragraph }
+        return NSAttributedString(string: text, attributes: attributes)
+    }
+}

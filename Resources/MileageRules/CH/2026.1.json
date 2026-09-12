@@ -1,0 +1,32 @@
+{
+  "country": "CH",
+  "version": "2026.1",
+  "validFrom": "2026-01-01",
+  "validUntil": null,
+  "currencyCode": "CHF",
+  "distanceUnit": "kilometers",
+  "source": "EFD/DFF — Communique 'EFD passt Steuertarife an Teuerung an' du 11.09.2025, modification de la Berufskostenverordnung, periode fiscale 2026",
+  "sourceURL": "https://www.admin.ch/de/newnsb/VzaAUrhkPx2EPde4a6e3O",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "auto",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "car",
+        "van",
+        "electricCar"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": null,
+          "rate": "0.75",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

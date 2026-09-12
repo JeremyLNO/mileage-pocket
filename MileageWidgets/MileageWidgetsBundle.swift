@@ -5,5 +5,6 @@ import WidgetKit
 struct MileageWidgetsBundle: WidgetBundle {
     var body: some Widget {
         StartTripWidget()
+        TripLiveActivity()
     }
 }

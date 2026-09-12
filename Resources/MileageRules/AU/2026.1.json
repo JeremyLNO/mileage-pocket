@@ -1,0 +1,32 @@
+{
+  "country": "AU",
+  "version": "2026.1",
+  "validFrom": "2026-07-01",
+  "validUntil": "2027-06-30",
+  "currencyCode": "AUD",
+  "distanceUnit": "kilometers",
+  "source": "Income Tax Assessment (Cents per Kilometre Deduction Rate for Car Expenses) Determination 2026 (F2026L00785)",
+  "sourceURL": "https://www.legislation.gov.au/F2026L00785/asmade/2026-06-23/text/original/epub/OEBPS/document_1/document_1.html",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "centsPerKilometre",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "car",
+        "van",
+        "electricCar"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": null,
+          "rate": "0.91",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

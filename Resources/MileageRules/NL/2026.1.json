@@ -1,0 +1,35 @@
+{
+  "country": "NL",
+  "version": "2026.1",
+  "validFrom": "2026-01-01",
+  "validUntil": null,
+  "currencyCode": "EUR",
+  "distanceUnit": "kilometers",
+  "source": "Belastingdienst — Zakelijk gebruik privevervoermiddel 2026",
+  "sourceURL": "https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/zakelijk/winst/inkomstenbelasting/veranderingen-inkomstenbelasting-2026/zakelijk-gebruik-privevervoermiddel-2026",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "privevervoermiddel",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "car",
+        "van",
+        "electricCar",
+        "motorcycle",
+        "moped",
+        "bicycle"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": null,
+          "rate": "0.25",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "country": "CA",
+  "version": "2026.1",
+  "validFrom": "2026-01-01",
+  "validUntil": null,
+  "currencyCode": "CAD",
+  "distanceUnit": "kilometers",
+  "source": "Department of Finance Canada / CRA — 2026 automobile deduction limits and expense benefit rates, tax-exempt allowance (provinces)",
+  "sourceURL": "https://www.canada.ca/en/department-finance/news/2026/01/government-announces-the-2026-automobile-deduction-limits-and-expense-benefit-rates-for-businesses.html",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "car",
+      "bandMode": "marginal",
+      "vehicleTypes": [
+        "car",
+        "van",
+        "electricCar"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": 5000,
+          "rate": "0.73",
+          "constant": null
+        },
+        {
+          "fromDistance": 5000,
+          "toDistance": null,
+          "rate": "0.67",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

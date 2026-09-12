@@ -10,7 +10,7 @@ import SwiftData
 /// `calculatedAmount`). A later rate change, country change or vehicle change never
 /// rewrites an existing trip — only an explicit "Recalculate using current rules" does.
 @Model
-final class Trip {
+final class Trip: Identifiable {
     var id: UUID = UUID()
     var startedAt: Date = Date()
     var endedAt: Date?

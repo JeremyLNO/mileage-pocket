@@ -1,0 +1,448 @@
+{
+  "country": "FR",
+  "version": "2026.1",
+  "validFrom": "2025-01-01",
+  "validUntil": null,
+  "currencyCode": "EUR",
+  "distanceUnit": "kilometers",
+  "source": "impots.gouv.fr — Bareme kilometrique, aide du simulateur de l'impot sur les revenus 2025 (declaration 2026) ; identique a BOI-BAREME-000001",
+  "sourceURL": "https://simulateur-ir-ifi.impots.gouv.fr/calcul_impot/2026/aides/frais.htm",
+  "lastVerified": "2026-09-12",
+  "schemes": [
+    {
+      "id": "automobile-electrique",
+      "bandMode": "whole",
+      "vehicleTypes": [
+        "electricCar"
+      ],
+      "fuelTypes": null,
+      "powerBands": [
+        {
+          "minPower": null,
+          "maxPower": 3,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.529",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.316",
+              "constant": "1065"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.370",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 4,
+          "maxPower": 4,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.606",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.340",
+              "constant": "1330"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.407",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 5,
+          "maxPower": 5,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.636",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.357",
+              "constant": "1395"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.427",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 6,
+          "maxPower": 6,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.665",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.374",
+              "constant": "1457"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.447",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 7,
+          "maxPower": null,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.697",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.394",
+              "constant": "1515"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.470",
+              "constant": null
+            }
+          ]
+        }
+      ],
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": 5000,
+          "rate": "0.636",
+          "constant": null
+        },
+        {
+          "fromDistance": 5000,
+          "toDistance": 20000,
+          "rate": "0.357",
+          "constant": "1395"
+        },
+        {
+          "fromDistance": 20000,
+          "toDistance": null,
+          "rate": "0.427",
+          "constant": null
+        }
+      ],
+      "rateMultiplier": "1.20",
+      "powerUnit": "fiscalHorsepower"
+    },
+    {
+      "id": "automobile",
+      "bandMode": "whole",
+      "vehicleTypes": [
+        "car",
+        "van"
+      ],
+      "fuelTypes": null,
+      "powerBands": [
+        {
+          "minPower": null,
+          "maxPower": 3,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.529",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.316",
+              "constant": "1065"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.370",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 4,
+          "maxPower": 4,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.606",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.340",
+              "constant": "1330"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.407",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 5,
+          "maxPower": 5,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.636",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.357",
+              "constant": "1395"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.427",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 6,
+          "maxPower": 6,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.665",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.374",
+              "constant": "1457"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.447",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 7,
+          "maxPower": null,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 5000,
+              "rate": "0.697",
+              "constant": null
+            },
+            {
+              "fromDistance": 5000,
+              "toDistance": 20000,
+              "rate": "0.394",
+              "constant": "1515"
+            },
+            {
+              "fromDistance": 20000,
+              "toDistance": null,
+              "rate": "0.470",
+              "constant": null
+            }
+          ]
+        }
+      ],
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": 5000,
+          "rate": "0.636",
+          "constant": null
+        },
+        {
+          "fromDistance": 5000,
+          "toDistance": 20000,
+          "rate": "0.357",
+          "constant": "1395"
+        },
+        {
+          "fromDistance": 20000,
+          "toDistance": null,
+          "rate": "0.427",
+          "constant": null
+        }
+      ],
+      "powerUnit": "fiscalHorsepower"
+    },
+    {
+      "id": "motocyclette",
+      "bandMode": "whole",
+      "vehicleTypes": [
+        "motorcycle"
+      ],
+      "fuelTypes": null,
+      "powerBands": [
+        {
+          "minPower": null,
+          "maxPower": 2,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 3000,
+              "rate": "0.395",
+              "constant": null
+            },
+            {
+              "fromDistance": 3000,
+              "toDistance": 6000,
+              "rate": "0.099",
+              "constant": "891"
+            },
+            {
+              "fromDistance": 6000,
+              "toDistance": null,
+              "rate": "0.248",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 3,
+          "maxPower": 5,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 3000,
+              "rate": "0.468",
+              "constant": null
+            },
+            {
+              "fromDistance": 3000,
+              "toDistance": 6000,
+              "rate": "0.082",
+              "constant": "1158"
+            },
+            {
+              "fromDistance": 6000,
+              "toDistance": null,
+              "rate": "0.275",
+              "constant": null
+            }
+          ]
+        },
+        {
+          "minPower": 6,
+          "maxPower": null,
+          "bands": [
+            {
+              "fromDistance": 0,
+              "toDistance": 3000,
+              "rate": "0.606",
+              "constant": null
+            },
+            {
+              "fromDistance": 3000,
+              "toDistance": 6000,
+              "rate": "0.079",
+              "constant": "1583"
+            },
+            {
+              "fromDistance": 6000,
+              "toDistance": null,
+              "rate": "0.343",
+              "constant": null
+            }
+          ]
+        }
+      ],
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": 3000,
+          "rate": "0.468",
+          "constant": null
+        },
+        {
+          "fromDistance": 3000,
+          "toDistance": 6000,
+          "rate": "0.082",
+          "constant": "1158"
+        },
+        {
+          "fromDistance": 6000,
+          "toDistance": null,
+          "rate": "0.275",
+          "constant": null
+        }
+      ]
+    },
+    {
+      "id": "cyclomoteur",
+      "bandMode": "whole",
+      "vehicleTypes": [
+        "moped"
+      ],
+      "fuelTypes": null,
+      "powerBands": null,
+      "bands": [
+        {
+          "fromDistance": 0,
+          "toDistance": 3000,
+          "rate": "0.315",
+          "constant": null
+        },
+        {
+          "fromDistance": 3000,
+          "toDistance": 6000,
+          "rate": "0.079",
+          "constant": "711"
+        },
+        {
+          "fromDistance": 6000,
+          "toDistance": null,
+          "rate": "0.198",
+          "constant": null
+        }
+      ]
+    }
+  ]
+}

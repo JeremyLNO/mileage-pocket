@@ -37,10 +37,12 @@ enum Theme {
     static let controlRadius: CGFloat = 16
     static let cardPadding: CGFloat = 18
 
-    /// The dial's face. Kept shallow on purpose — depth comes from the ring, not the fill.
+    /// The dial's face — honey at the top edge into amber, echoing the app icon so the
+    /// button and the icon read as the same object. Kept shallow on purpose: depth comes
+    /// from the ring, not the fill.
     static var dialGradient: LinearGradient {
         LinearGradient(
-            colors: [Color(light: 0xF59A22, dark: 0xFFA940), Color(light: 0xE05F07, dark: 0xE87A12)],
+            colors: [Color(light: 0xF7B32B, dark: 0xFFC24A), Color(light: 0xDE6B06, dark: 0xE87A12)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
