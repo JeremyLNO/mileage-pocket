@@ -1,0 +1,666 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		020ADF5043E5591121EA4BD5 /* MileagePocketApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35513ED3D57158239A87DAE /* MileagePocketApp.swift */; };
+		89747BD45088447E6FD467BE /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A01F56928DFCE630027E76A /* RootView.swift */; };
+		29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */; };
+		F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90E39E390D840036CEECC96 /* LaunchUITests.swift */; };
+		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
+		CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */; };
+		6DD9C133694F74FB87B20B01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D7172619DB15AD08404D409 /* Assets.xcassets */; };
+		864599333688A266162B406F /* MileageRules in Resources */ = {isa = PBXBuildFile; fileRef = 4A32475C0821BB76773C2A37 /* MileageRules */; };
+		554CEEBAE74D382D7013D462 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2E88A5130923D54E34C2E978 /* PrivacyInfo.xcprivacy */; };
+		D882B008C8E1D607AFA93F38 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4F3133CB82A42C2405ECFE76 /* Localizable.xcstrings */; };
+		4B527C71D042567659B47598 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4F3133CB82A42C2405ECFE76 /* Localizable.xcstrings */; };
+		53F85E2D092373A8A32EB350 /* MileageWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0FD7488223EA0E20BD335592 /* MileageWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		996AD237BC284D463E664FFE /* MileagePocket.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MileagePocket.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD5FEB36355BB38F98691943 /* MileagePocketTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MileagePocketTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE9198967288169819E0B4CF /* MileagePocketUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MileagePocketUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0FD7488223EA0E20BD335592 /* MileageWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "MileageWidgetsExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D35513ED3D57158239A87DAE /* MileagePocketApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileagePocketApp.swift"; sourceTree = "<group>"; };
+		6A01F56928DFCE630027E76A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RootView.swift"; sourceTree = "<group>"; };
+		E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileageWidgetsBundle.swift"; sourceTree = "<group>"; };
+		6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StartTripWidget.swift"; sourceTree = "<group>"; };
+		B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmokeTests.swift"; sourceTree = "<group>"; };
+		E90E39E390D840036CEECC96 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchUITests.swift"; sourceTree = "<group>"; };
+		8D7172619DB15AD08404D409 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4A32475C0821BB76773C2A37 /* MileageRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MileageRules; sourceTree = "<group>"; };
+		2E88A5130923D54E34C2E978 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2326609D0AB94C0E6E60D39A /* MileagePocket.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = MileagePocket.storekit; sourceTree = "<group>"; };
+		4F3133CB82A42C2405ECFE76 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		36291340F8E26B93BEB58318 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		41D36C8E19908FE9E65C4342 /* MileagePocket.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MileagePocket.entitlements; sourceTree = "<group>"; };
+		69723CF8402E36BAC8CDCD90 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		6A5BEAA81BEC2CD3BA9D651B /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		D6F9158E9B5A9C0C71EA5A96 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		01A2568E9CF48123B937E7F9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43E4F0715FD68B62A245E5C2 /* MileageWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MileageWidgets.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4FCBC29864E7C7752B7E193F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		79A4D45905684BD40D53A6E7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1C25C44B845A804078C60F75 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2459633578009F3E492FB24 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		043755FD70D1BC6911EA5114 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				53F85E2D092373A8A32EB350 /* MileageWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXGroup section */
+		D1D0524B025E57AFFF263442 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				D35513ED3D57158239A87DAE /* MileagePocketApp.swift */,
+				6A01F56928DFCE630027E76A /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		35D315DEBBF45F223B169A61 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				1D75B78C94526A83A92EEBEB /* MileagePocketApp.swift */,
+				E3FB13A2EE69DD0D85780FE4 /* RootView.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		A1C86A29E589D48EC70B6A32 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B8CE0582EE25155A2C8B4F69 /* MileagePocketApp.swift */,
+				44CAAC7CB329950232134C32 /* RootView.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		609874F33224C0C09F1FEE42 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AB328E3071C92746E5DD3AA2 /* MileagePocketApp.swift */,
+				8027A7759C22DF92673AE2A5 /* RootView.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		984D844B917CCD4C29DE2A97 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				375996B173D8066D0D9B82C3 /* MileagePocketApp.swift */,
+				F6B01FD1F0C5EC58C7F1BCB4 /* RootView.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		B46A6AFB1DC88CE23F6E63F1 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		74C0354F987B4FC0FDE2C044 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		055C91336A1BA92BA225F99B /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				E90E39E390D840036CEECC96 /* LaunchUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		9B02901D8C3A086C40FA433D /* MileageWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				01A2568E9CF48123B937E7F9 /* Info.plist */,
+				43E4F0715FD68B62A245E5C2 /* MileageWidgets.entitlements */,
+				E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */,
+				6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */,
+			);
+			path = MileageWidgets;
+			sourceTree = "<group>";
+		};
+		4541A46D5097AB86EF55A621 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8D7172619DB15AD08404D409 /* Assets.xcassets */,
+				4F3133CB82A42C2405ECFE76 /* Localizable.xcstrings */,
+				4A32475C0821BB76773C2A37 /* MileageRules */,
+				2E88A5130923D54E34C2E978 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		D5B807729C9161D8C6C93C82 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				69723CF8402E36BAC8CDCD90 /* Base.xcconfig */,
+				6A5BEAA81BEC2CD3BA9D651B /* Debug.xcconfig */,
+				D6F9158E9B5A9C0C71EA5A96 /* Release.xcconfig */,
+				2326609D0AB94C0E6E60D39A /* MileagePocket.storekit */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		72A79544FC4DD10045022645 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				996AD237BC284D463E664FFE /* MileagePocket.app */,
+				BD5FEB36355BB38F98691943 /* MileagePocketTests.xctest */,
+				AE9198967288169819E0B4CF /* MileagePocketUITests.xctest */,
+				0FD7488223EA0E20BD335592 /* MileageWidgetsExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		71DC27D9F8E3B109C877BFC4 = {
+			isa = PBXGroup;
+			children = (
+				D1D0524B025E57AFFF263442 /* App */,
+				35D315DEBBF45F223B169A61 /* Core */,
+				A1C86A29E589D48EC70B6A32 /* Models */,
+				609874F33224C0C09F1FEE42 /* Services */,
+				984D844B917CCD4C29DE2A97 /* Features */,
+				B46A6AFB1DC88CE23F6E63F1 /* Shared */,
+				4541A46D5097AB86EF55A621 /* Resources */,
+				D5B807729C9161D8C6C93C82 /* Config */,
+				74C0354F987B4FC0FDE2C044 /* Tests */,
+				055C91336A1BA92BA225F99B /* UITests */,
+				9B02901D8C3A086C40FA433D /* MileageWidgets */,
+				72A79544FC4DD10045022645 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F01C2E624E08A72BC055B46F /* MileagePocket */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2EF0BFE4C820F767E4303FC /* Build configuration list for PBXNativeTarget "MileagePocket" */;
+			buildPhases = (
+				C197A1D4E0DE673615AC32CB /* Sources */,
+				4FCBC29864E7C7752B7E193F /* Frameworks */,
+				8A6A452CEE30B0908A47D41D /* Resources */,
+				043755FD70D1BC6911EA5114 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C66FC03D90E8D27C6D69B37D /* PBXTargetDependency */,
+			);
+			name = MileagePocket;
+			packageProductDependencies = (
+			);
+			productName = MileagePocket;
+			productReference = 996AD237BC284D463E664FFE /* MileagePocket.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C706FA839F4C1F2316B35783 /* MileagePocketTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1E47EEC85B4E560F9CFE8E0B /* Build configuration list for PBXNativeTarget "MileagePocketTests" */;
+			buildPhases = (
+				0D9FED2C54C8F345B7A1EB3B /* Sources */,
+				79A4D45905684BD40D53A6E7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				247A6BBCA06A48AE23549A72 /* PBXTargetDependency */,
+			);
+			name = MileagePocketTests;
+			productName = MileagePocketTests;
+			productReference = BD5FEB36355BB38F98691943 /* MileagePocketTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		3A64ECAF98DFAF2BC218DB7D /* MileagePocketUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB3FC849264C103FB920607D /* Build configuration list for PBXNativeTarget "MileagePocketUITests" */;
+			buildPhases = (
+				E39ACA072C01855A3935210B /* Sources */,
+				1C25C44B845A804078C60F75 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				64FE1E83ACE8FD07EEDD4408 /* PBXTargetDependency */,
+			);
+			name = MileagePocketUITests;
+			productName = MileagePocketUITests;
+			productReference = AE9198967288169819E0B4CF /* MileagePocketUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		D627CACEBFAAA465612B83CD /* MileageWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 05D4D9E5546F0106138EA15F /* Build configuration list for PBXNativeTarget "MileageWidgetsExtension" */;
+			buildPhases = (
+				E2F56E4F641B0C97C58C11A5 /* Sources */,
+				F2459633578009F3E492FB24 /* Frameworks */,
+				8894B6517AEC09E6A28B351A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "MileageWidgetsExtension";
+			productName = "MileageWidgetsExtension";
+			productReference = 0FD7488223EA0E20BD335592 /* MileageWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					F01C2E624E08A72BC055B46F = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					C706FA839F4C1F2316B35783 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = F01C2E624E08A72BC055B46F;
+					};
+					3A64ECAF98DFAF2BC218DB7D = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = F01C2E624E08A72BC055B46F;
+					};
+					D627CACEBFAAA465612B83CD = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = 32D42B6A09FA42C6EFFC8E0F /* Build configuration list for PBXProject "MileagePocket" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = fr;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				fr,
+				en,
+				es,
+				de,
+				pt,
+				Base,
+			);
+			mainGroup = 71DC27D9F8E3B109C877BFC4;
+			packageReferences = (
+			);
+			productRefGroup = 72A79544FC4DD10045022645 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F01C2E624E08A72BC055B46F /* MileagePocket */,
+				C706FA839F4C1F2316B35783 /* MileagePocketTests */,
+				3A64ECAF98DFAF2BC218DB7D /* MileagePocketUITests */,
+				D627CACEBFAAA465612B83CD /* MileageWidgetsExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXContainerItemProxy section */
+		920737C8D557D5379CE05229 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F01C2E624E08A72BC055B46F;
+			remoteInfo = MileagePocket;
+		};
+		43D59B57D278DB0F0D7DBEC9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F01C2E624E08A72BC055B46F;
+			remoteInfo = MileagePocket;
+		};
+		BC6137B680EE998CED07CAC9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D627CACEBFAAA465612B83CD;
+			remoteInfo = "MileageWidgetsExtension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		247A6BBCA06A48AE23549A72 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F01C2E624E08A72BC055B46F /* MileagePocket */;
+			targetProxy = 920737C8D557D5379CE05229 /* PBXContainerItemProxy */;
+		};
+		64FE1E83ACE8FD07EEDD4408 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F01C2E624E08A72BC055B46F /* MileagePocket */;
+			targetProxy = 43D59B57D278DB0F0D7DBEC9 /* PBXContainerItemProxy */;
+		};
+		C66FC03D90E8D27C6D69B37D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D627CACEBFAAA465612B83CD /* MileageWidgetsExtension */;
+			targetProxy = BC6137B680EE998CED07CAC9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8A6A452CEE30B0908A47D41D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6DD9C133694F74FB87B20B01 /* Assets.xcassets in Resources */,
+				D882B008C8E1D607AFA93F38 /* Localizable.xcstrings in Resources */,
+				864599333688A266162B406F /* MileageRules in Resources */,
+				554CEEBAE74D382D7013D462 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8894B6517AEC09E6A28B351A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B527C71D042567659B47598 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C197A1D4E0DE673615AC32CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				020ADF5043E5591121EA4BD5 /* MileagePocketApp.swift in Sources */,
+				89747BD45088447E6FD467BE /* RootView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0D9FED2C54C8F345B7A1EB3B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E39ACA072C01855A3935210B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2F56E4F641B0C97C58C11A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */,
+				CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BF20ADA4BADCE0D874998719 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A5BEAA81BEC2CD3BA9D651B /* Debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)");
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D247EF59B93D2323D10271C0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D6F9158E9B5A9C0C71EA5A96 /* Release.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		0734E3BF1D7D1FE519145A53 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "App/MileagePocket.entitlements";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "App/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Debug;
+		};
+		A44521F7D7D0FB5F7D3840DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "App/MileagePocket.entitlements";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "App/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Release;
+		};
+		DD9E53A751D12837D49CD913 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks");
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER).tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MileagePocket.app/MileagePocket";
+			};
+			name = Debug;
+		};
+		89AB91E29179479D5B63A0C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks");
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER).tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MileagePocket.app/MileagePocket";
+			};
+			name = Release;
+		};
+		5D682867634DB5F9CBC6A64B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks");
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER).uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1";
+				TEST_TARGET_NAME = MileagePocket;
+			};
+			name = Debug;
+		};
+		768ED6BC1035E3F4882E0565 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks");
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER).uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1";
+				TEST_TARGET_NAME = MileagePocket;
+			};
+			name = Release;
+		};
+		F0330D309D531DF40A196E5F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "MileageWidgets/MileageWidgets.entitlements";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MileageWidgets/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "MileageWidgetsExtension";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks");
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER).widgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+			};
+			name = Debug;
+		};
+		E0F31FB4E6DB1B232AA9B8AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "MileageWidgets/MileageWidgets.entitlements";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MileageWidgets/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "MileageWidgetsExtension";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks");
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER).widgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		32D42B6A09FA42C6EFFC8E0F /* Build configuration list for PBXProject "MileagePocket" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BF20ADA4BADCE0D874998719 /* Debug */,
+				D247EF59B93D2323D10271C0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2EF0BFE4C820F767E4303FC /* Build configuration list for PBXNativeTarget "MileagePocket" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0734E3BF1D7D1FE519145A53 /* Debug */,
+				A44521F7D7D0FB5F7D3840DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1E47EEC85B4E560F9CFE8E0B /* Build configuration list for PBXNativeTarget "MileagePocketTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD9E53A751D12837D49CD913 /* Debug */,
+				89AB91E29179479D5B63A0C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BB3FC849264C103FB920607D /* Build configuration list for PBXNativeTarget "MileagePocketUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5D682867634DB5F9CBC6A64B /* Debug */,
+				768ED6BC1035E3F4882E0565 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		05D4D9E5546F0106138EA15F /* Build configuration list for PBXNativeTarget "MileageWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F0330D309D531DF40A196E5F /* Debug */,
+				E0F31FB4E6DB1B232AA9B8AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+}

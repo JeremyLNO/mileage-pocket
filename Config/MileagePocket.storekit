@@ -1,0 +1,62 @@
+{
+  "identifier" : "A1B2C3D4",
+  "nonRenewingSubscriptions" : [],
+  "products" : [],
+  "settings" : {
+    "_applicationInternalID" : "6811426601",
+    "_developerTeamID" : "2E6D4Q69QB",
+    "_lastSynchronizedDate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21550000",
+      "localizations" : [],
+      "name" : "Mileage Pocket",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21550001",
+          "introductoryOffer" : {
+            "internalID" : "21550011",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            { "description" : "Unlimited tracking, reports and exports.", "displayName" : "Monthly", "locale" : "en_US" }
+          ],
+          "productID" : "company.lno.mileage.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Mileage Pocket Monthly",
+          "subscriptionGroupID" : "21550000",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "29.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21550002",
+          "introductoryOffer" : {
+            "internalID" : "21550012",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            { "description" : "Unlimited tracking, reports and exports.", "displayName" : "Annual", "locale" : "en_US" }
+          ],
+          "productID" : "company.lno.mileage.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Mileage Pocket Annual",
+          "subscriptionGroupID" : "21550000",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : { "major" : 4, "minor" : 0 }
+}
