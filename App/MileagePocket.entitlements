@@ -2,19 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.company.lno.mileage</string>
-	</array>
-	<key>com.apple.developer.icloud-container-identifiers</key>
-	<array>
-		<string>iCloud.company.lno.mileage</string>
-	</array>
-	<key>com.apple.developer.icloud-services</key>
-	<array>
-		<string>CloudKit</string>
-	</array>
-	<key>aps-environment</key>
-	<string>development</string>
+	<!--
+	  iCloud (com.apple.developer.icloud-*) and the App Group are intentionally absent from
+	  this build.
+
+	  Creating an App Group identifier and a CloudKit container is not possible through the
+	  App Store Connect API — only the developer portal or a Xcode signed in with an Apple
+	  account can do it, and this machine has neither. The provisioning profile therefore
+	  authorises those capabilities with *empty* lists, and naming a container the profile
+	  does not grant fails code signing outright.
+
+	  The app already handles their absence: the store falls back to a local one
+	  (PersistenceController.makeContainerWithFallback) and the widget simply shows its
+	  button without the month's figures. Re-add both keys as soon as the group
+	  `group.company.lno.mileage` and the container `iCloud.company.lno.mileage` exist.
+	-->
 </dict>
 </plist>

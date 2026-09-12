@@ -734,6 +734,21 @@ def proj_common():
     ]
 
 
+RELEASE_SIGNING = {
+    "app": "MileagePocket AppStore",
+    "widget": "MileageWidgets AppStore",
+}
+
+
+def manual_signing(profile_name):
+    return [
+        'CODE_SIGN_STYLE = Manual;',
+        'CODE_SIGN_IDENTITY = "Apple Distribution";',
+        'PROVISIONING_PROFILE_SPECIFIER = "%s";' % profile_name,
+        'DEVELOPMENT_TEAM = %s;' % DEVELOPMENT_TEAM.strip('"'),
+    ]
+
+
 def app_target_common():
     return [
         'ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;',
@@ -824,6 +839,9 @@ for env_name, _ in ENVIRONMENTS:
     L('\t\t\tbuildSettings = {')
     for s in app_target_common():
         L('\t\t\t\t' + s)
+    if env_name == "Release":
+        for s in manual_signing(RELEASE_SIGNING["app"]):
+            L('\t\t\t\t' + s)
     L('\t\t\t};')
     L('\t\t\tname = %s;' % env_name)
     L('\t\t};')
@@ -858,6 +876,9 @@ for ext in EXTENSION_TARGETS:
         L('\t\t\tbuildSettings = {')
         for s in ext_target_common(ext):
             L('\t\t\t\t' + s)
+        if env_name == "Release" and ext["key"] in RELEASE_SIGNING:
+            for s in manual_signing(RELEASE_SIGNING[ext["key"]]):
+                L('\t\t\t\t' + s)
         L('\t\t\t};')
         L('\t\t\tname = %s;' % env_name)
         L('\t\t};')

@@ -9,7 +9,14 @@
 	<key>destination</key>
 	<string>upload</string>
 	<key>signingStyle</key>
-	<string>automatic</string>
+	<string>manual</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>Mileage.lno.company</key>
+		<string>MileagePocket AppStore</string>
+		<key>Mileage.lno.company.widgets</key>
+		<string>MileageWidgets AppStore</string>
+	</dict>
 	<key>uploadSymbols</key>
 	<true/>
 	<key>manageAppVersionAndBuildNumber</key>
