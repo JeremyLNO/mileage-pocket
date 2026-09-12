@@ -15,8 +15,17 @@ set -euo pipefail
 : "${ASC_KEY_PATH:?set ASC_KEY_PATH to your AuthKey_*.p8}"
 
 PROJ="$(cd "$(dirname "$0")" && pwd)"
-BUILD_NUMBER="${BUILD_NUMBER:-$(date +%y%m%d%H%M)}"
 ARCHIVE="$PROJ/build/MileagePocket.xcarchive"
+
+# The build number must be strictly greater than every build already in App Store Connect,
+# not merely unique: TestFlight offers the HIGHEST CFBundleVersion as the latest build, not
+# the most recently uploaded one. A timestamp alone is not enough — a build numbered by hand,
+# or a clock minute lower than a previous one, silently leaves testers installing an older
+# binary while the upload log says success. So the floor is read from ASC first.
+if [ -z "${BUILD_NUMBER:-}" ]; then
+  BUILD_NUMBER=$(python3 "$PROJ/tools/next_build_number.py")
+fi
+echo "▶︎ Build number: $BUILD_NUMBER"
 
 python3 "$PROJ/gen_pbxproj.py"
 
