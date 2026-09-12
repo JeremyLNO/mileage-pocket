@@ -95,41 +95,91 @@ final class SubscriptionService {
         await refreshEntitlement()
     }
 
+    /// Two StoreKit signals, each answering what the other cannot.
+    ///
+    /// `Transaction.currentEntitlements` is the authority on ownership: it drops a refunded
+    /// or expired purchase, which `Product.SubscriptionInfo.Status` does not — the test
+    /// session leaves a refunded subscription reporting `.subscribed` with no revocation
+    /// date. But `currentEntitlements` cannot express a billing grace period, where the user
+    /// still deserves service while Apple retries the card. So: ownership decides, and the
+    /// renewal state is consulted only when ownership says nothing.
     func refreshEntitlement() async {
-        var resolved: Entitlement = .none
+        var resolved = await entitlementFromCurrentEntitlements()
+        if resolved == .none, let grace = await gracePeriodEntitlement() {
+            resolved = grace
+        }
+        entitlement = resolved
+    }
 
+    private func gracePeriodEntitlement() async -> Entitlement? {
+        guard let subscription = products.first?.subscription else { return nil }
+        guard let statuses = try? await subscription.status else { return nil }
+
+        for status in statuses {
+            guard case let .verified(transaction) = status.transaction else { continue }
+            guard ProductIDs.all.contains(transaction.productID) else { continue }
+            guard status.state == .inGracePeriod else { continue }
+            return Self.entitlement(
+                for: status.state,
+                productID: transaction.productID,
+                expires: transaction.expirationDate,
+                isTrial: transaction.offer?.type == .introductory
+            )
+        }
+        return nil
+    }
+
+    /// Whether a transaction still grants anything. Refunded money or a passed expiry both
+    /// end access, whatever else StoreKit reports.
+    ///
+    /// Extracted because `SKTestSession.refundTransaction` does not actually revoke an
+    /// auto-renewable entitlement — the session keeps reporting the purchase as owned — so a
+    /// StoreKit-driven test of this guard cannot fail and therefore proves nothing.
+    static func grantsAccess(revokedAt: Date?, expiresAt: Date?, now: Date = .now) -> Bool {
+        if let revokedAt, revokedAt <= now { return false }
+        if let expiresAt, expiresAt <= now { return false }
+        return true
+    }
+
+    /// Pure mapping from a renewal state to what the user may do, extracted so every branch
+    /// can be tested: StoreKit's test session cannot be made to produce an expired
+    /// auto-renewing subscription on demand, and an untested branch here is a paywall that
+    /// either never opens or never closes.
+    ///
+    /// - Returns: `nil` when this status grants nothing.
+    static func entitlement(
+        for state: Product.SubscriptionInfo.RenewalState,
+        productID: String,
+        expires: Date?,
+        isTrial: Bool
+    ) -> Entitlement? {
+        switch state {
+        case .subscribed:
+            return isTrial ? .trial(productID: productID, expires: expires) : .subscribed(productID: productID, expires: expires)
+        case .inGracePeriod:
+            // Billing failed, Apple is still retrying, and the user keeps service meanwhile.
+            return .gracePeriod(productID: productID, expires: expires)
+        case .inBillingRetryPeriod, .expired, .revoked:
+            // Grace has run out, the subscription lapsed, or the purchase was refunded.
+            return nil
+        default:
+            return nil
+        }
+    }
+
+    private func entitlementFromCurrentEntitlements() async -> Entitlement {
+        var resolved: Entitlement = .none
         for await result in Transaction.currentEntitlements {
             guard case let .verified(transaction) = result else { continue }
             guard ProductIDs.all.contains(transaction.productID) else { continue }
-            if let revocation = transaction.revocationDate, revocation <= .now { continue }
-            if let expiration = transaction.expirationDate, expiration <= .now { continue }
+            guard Self.grantsAccess(revokedAt: transaction.revocationDate, expiresAt: transaction.expirationDate) else { continue }
 
             let isTrial = transaction.offer?.type == .introductory
             resolved = isTrial
                 ? .trial(productID: transaction.productID, expires: transaction.expirationDate)
                 : .subscribed(productID: transaction.productID, expires: transaction.expirationDate)
         }
-
-        // A subscription in its billing grace period still has `currentEntitlements`, but a
-        // failed renewal that has left grace does not — checking the renewal state is what
-        // separates "we are still trying to charge you" from "this has lapsed".
-        if resolved == .none, let status = await gracePeriodStatus() {
-            resolved = status
-        }
-
-        entitlement = resolved
-    }
-
-    private func gracePeriodStatus() async -> Entitlement? {
-        guard let product = products.first, let subscription = product.subscription else { return nil }
-        guard let statuses = try? await subscription.status else { return nil }
-        for status in statuses {
-            guard case let .verified(renewalInfo) = status.renewalInfo else { continue }
-            guard status.state == .inGracePeriod else { continue }
-            guard case let .verified(transaction) = status.transaction else { continue }
-            return .gracePeriod(productID: renewalInfo.currentProductID, expires: transaction.expirationDate)
-        }
-        return nil
+        return resolved
     }
 
     func canAccess(_ feature: PremiumFeature) -> Bool {

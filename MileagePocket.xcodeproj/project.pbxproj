@@ -84,10 +84,12 @@
 		0E860F49CCD87C75481C71AA /* RouteCompactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */; };
 		996305294A1DD93E6593CD58 /* RulePackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */; };
 		29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */; };
+		4ABED5DA3350D8C5A2B9CDC9 /* SubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289B64711928B877FD8DDEEC /* SubscriptionTests.swift */; };
 		4EBFCC94CE9B21EB8ECD38E0 /* TripGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */; };
 		6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */; };
 		547BCB0E5CF93F5A6F0F4116 /* RouteFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B87813E46E7FAA074042AE /* RouteFixtures.swift */; };
 		F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90E39E390D840036CEECC96 /* LaunchUITests.swift */; };
+		D40B5893CDDDB9BB012E05AB /* PaywallUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F10061DFC9A55731D6762AC /* PaywallUITests.swift */; };
 		D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */; };
 		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
 		CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */; };
@@ -98,6 +100,7 @@
 		6DD9C133694F74FB87B20B01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D7172619DB15AD08404D409 /* Assets.xcassets */; };
 		864599333688A266162B406F /* MileageRules in Resources */ = {isa = PBXBuildFile; fileRef = 4A32475C0821BB76773C2A37 /* MileageRules */; };
 		554CEEBAE74D382D7013D462 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2E88A5130923D54E34C2E978 /* PrivacyInfo.xcprivacy */; };
+		5FDA17AE7DAF525F7B2F3ACD /* MileagePocket.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 2326609D0AB94C0E6E60D39A /* MileagePocket.storekit */; };
 		D882B008C8E1D607AFA93F38 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4F3133CB82A42C2405ECFE76 /* Localizable.xcstrings */; };
 		4B527C71D042567659B47598 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4F3133CB82A42C2405ECFE76 /* Localizable.xcstrings */; };
 		53F85E2D092373A8A32EB350 /* MileageWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0FD7488223EA0E20BD335592 /* MileageWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -189,9 +192,11 @@
 		B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RouteCompactorTests.swift"; sourceTree = "<group>"; };
 		769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RulePackTests.swift"; sourceTree = "<group>"; };
 		B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmokeTests.swift"; sourceTree = "<group>"; };
+		289B64711928B877FD8DDEEC /* SubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionTests.swift"; sourceTree = "<group>"; };
 		20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripGroupingTests.swift"; sourceTree = "<group>"; };
 		4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripRecorderTests.swift"; sourceTree = "<group>"; };
 		E90E39E390D840036CEECC96 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchUITests.swift"; sourceTree = "<group>"; };
+		6F10061DFC9A55731D6762AC /* PaywallUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PaywallUITests.swift"; sourceTree = "<group>"; };
 		8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripFlowUITests.swift"; sourceTree = "<group>"; };
 		8D7172619DB15AD08404D409 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4A32475C0821BB76773C2A37 /* MileageRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MileageRules; sourceTree = "<group>"; };
@@ -560,6 +565,7 @@
 				B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */,
 				769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */,
 				B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */,
+				289B64711928B877FD8DDEEC /* SubscriptionTests.swift */,
 				20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */,
 				4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */,
 			);
@@ -570,6 +576,7 @@
 			isa = PBXGroup;
 			children = (
 				E90E39E390D840036CEECC96 /* LaunchUITests.swift */,
+				6F10061DFC9A55731D6762AC /* PaywallUITests.swift */,
 				8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */,
 			);
 			path = UITests;
@@ -817,6 +824,7 @@
 				D882B008C8E1D607AFA93F38 /* Localizable.xcstrings in Resources */,
 				864599333688A266162B406F /* MileageRules in Resources */,
 				554CEEBAE74D382D7013D462 /* PrivacyInfo.xcprivacy in Resources */,
+				5FDA17AE7DAF525F7B2F3ACD /* MileagePocket.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -919,6 +927,7 @@
 				0E860F49CCD87C75481C71AA /* RouteCompactorTests.swift in Sources */,
 				996305294A1DD93E6593CD58 /* RulePackTests.swift in Sources */,
 				29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */,
+				4ABED5DA3350D8C5A2B9CDC9 /* SubscriptionTests.swift in Sources */,
 				4EBFCC94CE9B21EB8ECD38E0 /* TripGroupingTests.swift in Sources */,
 				6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */,
 				547BCB0E5CF93F5A6F0F4116 /* RouteFixtures.swift in Sources */,
@@ -930,6 +939,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */,
+				D40B5893CDDDB9BB012E05AB /* PaywallUITests.swift in Sources */,
 				D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -4,7 +4,6 @@
   "tab.trips": "Trips",
   "tab.reports": "Reports",
   "tab.settings": "Settings",
-
   "common.save": "Save",
   "common.cancel": "Cancel",
   "common.discard": "Discard",
@@ -13,7 +12,6 @@
   "common.continue": "Continue",
   "common.ok": "OK",
   "common.close": "Close",
-
   "home.start": "START",
   "home.start.accessibility": "Start trip",
   "home.estimated": "%@ estimated",
@@ -23,16 +21,13 @@
   "home.vehicle": "Vehicle",
   "home.empty.title": "No trips yet",
   "home.empty.message": "Press START when you set off. Your first mileage record is one tap away.",
-
   "activetrip.recording": "Trip in progress",
   "activetrip.paused": "Stopped",
   "activetrip.stop": "STOP",
   "activetrip.stop.accessibility": "Stop trip",
   "activity.title": "Trip in progress",
-
   "trip.type.business": "Business",
   "trip.type.personal": "Personal",
-
   "summary.title": "Trip saved",
   "summary.purpose": "Purpose",
   "summary.purpose.placeholder": "What was this trip for?",
@@ -40,13 +35,11 @@
   "summary.client.placeholder": "Client or project",
   "summary.suggestion": "You usually go to %@ here",
   "summary.suggestion.apply": "Use",
-
   "purpose.clientVisit": "Client visit",
   "purpose.meeting": "Meeting",
   "purpose.delivery": "Delivery",
   "purpose.siteVisit": "Site visit",
   "purpose.other": "Other",
-
   "trips.section.today": "Today",
   "trips.section.yesterday": "Yesterday",
   "trips.section.thisweek": "This week",
@@ -57,7 +50,6 @@
   "trips.filter": "Filter",
   "trips.filter.all": "All trips",
   "trips.add.manual": "Add trip manually",
-
   "detail.from": "From",
   "detail.to": "To",
   "detail.departure": "Departure",
@@ -79,7 +71,6 @@
   "detail.duplicate": "Duplicate",
   "detail.start": "Start",
   "detail.end": "End",
-
   "manual.title": "Add a trip",
   "manual.date": "Date",
   "manual.from": "From",
@@ -88,7 +79,6 @@
   "manual.type": "Type",
   "manual.vehicle": "Vehicle",
   "manual.vehicle.none": "None",
-
   "reports.period": "Period",
   "reports.period.month": "Month",
   "reports.period.quarter": "Quarter",
@@ -102,7 +92,6 @@
   "reports.generate": "GENERATE REPORT",
   "reports.csv": "Export as CSV",
   "reports.empty.hint": "No business trips in this period yet. The report will be empty.",
-
   "vehicles.title": "Vehicles",
   "vehicles.add": "Add vehicle",
   "vehicles.default": "Default",
@@ -122,7 +111,6 @@
   "vehicle.type.motorcycle": "Motorcycle",
   "vehicle.type.moped": "Moped",
   "vehicle.type.bicycle": "Bicycle",
-
   "settings.account": "Account",
   "settings.name": "Name",
   "settings.company": "Company",
@@ -161,11 +149,9 @@
   "settings.about": "About",
   "settings.support": "Contact support",
   "settings.version": "Version",
-
   "rate.official": "Official rate",
   "rate.employer": "Employer rate",
   "rate.custom": "Custom rate",
-
   "paywall.headline": "Your mileage. Automatically documented.",
   "paywall.feature.tracking": "Unlimited trip tracking",
   "paywall.feature.calculations": "Mileage calculations",
@@ -186,7 +172,6 @@
   "paywall.terms": "Terms",
   "paywall.privacy": "Privacy Policy",
   "paywall.error": "Something went wrong",
-
   "onboarding.welcome.headline": "Track every business mile.",
   "onboarding.welcome.subtitle": "Start your trip. Drive. Stop. Your mileage report is ready.",
   "onboarding.country.title": "Your country",
@@ -203,15 +188,15 @@
   "onboarding.notifications.title": "Stay on top of your trips",
   "onboarding.notifications.subtitle": "A reminder if a trip is still running, and a nudge when your monthly report is worth generating.",
   "onboarding.notifications.allow": "Turn on notifications",
-
   "notification.trip.running.title": "Trip still running",
   "notification.trip.running.body": "Mileage Pocket has been recording for three hours. Stop the trip if you have arrived.",
   "notification.trip.saved.title": "Trip saved",
   "notification.trip.saved.body": "%@ added to your records.",
   "notification.report.title": "Your monthly report is ready to generate",
   "notification.report.body": "Last month's business trips are in. Export the PDF while it is fresh.",
-
   "report.unnamed.driver": "Driver",
   "widget.start.trip": "Start Trip",
-  "widget.month.total": "This month"
+  "widget.month.total": "This month",
+  "paywall.unavailable": "Plans are unavailable right now.",
+  "paywall.retry": "Try again"
 }

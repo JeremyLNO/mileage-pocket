@@ -100,7 +100,28 @@ struct PaywallView: View {
     @ViewBuilder
     private var plans: some View {
         if service.products.isEmpty {
-            ProgressView().frame(height: 120)
+            // A paywall that spins forever is a dead end. When the store cannot be reached,
+            // say so and offer a retry — and never leave the user with no way off the screen.
+            VStack(spacing: 10) {
+                if service.isLoading {
+                    ProgressView()
+                } else {
+                    Text("paywall.unavailable")
+                        .font(.system(size: 15))
+                        .foregroundStyle(Theme.textSecondary)
+                        .multilineTextAlignment(.center)
+                    if let error = service.lastError {
+                        Text(error)
+                            .font(.system(size: 12))
+                            .foregroundStyle(Theme.textSecondary)
+                            .multilineTextAlignment(.center)
+                            .accessibilityIdentifier("paywallError")
+                    }
+                    Button("paywall.retry") { Task { await service.load() } }
+                        .font(.system(size: 15, weight: .medium))
+                }
+            }
+            .frame(height: 120)
         } else {
             HStack(spacing: 12) {
                 ForEach(service.products, id: \.id) { product in

@@ -171,6 +171,7 @@ privacy_ref = fileref_uid(privacy_path)
 storekit_ref = fileref_uid(storekit_path)
 rules_build_file = uid("buildfile.rules")
 privacy_build_file = uid("buildfile.privacy")
+storekit_build_file = uid("buildfile.storekit")
 assets_build_file = uid("buildfile.assets")
 xcstrings_build_file = uid("buildfile.xcstrings")
 
@@ -274,6 +275,7 @@ for ext in EXTENSION_TARGETS:
 L('\t\t%s /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = %s /* Assets.xcassets */; };' % (assets_build_file, assets_ref))
 L('\t\t%s /* MileageRules in Resources */ = {isa = PBXBuildFile; fileRef = %s /* MileageRules */; };' % (rules_build_file, rules_ref))
 L('\t\t%s /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = %s /* PrivacyInfo.xcprivacy */; };' % (privacy_build_file, privacy_ref))
+L('\t\t%s /* MileagePocket.storekit in Resources */ = {isa = PBXBuildFile; fileRef = %s /* MileagePocket.storekit */; };' % (storekit_build_file, storekit_ref))
 L('\t\t%s /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = %s /* Localizable.xcstrings */; };' % (xcstrings_build_file, xcstrings_ref))
 for ext in EXTENSION_TARGETS:
     L('\t\t%s /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = %s /* Localizable.xcstrings */; };' % (ext["xcstrings_build_file"], xcstrings_ref))
@@ -655,6 +657,7 @@ L('\t\t\t\t%s /* Assets.xcassets in Resources */,' % assets_build_file)
 L('\t\t\t\t%s /* Localizable.xcstrings in Resources */,' % xcstrings_build_file)
 L('\t\t\t\t%s /* MileageRules in Resources */,' % rules_build_file)
 L('\t\t\t\t%s /* PrivacyInfo.xcprivacy in Resources */,' % privacy_build_file)
+L('\t\t\t\t%s /* MileagePocket.storekit in Resources */,' % storekit_build_file)
 L('\t\t\t);')
 L('\t\t\trunOnlyForDeploymentPostprocessing = 0;')
 L('\t\t};')
@@ -927,7 +930,8 @@ scheme_xml = (
     '      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"\n'
     '      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"\n'
     '      shouldUseLaunchSchemeArgsEnv = "YES">\n'
-'      <StoreKitConfigurationFileReference\n         identifier = "../../../Config/MileagePocket.storekit">\n      </StoreKitConfigurationFileReference>\n'
+    '      <StoreKitConfigurationFileReference identifier = "../../../Config/MileagePocket.storekit">\n'
+    '      </StoreKitConfigurationFileReference>\n'
     '      <Testables>\n'
     '         <TestableReference skipped = "NO">\n'
     + buildable_ref(test_target, PROJ + "Tests.xctest") +
@@ -947,7 +951,8 @@ scheme_xml = (
     '      debugDocumentVersioning = "YES"\n'
     '      debugServiceExtension = "internal"\n'
     '      allowLocationSimulation = "YES">\n'
-'      <StoreKitConfigurationFileReference\n         identifier = "../../../Config/MileagePocket.storekit">\n      </StoreKitConfigurationFileReference>\n'
+    '      <StoreKitConfigurationFileReference identifier = "../../../Config/MileagePocket.storekit">\n'
+    '      </StoreKitConfigurationFileReference>\n'
     '      <BuildableProductRunnable runnableDebuggingMode = "0">\n'
     + buildable_ref(app_target, PROJ + ".app") +
     '      </BuildableProductRunnable>\n'

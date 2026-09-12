@@ -7,7 +7,9 @@ import SwiftData
 /// so a demo flag cannot be triggered on a user's device.
 enum DemoMode {
     #if DEBUG
-    static var isEnabled: Bool { CommandLine.arguments.contains("--demo") }
+    static var isEnabled: Bool {
+        CommandLine.arguments.contains("--demo") || CommandLine.arguments.contains("--demo-data-only")
+    }
 
     /// `--tab=trips` opens straight onto a tab, so a screenshot run needs no taps.
     static var initialTab: String? { value(forArgument: "--tab") }
@@ -15,8 +17,10 @@ enum DemoMode {
     /// `--screen=paywall` presents one screen over the tabs.
     static var initialScreen: String? { value(forArgument: "--screen") }
 
-    /// `--demo` also unlocks premium, otherwise every screenshot shows a paywall.
-    static var pretendsSubscribed: Bool { isEnabled }
+    /// `--demo` unlocks premium so screenshots are not all paywalls; `--demo-data-only`
+    /// seeds the same data but leaves the paywall real, which is what the review capture and
+    /// the gating tests need.
+    static var pretendsSubscribed: Bool { CommandLine.arguments.contains("--demo") }
 
     /// `--export-report` renders the current month's PDF and CSV into the app's Documents
     /// directory at launch, so they can be pulled off the simulator and looked at.
