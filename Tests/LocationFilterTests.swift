@@ -331,3 +331,89 @@ final class LocationFilterTests: XCTestCase {
         )
     }
 }
+
+extension LocationFilterTests {
+    /// A phone parked in a basement car park, reporting a new position every 30 seconds
+    /// because the receiver's own drift keeps crossing the distance filter.
+    ///
+    /// Every one of those gaps used to be *bridged*: the straight line was added at full
+    /// value, the noise floor was skipped, and the resync cleared the stop counter so the
+    /// pause was never reached. Thirty minutes of standing still produced kilometres on a
+    /// tax document.
+    private func stationaryDrift(
+        fixes: Int,
+        intervalSeconds: TimeInterval,
+        driftMeters: Double,
+        speed: Double
+    ) -> [LocationSample] {
+        let base = RouteFixtures.originLatitude
+        return (0..<fixes).map { index in
+            // Alternating either side of the same spot: the receiver wanders, the car does not.
+            let offset = (index.isMultiple(of: 2) ? driftMeters : -driftMeters) / RouteFixtures.metersPerDegreeLatitude
+            return LocationSample(
+                latitude: base + offset,
+                longitude: RouteFixtures.originLongitude,
+                horizontalAccuracy: 20,
+                altitude: 35,
+                speed: speed,
+                timestamp: RouteFixtures.epoch.addingTimeInterval(Double(index) * intervalSeconds)
+            )
+        }
+    }
+
+    func testThirtyMinutesParkedAddsNoDistance() {
+        var filter = LocationFilter()
+        let samples = stationaryDrift(fixes: 60, intervalSeconds: 30, driftMeters: 12, speed: 0)
+        for sample in samples {
+            _ = filter.accept(sample, now: sample.timestamp)
+        }
+        XCTAssertLessThan(
+            filter.totalDistanceMeters, 50,
+            "30 minutes parked must not invent distance, got \(filter.totalDistanceMeters) m"
+        )
+    }
+
+    /// The stop is actually reached, rather than being reset by every bridged fix.
+    func testAStationaryVehicleEventuallyReportsPaused() {
+        var filter = LocationFilter()
+        let samples = stationaryDrift(fixes: 20, intervalSeconds: 30, driftMeters: 12, speed: 0)
+        let decisions = samples.map { filter.accept($0, now: $0.timestamp) }
+        XCTAssertTrue(decisions.contains(.paused), "a vehicle standing still for 10 minutes must pause")
+    }
+
+    /// A receiver that reports no speed at all — common indoors — must not defeat the guard:
+    /// the implied speed across the gap is then what says the car is not moving.
+    func testDriftWithNoReportedSpeedIsAlsoRefused() {
+        var filter = LocationFilter()
+        let samples = stationaryDrift(fixes: 40, intervalSeconds: 30, driftMeters: 12, speed: -1)
+        for sample in samples {
+            _ = filter.accept(sample, now: sample.timestamp)
+        }
+        XCTAssertLessThan(filter.totalDistanceMeters, 50, "got \(filter.totalDistanceMeters) m")
+    }
+
+    /// The guard must not eat a real tunnel: emerging at speed after a silence still bridges.
+    func testATunnelIsStillBridgedAfterTheStationaryGuard() {
+        var filter = LocationFilter()
+        let start = LocationSample(
+            latitude: RouteFixtures.originLatitude, longitude: RouteFixtures.originLongitude,
+            horizontalAccuracy: 8, altitude: 35, speed: 25,
+            timestamp: RouteFixtures.epoch
+        )
+        _ = filter.accept(start, now: start.timestamp)
+
+        // 60 s later, 1 500 m further on, still moving: a tunnel, not a car park.
+        let exit = LocationSample(
+            latitude: RouteFixtures.originLatitude + 1_500 / RouteFixtures.metersPerDegreeLatitude,
+            longitude: RouteFixtures.originLongitude,
+            horizontalAccuracy: 8, altitude: 35, speed: 25,
+            timestamp: RouteFixtures.epoch.addingTimeInterval(60)
+        )
+        let decision = filter.accept(exit, now: exit.timestamp)
+
+        guard case .bridged = decision else {
+            return XCTFail("a tunnel crossed at speed must still be bridged, got \(decision)")
+        }
+        XCTAssertEqual(filter.totalDistanceMeters, 1_500, accuracy: 30)
+    }
+}

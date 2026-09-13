@@ -170,6 +170,21 @@ struct LocationFilter {
         // 5b — bridgeable silence: short enough, and the straight line across it matches how
         // fast the vehicle was going when it went quiet.
         if elapsed > Self.bridgeMinGap {
+            // A silence while the vehicle is standing still is a parked phone, not a tunnel.
+            //
+            // Bridging it was the single largest source of invented distance in this app: the
+            // straight line is added at full value — the noise floor below is bypassed
+            // entirely — and `resync` cleared the stop counter, so the 120 s pause was never
+            // reached and every drifting fix bridged again. Measured at +2.6 km over a
+            // 30 minute stop in a basement car park, on a document sent to a tax authority.
+            //
+            // The stop counter is deliberately left alone here: it is what lets step 6 reach
+            // `.paused` on a later fix.
+            guard observedSpeed >= config.stopSpeed else {
+                lastAccepted = sample
+                lastKnownSpeed = observedSpeed
+                return .rejected(.belowNoiseFloor)
+            }
             // Bridging is for *silence*. A receiver that was talking the whole time and had
             // every word refused as a jump is a receiver we do not believe, and believing
             // its geometry later — once enough time has passed for the implied speed to look
