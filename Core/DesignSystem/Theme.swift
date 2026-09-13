@@ -61,13 +61,22 @@ enum Theme {
     /// The dial's face — honey at the top edge into amber, echoing the app icon so the
     /// button and the icon read as the same object. Kept shallow on purpose: depth comes
     /// from the ring, not the fill.
+    /// The two stops, named so the contrast test can measure the label against the *lighter*
+    /// one — where a label is hardest to read, and where "START" in white measured 1.84:1.
+    static let dialHoney = Color(light: 0xF7B32B, dark: 0xFFC24A)
+    static let dialAmber = Color(light: 0xDE6B06, dark: 0xE87A12)
+
     static var dialGradient: LinearGradient {
         LinearGradient(
-            colors: [Color(light: 0xF7B32B, dark: 0xFFC24A), Color(light: 0xDE6B06, dark: 0xE87A12)],
+            colors: [dialHoney, dialAmber],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
     }
+
+    /// The dial's own label. Dark ink, for the same reason as `onSignal`: white on this
+    /// gradient was the least readable text in the app, on its most important control.
+    static let onDial = Color(light: 0x0D1520, dark: 0x0D1520)
 
     static func tint(for type: TripType) -> Color {
         type == .business ? business : personal

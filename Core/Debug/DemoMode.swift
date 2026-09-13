@@ -42,6 +42,12 @@ enum DemoMode {
     /// shrink the demo data until the suite ran out of rows to delete.
     static var resetsData: Bool { CommandLine.arguments.contains("--reset-data") }
 
+    /// `--open-last-trip` pushes the most recent trip's detail as soon as the Trips tab
+    /// appears. The trip screen — route on a map, figures beneath it — is the app's best
+    /// single image, and it is two taps deep; capturing it from the host without automation
+    /// needs this.
+    static var opensLastTrip: Bool { CommandLine.arguments.contains("--open-last-trip") }
+
     /// `--reset-free-period` restarts the free days from now.
     static var resetsFreePeriod: Bool { CommandLine.arguments.contains("--reset-free-period") }
 
@@ -58,6 +64,7 @@ enum DemoMode {
     static var resetsOnboarding: Bool { false }
     static var onboardingStep: Int? { nil }
     static var resetsFreePeriod: Bool { false }
+    static var opensLastTrip: Bool { false }
     static var resetsData: Bool { false }
     #endif
 
@@ -103,6 +110,20 @@ enum DemoMode {
         context.insert(acme)
         context.insert(northwind)
 
+        /// Real coordinates, so the demo trips carry a route the map can draw. Without them
+        /// the trip screen showed everything *except* the thing it is built around, and the
+        /// map card was reachable by no screenshot and no demo.
+        let places: [String: (Double, Double)] = [
+            "Paris": (48.8656, 2.3212),
+            "Versailles": (48.8014, 2.1301),
+            "Orly": (48.7233, 2.3794),
+            "Boulogne": (48.8352, 2.2409),
+            "Saint-Denis": (48.9362, 2.3574),
+            "Fontainebleau": (48.4045, 2.7016),
+            "Meudon": (48.8140, 2.2350),
+            "Rueil-Malmaison": (48.8760, 2.1800),
+        ]
+
         let routes: [(String, String, Double, String, TripType, UUID?)] = [
             ("Paris", "Versailles", 24_300, "Client meeting", .business, acme.id),
             ("Paris", "Orly", 18_700, "Airport run", .business, northwind.id),
@@ -127,9 +148,47 @@ enum DemoMode {
             trip.clientID = route.5
             trip.vehicleID = vehicle.id
             trip.countryCode = "FR"
+            if let from = places[route.0], let to = places[route.1] {
+                trip.startLatitude = from.0
+                trip.startLongitude = from.1
+                trip.endLatitude = to.0
+                trip.endLongitude = to.1
+                trip.encodedRoute = RouteCompactor.encode(
+                    demoRoute(from: from, to: to, startedAt: trip.startedAt, seed: index)
+                )
+            }
             context.insert(trip)
         }
         try? context.save()
         return true
+    }
+
+    /// A plausible drive between two points: a shallow arc rather than a straight line, so
+    /// the map reads as a road and not as a ruler.
+    private static func demoRoute(
+        from: (Double, Double),
+        to: (Double, Double),
+        startedAt: Date,
+        seed: Int
+    ) -> [LocationSample] {
+        let steps = 64
+        // Perpendicular bow, alternating side per trip so eight routes do not all curve the
+        // same way.
+        let bow = (seed.isMultiple(of: 2) ? 1.0 : -1.0) * 0.12
+        let dLat = to.0 - from.0
+        let dLon = to.1 - from.1
+
+        return (0...steps).map { step in
+            let t = Double(step) / Double(steps)
+            let arc = 4 * t * (1 - t)          // 0 at both ends, 1 in the middle
+            return LocationSample(
+                latitude: from.0 + dLat * t - dLon * bow * arc,
+                longitude: from.1 + dLon * t + dLat * bow * arc,
+                horizontalAccuracy: 5,
+                altitude: 40,
+                speed: 22,
+                timestamp: startedAt.addingTimeInterval(Double(step) * 18)
+            )
+        }
     }
 }

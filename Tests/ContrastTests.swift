@@ -59,6 +59,39 @@ final class ContrastTests: XCTestCase {
         assertReadable(.white, on: Theme.stop, "the stop button's label")
     }
 
+    /// `AccentColor` tints everything nothing else claims — toolbar buttons, links, the
+    /// controls on a sheet presented outside the tab bar's own tint. It lived in the asset
+    /// catalogue at the *original* bright amber while `Theme.signal` was darkened, so the
+    /// paywall's own Close and Restore stayed at 2.7:1 while the rest of the app moved.
+    func testTheAccentColourMatchesTheBrandColourItIsSupposedToBe() throws {
+        let accent = try XCTUnwrap(UIColor(named: "AccentColor"), "AccentColor must exist")
+        let signal = UIColor(Theme.signal)
+
+        for style in [UIUserInterfaceStyle.light, .dark] {
+            let traits = UITraitCollection(userInterfaceStyle: style)
+            var accentComponents = (CGFloat(0), CGFloat(0), CGFloat(0), CGFloat(0))
+            var signalComponents = (CGFloat(0), CGFloat(0), CGFloat(0), CGFloat(0))
+            accent.resolvedColor(with: traits)
+                .getRed(&accentComponents.0, green: &accentComponents.1, blue: &accentComponents.2, alpha: &accentComponents.3)
+            signal.resolvedColor(with: traits)
+                .getRed(&signalComponents.0, green: &signalComponents.1, blue: &signalComponents.2, alpha: &signalComponents.3)
+
+            let label = style == .light ? "light" : "dark"
+            XCTAssertEqual(accentComponents.0, signalComponents.0, accuracy: 0.01, "red in \(label)")
+            XCTAssertEqual(accentComponents.1, signalComponents.1, accuracy: 0.01, "green in \(label)")
+            XCTAssertEqual(accentComponents.2, signalComponents.2, accuracy: 0.01, "blue in \(label)")
+        }
+    }
+
+    /// The dial is a gradient, so the label has to hold against **both** ends of it — and the
+    /// light end is where it fails. "START" in white measured 1.84:1 there: the largest, most
+    /// important control in the app carrying its least readable text, which a flat-colour
+    /// test could not see because the dial has no flat colour.
+    func testTheDialsLabelHoldsAgainstBothEndsOfTheGradient() {
+        assertReadable(Theme.onDial, on: Theme.dialHoney, "START on the light end of the dial")
+        assertReadable(Theme.onDial, on: Theme.dialAmber, "START on the dark end of the dial")
+    }
+
     /// Trip mode pins itself to dark whatever the system appearance, so it is measured there
     /// and only there — asserting light would be asserting a screen that never renders.
     func testTheDrivingScreenIsReadable() {

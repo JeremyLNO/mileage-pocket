@@ -148,9 +148,13 @@ struct ReportsView: View {
     private var summary: some View {
         Card {
             VStack(alignment: .leading, spacing: 14) {
-                Text(period.title(locale: locale))
-                    .scaledFont(22, relativeTo: .title2, weight: .bold)
-                    .foregroundStyle(Theme.textPrimary)
+                // The stepper already names the period; repeating it here said the same
+                // words twice, one line apart. A custom range has no stepper, so it keeps it.
+                if selection == .custom {
+                    Text(period.title(locale: locale))
+                        .scaledFont(22, relativeTo: .title2, weight: .bold)
+                        .foregroundStyle(Theme.textPrimary)
+                }
 
                 HStack(spacing: 12) {
                     StatTile(label: "reports.trips", value: "\(data.businessTripCount)")

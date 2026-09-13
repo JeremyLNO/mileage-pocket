@@ -6,6 +6,7 @@ struct TripsView: View {
     @Environment(\.locale) private var locale
 
     @Query(sort: \Trip.startedAt, order: .reverse) private var trips: [Trip]
+    @State private var path = NavigationPath()
     @State private var search = ""
     @State private var filter: TripType?
     @State private var showsManualEntry = false
@@ -25,7 +26,7 @@ struct TripsView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Group {
                 if filtered.isEmpty {
                     EmptyStateView(
@@ -39,7 +40,7 @@ struct TripsView: View {
                         ForEach(TripGrouping.group(filtered), id: \.0) { section, sectionTrips in
                             Section(LocalizedStringKey(section.titleKey)) {
                                 ForEach(sectionTrips) { trip in
-                                    NavigationLink { TripDetailView(trip: trip) } label: {
+                                    NavigationLink(value: trip.id) {
                                         TripRow(trip: trip, unit: settings.distanceUnit)
                                     }
                                 }
@@ -49,9 +50,19 @@ struct TripsView: View {
                     .listStyle(.insetGrouped)
                 }
             }
+            .navigationDestination(for: Trip.ID.self) { id in
+                if let trip = filtered.first(where: { $0.id == id }) {
+                    TripDetailView(trip: trip)
+                }
+            }
             .background(Theme.background)
             .navigationTitle("tab.trips")
             .searchable(text: $search, prompt: Text("trips.search"))
+            .task {
+                // Screenshot hook only — compiled out of Release with the rest of DemoMode.
+                guard DemoMode.opensLastTrip, path.isEmpty, let first = filtered.first else { return }
+                path.append(first.id)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {

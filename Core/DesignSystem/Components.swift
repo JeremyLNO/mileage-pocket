@@ -145,7 +145,7 @@ struct DialButton: View {
                             .opacity(0.85)
                     }
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.onDial)
             }
         }
         .buttonStyle(.plain)
