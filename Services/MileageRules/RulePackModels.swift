@@ -77,6 +77,16 @@ struct RateScheme: Codable, Sendable, Equatable {
 
     var bandMode: BandMode { bandModeRaw.flatMap(BandMode.init(rawValue:)) ?? .marginal }
 
+    /// Whether what this scheme charges depends on how far the year has already run.
+    ///
+    /// A single flat band does not: every trip is worth the same per kilometre whatever else
+    /// happened that year, so adding or deleting a trip cannot make the others wrong.
+    var isCumulative: Bool {
+        if bands.count > 1 { return true }
+        if let powerBands, powerBands.contains(where: { $0.bands.count > 1 }) { return true }
+        return false
+    }
+
     /// Defaults to fiscal horsepower: it is what the only two banded countries' users are
     /// asked for most often, and a pack that bands by displacement says so explicitly.
     var powerUnit: PowerUnit { powerUnitRaw.flatMap(PowerUnit.init(rawValue:)) ?? .fiscalHorsepower }
@@ -238,6 +248,9 @@ struct RateBand: Codable, Sendable, Equatable {
 }
 
 extension RulePack {
+    /// True when any of this country's schemes prices by annual distance.
+    var isCumulative: Bool { schemes.contains { $0.isCumulative } }
+
     /// The pack files use plain `YYYY-MM-DD` dates and decimal strings, so that a pack can
     /// be read and checked by a human without running the app.
     static func decoder() -> JSONDecoder {

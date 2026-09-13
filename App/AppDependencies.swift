@@ -225,6 +225,7 @@ final class AppDependencies {
         learnDestination(from: trip)
         trip.updatedAt = .now
         try? context.save()
+        recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)
         finishedTrip = nil
         refreshWidgetSnapshot()
         recorderRevision += 1
@@ -316,6 +317,55 @@ final class AppDependencies {
         trip.updatedAt = .now
         try? context.save()
         recorderRevision += 1
+    }
+
+    /// Re-runs the arithmetic of every business trip in a tax year, under each trip's own
+    /// frozen rule.
+    ///
+    /// A tiered scale prices a trip by where the year had already got to — the 10 000th mile,
+    /// the 5 000th kilometre. So inserting a backdated trip, deleting one, or correcting a
+    /// distance moves every later trip of that year onto a different band, and they kept
+    /// their old figure: arithmetic that had quietly stopped adding up.
+    ///
+    /// This is not the forbidden silent re-rating. Each trip is recomputed with the *same*
+    /// `mileageRuleVersion` it was saved with; only its position in the year changes. A flat
+    /// rate is skipped entirely, because nothing there depends on the year.
+    func recalculateCumulativeYear(containing date: Date, countryCode: String) {
+        guard ruleEngine.hasCumulativeScale(country: countryCode) else { return }
+
+        let year = ReportPeriod.taxYear(of: date)
+        let all = (try? context.fetch(FetchDescriptor<Trip>(sortBy: [SortDescriptor(\.startedAt)]))) ?? []
+        let affected = all.filter {
+            $0.tripType == .business
+                && $0.countryCode.caseInsensitiveCompare(countryCode) == .orderedSame
+                && ReportPeriod.taxYear(of: $0.startedAt) == year
+        }
+        guard !affected.isEmpty else { return }
+
+        var cumulative: Double = 0
+        for trip in affected {
+            if let version = trip.mileageRuleVersion,
+               let frozen = ruleEngine.pack(country: trip.countryCode, version: version) {
+                let calculation = DeclarativeMileageRule(pack: frozen).calculate(
+                    distanceMeters: trip.distanceMeters,
+                    vehicle: vehicle(for: trip.vehicleID),
+                    date: trip.startedAt,
+                    yearlyDistanceMeters: cumulative
+                )
+                if calculation.isOfficial {
+                    trip.mileageRate = calculation.rate
+                    trip.calculatedAmount = calculation.amount
+                    trip.currencyCode = calculation.currencyCode
+                    trip.updatedAt = .now
+                    // Only kilometres actually priced under the scale consume its allowance.
+                    // A trip outside every validity window has no official amount, so it is
+                    // not part of the year the scale is counting.
+                    cumulative += trip.distanceMeters
+                }
+            }
+        }
+        try? context.save()
+        invalidate()
     }
 
     /// The explicit "recalculate with today's rules" action, and the only path allowed to

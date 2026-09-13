@@ -184,13 +184,20 @@ extension AppDependencies {
         context.insert(trip)
         applyCalculation(to: trip)
         try? context.save()
+        // A manual entry is usually backdated, which is exactly what moves the rest of the
+        // year onto different bands.
+        recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)
         refreshWidgetSnapshot()
         invalidate()
     }
 
     func delete(_ trip: Trip) {
+        let date = trip.startedAt
+        let country = trip.countryCode
         context.delete(trip)
         try? context.save()
+        // Removing a trip moves every later one of that year down a band.
+        recalculateCumulativeYear(containing: date, countryCode: country)
         refreshWidgetSnapshot()
         invalidate()
     }
@@ -217,6 +224,7 @@ extension AppDependencies {
         context.insert(copy)
         applyCalculation(to: copy)
         try? context.save()
+        recalculateCumulativeYear(containing: copy.startedAt, countryCode: copy.countryCode)
         invalidate()
     }
 

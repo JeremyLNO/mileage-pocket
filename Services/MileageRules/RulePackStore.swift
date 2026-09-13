@@ -42,6 +42,27 @@ final class RulePackStore: @unchecked Sendable {
             .max { lhs, rhs in lhs.version.compare(rhs.version, options: .numeric) == .orderedAscending }
     }
 
+    /// A specific version, whatever the date.
+    ///
+    /// Needed to re-run an old trip's arithmetic under the rule it was actually saved with:
+    /// correcting a cumulative total must never quietly move a trip onto today's scale.
+    func pack(country: String, version: String) -> RulePack? {
+        lock.lock()
+        defer { lock.unlock() }
+        return (packsByCountry[country.uppercased()] ?? []).first { $0.version == version }
+    }
+
+    /// Whether any version of this country's scale prices by annual distance.
+    ///
+    /// Asked without a date on purpose: the trigger for a replay is a trip being added or
+    /// removed, and that trip may itself fall outside every validity window — looking the
+    /// pack up by *its* date returned nothing and the replay silently never ran.
+    func hasCumulativePack(country: String) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return (packsByCountry[country.uppercased()] ?? []).contains { $0.isCumulative }
+    }
+
     /// Countries that have a verified official scale. Everything else is offered in custom
     /// rate mode, which is the whole world minus this set.
     func availableCountries() -> Set<String> {

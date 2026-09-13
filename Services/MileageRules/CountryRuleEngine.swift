@@ -22,6 +22,16 @@ final class CountryRuleEngine: Sendable {
         store.pack(country: countryCode, on: date)
     }
 
+    /// The exact version a trip was saved under, so its arithmetic can be re-run without
+    /// moving it onto a newer scale.
+    func pack(country: String, version: String) -> RulePack? {
+        store.pack(country: country, version: version)
+    }
+
+    func hasCumulativeScale(country: String) -> Bool {
+        store.hasCumulativePack(country: country)
+    }
+
     func rule(
         countryCode: String,
         mode: RateMode,
