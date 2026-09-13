@@ -106,7 +106,8 @@ final class TripRecorderTests: XCTestCase {
         try rig.recorder.start(vehicleID: nil)
         emit(RouteFixtures.straightLine(), into: rig)
 
-        let trip = try await rig.recorder.stop()
+        let trip = try rig.recorder.stop()
+        await rig.recorder.attachPlaces(to: trip)
 
         XCTAssertEqual(trip.rawDistanceMeters, 1_000, accuracy: 20)
         XCTAssertFalse(trip.encodedRoute?.isEmpty ?? true, "the trip keeps its route as a blob")
@@ -133,7 +134,8 @@ final class TripRecorderTests: XCTestCase {
         let line = RouteFixtures.straightLine()
         emit(line, into: rig)
 
-        let trip = try await rig.recorder.stop()
+        let trip = try rig.recorder.stop()
+        await rig.recorder.attachPlaces(to: trip)
 
         XCTAssertEqual(
             rig.geocoder.calls.count, 2,
@@ -174,7 +176,7 @@ final class TripRecorderTests: XCTestCase {
         )
         XCTAssertEqual(recorder.state, .idle, "nothing is resumed until it is asked for")
 
-        try recorder.resumeIfNeeded()
+        _ = try recorder.resumeIfNeeded()
 
         guard case .recording(let startedAt, let distance, let duration) = recorder.state else {
             return XCTFail("an interrupted trip must come back as recording, got \(recorder.state)")
@@ -196,9 +198,80 @@ final class TripRecorderTests: XCTestCase {
         XCTAssertEqual(recorder.state.distanceMeters, 4_321 + 100, accuracy: 5)
     }
 
+    /// A row left by a drive that ended hours ago is a real trip, not the one being driven.
+    ///
+    /// Resuming it bolted the gap between its last fix and wherever the phone is now onto the
+    /// distance: leave the phone in a drawer overnight, open the app at the office, and the
+    /// straight line home-to-office is added to yesterday's commute.
+    func testATripTooOldToStillBeRunningIsClosedRatherThanResumed() throws {
+        let context = try makeContext()
+        let startedAt = RouteFixtures.epoch
+        let active = ActiveTripState(tripID: UUID(), startedAt: startedAt, deviceID: DeviceIdentity.current)
+        active.distanceMeters = 12_000
+        active.lastUpdatedAt = startedAt.addingTimeInterval(1_800)
+        active.startLatitude = RouteFixtures.originLatitude
+        active.startLongitude = RouteFixtures.originLongitude
+        context.insert(active)
+        try context.save()
+
+        let provider = FakeLocationProvider()
+        // Opened the next morning.
+        let clock = Clock(startedAt.addingTimeInterval(20 * 3600))
+        let recorder = TripRecorder(
+            context: context, provider: provider, geocoder: CountingGeocoder(),
+            now: { [clock] in clock.now }
+        )
+
+        guard case .recovered(let trip) = try recorder.resumeIfNeeded() else {
+            return XCTFail("an abandoned trip has to come back as a saved trip")
+        }
+        XCTAssertEqual(recorder.state, .idle, "it is not being driven any more")
+        XCTAssertEqual(provider.startCount, 0, "and the GPS must not be switched back on")
+        XCTAssertEqual(trip.rawDistanceMeters, 12_000, "what was driven is kept in full")
+        XCTAssertEqual(
+            trip.endedAt, startedAt.addingTimeInterval(1_800),
+            "it ended at its last fix, not at the moment the app was next opened"
+        )
+        XCTAssertTrue(
+            try context.fetch(FetchDescriptor<ActiveTripState>()).isEmpty,
+            "and nothing is left to be offered again"
+        )
+    }
+
+    /// `ActiveTripState` syncs through CloudKit like every other model, so the row an iPhone
+    /// writes at the start of a drive reaches the iPad within seconds. The iPad used to adopt
+    /// it: two devices appending fixes under one trip id, and whichever stopped last
+    /// overwrote the other.
+    func testATripInProgressOnAnotherDeviceIsLeftAlone() throws {
+        let context = try makeContext()
+        let startedAt = RouteFixtures.epoch
+        let active = ActiveTripState(tripID: UUID(), startedAt: startedAt, deviceID: "some-other-iphone")
+        active.distanceMeters = 4_000
+        active.lastUpdatedAt = startedAt.addingTimeInterval(120)
+        context.insert(active)
+        try context.save()
+
+        let provider = FakeLocationProvider()
+        let clock = Clock(startedAt.addingTimeInterval(180))
+        let recorder = TripRecorder(
+            context: context, provider: provider, geocoder: CountingGeocoder(),
+            now: { [clock] in clock.now }
+        )
+
+        XCTAssertEqual(try recorder.resumeIfNeeded(), ResumeOutcome.none)
+        XCTAssertEqual(recorder.state, .idle)
+        XCTAssertEqual(provider.startCount, 0)
+
+        // Starting a trip here must not take the other device's row with it either.
+        try recorder.start(vehicleID: nil)
+        let rows = try context.fetch(FetchDescriptor<ActiveTripState>())
+        XCTAssertEqual(rows.count, 2, "the other device is still driving; its row stays")
+        XCTAssertTrue(rows.contains { $0.deviceID == "some-other-iphone" })
+    }
+
     func testResumeIfNeededDoesNothingWhenThereIsNoInterruptedTrip() throws {
         let rig = try makeRig()
-        try rig.recorder.resumeIfNeeded()
+        _ = try rig.recorder.resumeIfNeeded()
         XCTAssertEqual(rig.recorder.state, .idle)
         XCTAssertEqual(rig.provider.startCount, 0)
     }
@@ -255,7 +328,8 @@ final class TripRecorderTests: XCTestCase {
         emit(RouteFixtures.straightLine(startingAt: startTime), into: rig)
 
         rig.clock.now = endTime
-        let trip = try await rig.recorder.stop()
+        let trip = try rig.recorder.stop()
+        await rig.recorder.attachPlaces(to: trip)
 
         XCTAssertEqual(trip.startedAt, startTime, "the trip started the day before it ended")
         XCTAssertEqual(trip.endedAt, endTime)
@@ -329,7 +403,7 @@ final class TripRecorderTests: XCTestCase {
     func testStoppingWhenIdleIsRefused() async throws {
         let rig = try makeRig()
         do {
-            _ = try await rig.recorder.stop()
+            _ = try rig.recorder.stop()
             XCTFail("stopping a trip that was never started must not invent one")
         } catch {
             XCTAssertEqual(error as? RecorderError, .notRecording)

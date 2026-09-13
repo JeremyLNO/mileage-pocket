@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import OSLog
 
@@ -12,17 +13,22 @@ actor RulePackUpdater {
     private let store: RulePackStore
     private let injectedSession: URLSession?
     private let cacheDirectory: URL?
+    /// The key a bundle must be signed with. Injectable so the refusal paths can be tested
+    /// with a key pair made on the spot — the shipping private key is not in this repository
+    /// and must never be — and so a key can be rotated without a code change here.
+    private let publicKey: Curve25519.Signing.PublicKey?
 
     init(
         endpoint: URL,
         store: RulePackStore,
         session: URLSession? = nil,
-        cacheDirectory: URL? = RulePackStore.defaultCacheDirectory
+        cacheDirectory: URL? = RulePackStore.defaultCacheDirectory,
+        publicKey: Curve25519.Signing.PublicKey? = RulePackVerifier.defaultPublicKey()
     ) {
         self.endpoint = endpoint
         self.store = store
         self.cacheDirectory = cacheDirectory
-
+        self.publicKey = publicKey
         self.injectedSession = session
     }
 
@@ -44,7 +50,7 @@ actor RulePackUpdater {
 
     @discardableResult
     func refresh() async -> Bool {
-        guard let publicKey = RulePackVerifier.defaultPublicKey() else { return false }
+        guard let publicKey else { return false }
 
         do {
             let (data, response) = try await makeSession().data(from: endpoint)

@@ -27,6 +27,26 @@ struct RootView: View {
         .sheet(isPresented: $showsForcedScreen) {
             PaywallView()
         }
+        // The store failing to open is the one launch-time fault the user cannot see for
+        // themselves: the app looks brand new, which reads as "my trips are gone" at best
+        // and, in the in-memory case, as nothing at all until the next launch eats a week
+        // of driving. It is raised once and dismissed for good.
+        .alert(
+            L.string(storeAlertTitleKey),
+            isPresented: $dependencies.storeWarningPending
+        ) {
+            Button(L.string("common.ok"), role: .cancel) {}
+        } message: {
+            Text(L.string(storeAlertMessageKey))
+        }
         .animation(.snappy(duration: 0.25), value: dependencies.isRecording)
+    }
+
+    private var storeAlertTitleKey: String {
+        dependencies.storeHealth == .ephemeral ? "store.ephemeral.title" : "store.recovered.title"
+    }
+
+    private var storeAlertMessageKey: String {
+        dependencies.storeHealth == .ephemeral ? "store.ephemeral.message" : "store.recovered.message"
     }
 }

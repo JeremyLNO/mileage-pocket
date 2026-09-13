@@ -133,8 +133,24 @@ final class ReportTests: XCTestCase {
             trip(date(2026, 12, 1), km: 700),
             target,
         ]
-        let before = ReportBuilder.yearlyDistanceMeters(before: target, in: trips, calendar: calendar)
+        let calendarYear = date(2026, 1, 1)..<date(2027, 1, 1)
+        let before = ReportBuilder.yearlyDistanceMeters(before: target, in: trips, window: calendarYear)
         XCTAssertEqual(before, 500_000, accuracy: 0.001)
+    }
+
+    /// The window is the whole point: a British trip in February belongs to the year that
+    /// opened the previous 6 April, not to the calendar year.
+    func testTheWindowDecidesWhichTripsCountNotTheCalendarYear() {
+        let target = trip(date(2026, 2, 1), km: 100)
+        let trips = [
+            trip(date(2025, 5, 1), km: 400),   // same British year as the target
+            trip(date(2026, 1, 1), km: 500),   // same British year as the target
+            trip(date(2025, 3, 1), km: 900),   // the British year before
+            target,
+        ]
+        let britishYear = date(2025, 4, 6)..<date(2026, 4, 6)
+        let before = ReportBuilder.yearlyDistanceMeters(before: target, in: trips, window: britishYear)
+        XCTAssertEqual(before, 900_000, accuracy: 0.001, "400 km + 500 km, and not the March 2025 trip")
     }
 
     // MARK: - CSV

@@ -206,27 +206,52 @@ final class RulePackTests: XCTestCase {
             "FR", distance: 1_000, unit: .kilometers, on: day,
             vehicle: frenchCar(fiscalHorsepower: 5, type: .electricCar)
         )
-        XCTAssertEqual(electric, MileageRounding.money(petrol * Decimal(string: "1.20")!))
+        // Fixed, not recomputed with the implementation's own formula: an assertion built
+        // from the code under test agrees with it whatever it does.
         XCTAssertEqual(electric, Decimal(string: "763.20"))
     }
 
     // MARK: - Ireland bands by engine capacity, not horsepower
 
+    /// Each of the three Irish displacement tiers, on its own value.
+    ///
+    /// This used to assert only `> 0` on a 1 400 cm³ car — and the pack's fallback bands are
+    /// identical, to the character, to the 1 201–1 500 tier that car lands in. So the three
+    /// tiers agreed with each other by accident: ignoring `powerBands` entirely, or reading
+    /// fiscal horsepower where the scale means displacement, both left this green. The rates
+    /// themselves were verified by nothing.
     func testIrelandBandsByEngineCapacity() throws {
-        let vehicle = Vehicle(name: "Test", vehicleType: .car)
-        vehicle.engineCapacity = 1_400
         let day = date(2026, 9, 12)
-        let withCapacity = try amount("IE", distance: 1_000, unit: .kilometers, on: day, vehicle: vehicle)
-        XCTAssertGreaterThan(withCapacity, 0)
 
-        // A vehicle that declares only fiscal horsepower must not be banded by it here: the
-        // Irish scale measures displacement, and reading the wrong figure silently picks the
-        // wrong band.
+        func amountFor(engineCapacity: Int) throws -> Decimal {
+            let vehicle = Vehicle(name: "Test", vehicleType: .car)
+            vehicle.engineCapacity = engineCapacity
+            return try amount("IE", distance: 1_000, unit: .kilometers, on: day, vehicle: vehicle)
+        }
+
+        // 1 000 km, all inside the first marginal band of each tier.
+        XCTAssertEqual(try amountFor(engineCapacity: 900), Decimal(string: "418.00"), "≤ 1 200 cm³ at 0.4180")
+        XCTAssertEqual(try amountFor(engineCapacity: 1_400), Decimal(string: "434.00"), "1 201–1 500 cm³ at 0.4340")
+        XCTAssertEqual(try amountFor(engineCapacity: 2_000), Decimal(string: "518.20"), "≥ 1 501 cm³ at 0.5182")
+    }
+
+    /// A vehicle that declares only fiscal horsepower must not be banded by it here: the
+    /// Irish scale measures displacement, and reading the wrong figure silently picks the
+    /// wrong band. Asserted at 900 — where the tier and the fallback genuinely differ, which
+    /// 1 400 did not.
+    func testIrelandIgnoresFiscalHorsepowerWhenTheScaleMeansDisplacement() throws {
+        let day = date(2026, 9, 12)
         let wrongFigure = Vehicle(name: "Test", vehicleType: .car)
-        wrongFigure.fiscalHorsepower = 1_400
+        wrongFigure.fiscalHorsepower = 900
+
         let fallback = try amount("IE", distance: 1_000, unit: .kilometers, on: day, vehicle: wrongFigure)
         let noVehicle = try amount("IE", distance: 1_000, unit: .kilometers, on: day, vehicle: nil)
+
         XCTAssertEqual(fallback, noVehicle, "an unknown displacement must fall back, not guess")
+        XCTAssertEqual(
+            fallback, Decimal(string: "434.00"),
+            "the fallback is the pack's own default band — not the 900 cm³ tier read off the wrong field"
+        )
     }
 
     func testIrelandPowerUnitIsEngineCapacity() throws {

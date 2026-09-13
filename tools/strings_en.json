@@ -207,5 +207,10 @@
   "summary.route": "Your route",
   "summary.discard.title": "Discard this trip?",
   "summary.discard.message": "The distance you just drove will be deleted. This cannot be undone.",
-  "summary.discard.confirm": "Discard"
+  "summary.discard.confirm": "Discard",
+  "detail.delete.title": "Delete this trip?",
+  "detail.delete.message": "This trip and its route are removed for good. This cannot be undone.",
+  "settings.export.all.note": "A complete archive of your records, in a machine-readable format. Formatted PDF and CSV reports are part of the subscription.",
+  "export.failed.title": "Export failed",
+  "export.failed.message": "The file could not be written. Free up some space on your iPhone and try again."
 }

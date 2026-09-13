@@ -12,7 +12,12 @@ struct StartTripProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (StartTripEntry) -> Void) {
-        completion(StartTripEntry(date: .now, snapshot: WidgetSnapshotStore.read() ?? .placeholder))
+        // The placeholder carries invented figures — 486 km, a euro amount — which belong in
+        // the gallery and nowhere else. Outside a preview a missing snapshot means the user
+        // has not driven yet, and the widget has to say so rather than show someone else's
+        // month.
+        let snapshot: WidgetSnapshot? = context.isPreview ? WidgetSnapshot.placeholder : WidgetSnapshotStore.read()
+        completion(StartTripEntry(date: .now, snapshot: snapshot))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<StartTripEntry>) -> Void) {

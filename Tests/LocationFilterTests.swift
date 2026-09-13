@@ -110,20 +110,48 @@ final class LocationFilterTests: XCTestCase {
         XCTAssertEqual(filter.totalDistanceMeters, before)
     }
 
-    func testFixDeliveredLongAfterItWasTakenIsRejectedAsStale() {
+    func testACachedFixOnTheOpeningCallbackIsRejectedAsStale() {
         var filter = LocationFilter()
-        let line = RouteFixtures.straightLine()
-        feed(Array(line.prefix(3)), into: &filter)
-        let before = filter.totalDistanceMeters
+        let sample = RouteFixtures.straightLine()[0]
 
-        // CoreLocation hands out a cached fix on the first callback; counting it would
-        // attach an old position to a trip that started somewhere else entirely.
-        let sample = line[3]
+        // CoreLocation hands out a cached fix on the first callback. Counting it anchors the
+        // trip wherever the phone last had a signal, and the first real fix then measures a
+        // straight line across the whole gap between the two.
         XCTAssertEqual(
             filter.accept(sample, now: sample.timestamp.addingTimeInterval(31)),
             .rejected(.stale)
         )
-        XCTAssertEqual(filter.totalDistanceMeters, before)
+        XCTAssertEqual(filter.totalDistanceMeters, 0)
+    }
+
+    /// iOS batches location updates while the app is in the background, then hands the whole
+    /// batch over at once: every fix in it but the last is already older than the staleness
+    /// window by the time it arrives. Refusing them threw away the distance of a drive
+    /// recorded through a locked screen — which is the app's entire job.
+    func testABatchDeliveredLateStillCountsEveryFixInIt() {
+        // Ten minutes of driving, handed over in one batch when the app comes back to the
+        // foreground. Sized deliberately: with staleness applied to every fix, everything
+        // older than the window is refused and the first survivor lands more than
+        // `tunnelBridgeMaxGap` after the anchor, so the silence is unbridgeable and nine
+        // tenths of the drive is gone. Only the last 25 s of it would be counted.
+        let line = RouteFixtures.straightLine(pointCount: 400, stepMeters: 25, speedMetersPerSecond: 25)
+        var filter = LocationFilter()
+
+        _ = filter.accept(line[0], now: line[0].timestamp)
+        let deliveredAt = line[line.count - 1].timestamp.addingTimeInterval(5)
+        for sample in line.dropFirst() {
+            _ = filter.accept(sample, now: deliveredAt)
+        }
+
+        // 399 steps of 25 m.
+        XCTAssertEqual(
+            filter.totalDistanceMeters, 9_975, accuracy: 150,
+            "a batch delivered after the fact describes real positions and must be counted"
+        )
+        XCTAssertEqual(
+            filter.unbridgedGapSeconds, 0,
+            "nothing was actually missing — the fixes were merely handed over late"
+        )
     }
 
     // MARK: - 6. Tunnel bridged
@@ -174,6 +202,32 @@ final class LocationFilterTests: XCTestCase {
             filter.totalDistanceMeters, 4_950, accuracy: 100,
             "distance across an unbridgeable gap must not be counted"
         )
+        // Not counting it is right; saying nothing about it is not. The driver sees a trip
+        // that is 15 km short and has no way to know why, or that the distance is editable.
+        XCTAssertEqual(
+            filter.unbridgedGapSeconds, 600, accuracy: 1,
+            "the silence that was not counted has to be reportable"
+        )
+    }
+
+    func testATripWithNoGapReportsNoGap() {
+        let line = RouteFixtures.straightLine(pointCount: 200, stepMeters: 25, speedMetersPerSecond: 25)
+        var filter = LocationFilter()
+        _ = feed(line, into: &filter)
+        XCTAssertEqual(filter.unbridgedGapSeconds, 0)
+    }
+
+    func testABridgedTunnelIsNotReportedAsALostStretch() {
+        let line = RouteFixtures.straightLine(
+            pointCount: 400, stepMeters: 25, speedMetersPerSecond: 25
+        )
+        let withTunnel = RouteFixtures.withGap(line, startingAtIndex: 100, seconds: 60)
+
+        var filter = LocationFilter()
+        _ = feed(withTunnel, into: &filter)
+
+        // It was counted, so there is nothing for the driver to correct.
+        XCTAssertEqual(filter.unbridgedGapSeconds, 0)
     }
 
     // MARK: - 8. Stop detection

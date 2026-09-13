@@ -92,6 +92,9 @@ for ext in EXTENSION_TARGETS:
 
 assets_path = f"{RESOURCES_DIR}/Assets.xcassets"
 xcstrings_path = f"{RESOURCES_DIR}/Localizable.xcstrings"
+# The location prompts live in Info.plist keys, which Localizable.xcstrings does not reach:
+# they stayed in English for five of the six languages the app ships in.
+infoplist_strings_path = f"{RESOURCES_DIR}/InfoPlist.xcstrings"
 info_plist_path = "App/Info.plist"
 entitlements_path = "App/MileagePocket.entitlements"
 xcconfig_files = ["Base.xcconfig", "Debug.xcconfig", "Release.xcconfig"]
@@ -156,6 +159,7 @@ uitest_target_dependency = uid("targetdep.uitests")
 
 assets_ref = fileref_uid(assets_path)
 xcstrings_ref = fileref_uid(xcstrings_path)
+infoplist_strings_ref = fileref_uid(infoplist_strings_path)
 info_plist_ref = fileref_uid(info_plist_path)
 entitlements_ref = fileref_uid(entitlements_path)
 xcconfig_refs = {f: fileref_uid("Config/" + f) for f in xcconfig_files}
@@ -174,6 +178,7 @@ privacy_build_file = uid("buildfile.privacy")
 storekit_build_file = uid("buildfile.storekit")
 assets_build_file = uid("buildfile.assets")
 xcstrings_build_file = uid("buildfile.xcstrings")
+infoplist_strings_build_file = uid("buildfile.infoplist.xcstrings")
 
 pkg_refs = {}
 product_deps = {}
@@ -277,6 +282,7 @@ L('\t\t%s /* MileageRules in Resources */ = {isa = PBXBuildFile; fileRef = %s /*
 L('\t\t%s /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = %s /* PrivacyInfo.xcprivacy */; };' % (privacy_build_file, privacy_ref))
 L('\t\t%s /* MileagePocket.storekit in Resources */ = {isa = PBXBuildFile; fileRef = %s /* MileagePocket.storekit */; };' % (storekit_build_file, storekit_ref))
 L('\t\t%s /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = %s /* Localizable.xcstrings */; };' % (xcstrings_build_file, xcstrings_ref))
+L('\t\t%s /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = %s /* InfoPlist.xcstrings */; };' % (infoplist_strings_build_file, infoplist_strings_ref))
 for ext in EXTENSION_TARGETS:
     L('\t\t%s /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = %s /* Localizable.xcstrings */; };' % (ext["xcstrings_build_file"], xcstrings_ref))
     if ext["own_assets"]:
@@ -309,6 +315,7 @@ L('\t\t%s /* MileageRules */ = {isa = PBXFileReference; lastKnownFileType = fold
 L('\t\t%s /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };' % privacy_ref)
 L('\t\t%s /* MileagePocket.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = MileagePocket.storekit; sourceTree = "<group>"; };' % storekit_ref)
 L('\t\t%s /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };' % xcstrings_ref)
+L('\t\t%s /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };' % infoplist_strings_ref)
 L('\t\t%s /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };' % info_plist_ref)
 L('\t\t%s /* %s */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = %s; sourceTree = "<group>"; };' % (entitlements_ref, os.path.basename(entitlements_path), os.path.basename(entitlements_path)))
 for f in xcconfig_files:
@@ -388,6 +395,7 @@ L('\t\t\tisa = PBXGroup;')
 L('\t\t\tchildren = (')
 L('\t\t\t\t%s /* Assets.xcassets */,' % assets_ref)
 L('\t\t\t\t%s /* Localizable.xcstrings */,' % xcstrings_ref)
+L('\t\t\t\t%s /* InfoPlist.xcstrings */,' % infoplist_strings_ref)
 L('\t\t\t\t%s /* MileageRules */,' % rules_ref)
 L('\t\t\t\t%s /* PrivacyInfo.xcprivacy */,' % privacy_ref)
 L('\t\t\t);')
@@ -655,6 +663,7 @@ L('\t\t\tbuildActionMask = 2147483647;')
 L('\t\t\tfiles = (')
 L('\t\t\t\t%s /* Assets.xcassets in Resources */,' % assets_build_file)
 L('\t\t\t\t%s /* Localizable.xcstrings in Resources */,' % xcstrings_build_file)
+L('\t\t\t\t%s /* InfoPlist.xcstrings in Resources */,' % infoplist_strings_build_file)
 L('\t\t\t\t%s /* MileageRules in Resources */,' % rules_build_file)
 L('\t\t\t\t%s /* PrivacyInfo.xcprivacy in Resources */,' % privacy_build_file)
 L('\t\t\t\t%s /* MileagePocket.storekit in Resources */,' % storekit_build_file)

@@ -13,9 +13,15 @@ struct FreeAccessPeriod: Equatable, Sendable {
 
     /// Whole days left, rounded up, so the last partial day still reads as "1 day left"
     /// rather than "0".
+    ///
+    /// Clamped to the period's own length: with the device clock wound back, the raw
+    /// subtraction reads more days than a free period ever grants — three days became four,
+    /// or thirty — and the number is what the paywall and Settings show. The clamp is the
+    /// rule the test claimed to impose and the code did not.
     func daysRemaining(now: Date = .now) -> Int {
         guard isActive(now: now) else { return 0 }
-        return max(1, Int((endsAt.timeIntervalSince(now) / 86_400).rounded(.up)))
+        let remaining = min(endsAt.timeIntervalSince(now), Self.duration)
+        return max(1, Int((remaining / 86_400).rounded(.up)))
     }
 }
 

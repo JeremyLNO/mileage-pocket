@@ -27,8 +27,8 @@ final class NotificationService {
     /// that a trip left running overnight is caught the same day.
     func scheduleTripStillRunningReminder(after interval: TimeInterval = 3 * 3600) {
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "notification.trip.running.title")
-        content.body = String(localized: "notification.trip.running.body")
+        content.title = L.string("notification.trip.running.title")
+        content.body = L.string("notification.trip.running.body")
         content.sound = .default
 
         let request = UNNotificationRequest(
@@ -45,8 +45,8 @@ final class NotificationService {
 
     func notifyTripSaved(distanceText: String) {
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "notification.trip.saved.title")
-        content.body = String(format: String(localized: "notification.trip.saved.body"), distanceText)
+        content.title = L.string("notification.trip.saved.title")
+        content.body = L.format("notification.trip.saved.body", distanceText)
         content.sound = nil
         center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
     }
@@ -58,8 +58,8 @@ final class NotificationService {
         components.hour = 9
 
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "notification.report.title")
-        content.body = String(localized: "notification.report.body")
+        content.title = L.string("notification.report.title")
+        content.body = L.string("notification.report.body")
         content.sound = .default
 
         center.add(UNNotificationRequest(
@@ -67,6 +67,10 @@ final class NotificationService {
             content: content,
             trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
         ))
+    }
+
+    func cancelMonthlyReportReminder() {
+        center.removePendingNotificationRequests(withIdentifiers: [Identifier.monthlyReport])
     }
 
     func cancelAll() {

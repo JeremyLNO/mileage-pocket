@@ -1,0 +1,88 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mileage Pocket nutzt deinen Standort während der Fahrt, um die Strecke deiner Fahrten zu berechnen – auch wenn die App im Hintergrund läuft."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mileage Pocket uses your location while driving to calculate the distance of your trips, including when the app is in the background."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mileage Pocket usa tu ubicación mientras conduces para calcular la distancia de tus viajes, incluso cuando la app está en segundo plano."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mileage Pocket utilise votre position pendant la conduite pour calculer la distance de vos trajets, y compris lorsque l'app est en arrière-plan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mileage Pocket usa la tua posizione durante la guida per calcolare la distanza dei tuoi viaggi, anche quando l'app è in background."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Mileage Pocket usa a sua localização durante a condução para calcular a distância das suas viagens, incluindo quando a app está em segundo plano."
+          }
+        }
+      }
+    },
+    "NSLocationAlwaysAndWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaube „Immer“, damit Mileage Pocket eine Fahrt weiter aufzeichnet, falls iOS die App unterwegs beendet. Dein Standort wird nirgendwohin gesendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Always so Mileage Pocket keeps recording a trip if iOS closes the app mid-drive. Your location is never sent anywhere."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite «Siempre» para que Mileage Pocket siga registrando un viaje si iOS cierra la app durante el trayecto. Tu ubicación nunca se envía a ningún sitio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisez « Toujours » pour que Mileage Pocket continue d'enregistrer un trajet si iOS ferme l'app en cours de route. Votre position n'est jamais transmise."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti «Sempre» così Mileage Pocket continua a registrare un viaggio se iOS chiude l'app durante il tragitto. La tua posizione non viene mai inviata da nessuna parte."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permita «Sempre» para que o Mileage Pocket continue a registar uma viagem se o iOS fechar a app a meio do percurso. A sua localização nunca é enviada para lado nenhum."
+          }
+        }
+      }
+    }
+  }
+}

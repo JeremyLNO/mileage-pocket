@@ -8,20 +8,6 @@ import XCTest
 @MainActor
 final class CumulativeYearTests: XCTestCase {
     /// Stands in for the recorder: these tests never record, they only write trips.
-    private final class InertRecorder: TripRecording {
-        var state: RecorderState = .idle
-        var onUpdate: (() -> Void)?
-        var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)?
-        var authorizationStatus: CLAuthorizationStatus = .authorizedAlways
-        var currentDistanceMeters: Double = 0
-        var startedAt: Date?
-        var routeSamples: [LocationSample] = []
-
-        func start(vehicleID: UUID?) throws {}
-        func stop() async throws -> Trip { throw RecorderError.notRecording }
-        func resumeIfNeeded() throws {}
-        func requestPermission() {}
-    }
 
     private func makeDependencies(country: String) throws -> AppDependencies {
         let container = try PersistenceController.makeContainer(cloudKitEnabled: false, inMemory: true)

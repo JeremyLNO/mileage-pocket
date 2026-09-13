@@ -28,6 +28,12 @@ final class CountryRuleEngine: Sendable {
         store.pack(country: country, version: version)
     }
 
+    /// Any version at all, used when a trip falls outside every validity window but the
+    /// country's tax-year shape is still the right one to count over.
+    func anyPack(for countryCode: String) -> RulePack? {
+        store.anyPack(country: countryCode)
+    }
+
     func hasCumulativeScale(country: String) -> Bool {
         store.hasCumulativePack(country: country)
     }

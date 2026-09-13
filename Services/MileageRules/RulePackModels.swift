@@ -21,7 +21,79 @@ struct RulePack: Codable, Sendable, Equatable {
     let lastVerified: Date
     /// Optional localisation keys for country-specific caveats shown in Settings.
     let notes: [String: String]?
+    /// When this country's tax year opens, as "MM-DD". Absent means 1 January.
+    ///
+    /// It is not cosmetic: a tiered scale counts from the start of the tax year, so getting
+    /// this wrong resets the British 10 000-mile allowance on 1 January instead of 6 April
+    /// and re-prices three months of driving at the higher rate.
+    let taxYearStart: String?
+    /// A ceiling on what the whole year may claim, in the pack's currency. Switzerland caps
+    /// commuting costs at 3 200 CHF.
+    let annualCapAmountRaw: String?
     let schemes: [RateScheme]
+
+    private enum CodingKeys: String, CodingKey {
+        case country, version, validFrom, validUntil, currencyCode, distanceUnit
+        case source, sourceURL, lastVerified, notes, schemes, taxYearStart
+        case annualCapAmountRaw = "annualCapAmount"
+    }
+
+    /// Written out rather than synthesised so the two newer fields can default: a pack that
+    /// names neither a tax-year opening nor a ceiling is the common case.
+    init(
+        country: String,
+        version: String,
+        validFrom: Date,
+        validUntil: Date?,
+        currencyCode: String,
+        distanceUnit: DistanceUnit,
+        source: String,
+        sourceURL: URL,
+        lastVerified: Date,
+        notes: [String: String]? = nil,
+        taxYearStart: String? = nil,
+        annualCapAmount: Decimal? = nil,
+        schemes: [RateScheme]
+    ) {
+        self.country = country
+        self.version = version
+        self.validFrom = validFrom
+        self.validUntil = validUntil
+        self.currencyCode = currencyCode
+        self.distanceUnit = distanceUnit
+        self.source = source
+        self.sourceURL = sourceURL
+        self.lastVerified = lastVerified
+        self.notes = notes
+        self.taxYearStart = taxYearStart
+        self.annualCapAmountRaw = annualCapAmount.map { "\($0)" }
+        self.schemes = schemes
+    }
+
+    var annualCapAmount: Decimal? {
+        annualCapAmountRaw.flatMap { Decimal(string: $0, locale: Locale(identifier: "en_US_POSIX")) }
+    }
+
+    /// Month and day the tax year opens. 1 January unless the pack says otherwise.
+    var taxYearOpening: (month: Int, day: Int) {
+        guard let taxYearStart else { return (1, 1) }
+        let parts = taxYearStart.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 2, (1...12).contains(parts[0]), (1...31).contains(parts[1]) else { return (1, 1) }
+        return (parts[0], parts[1])
+    }
+
+    /// The window a cumulative allowance counts over, for the year containing `date`.
+    func taxYearRange(containing date: Date, calendar: Calendar = .current) -> Range<Date> {
+        let opening = taxYearOpening
+        let year = calendar.component(.year, from: date)
+        let thisYearsOpening = calendar.date(from: DateComponents(year: year, month: opening.month, day: opening.day))
+            ?? date
+        let start = date >= thisYearsOpening
+            ? thisYearsOpening
+            : calendar.date(byAdding: .year, value: -1, to: thisYearsOpening) ?? thisYearsOpening
+        let end = calendar.date(byAdding: .year, value: 1, to: start) ?? start
+        return start..<end
+    }
 
     func isValid(on date: Date) -> Bool {
         guard date >= validFrom else { return false }
@@ -57,6 +129,10 @@ struct RateScheme: Codable, Sendable, Equatable {
     /// only one that makes sense for a single-band flat rate.
     let bandModeRaw: String?
     let powerUnitRaw: String?
+    /// The most annual distance this scheme will price, in the pack's unit. Australia's
+    /// cents-per-kilometre method stops at 5 000 km per vehicle per year; beyond it the
+    /// method yields nothing, and pricing on regardless overstated a 20 000 km year fourfold.
+    let annualCapDistance: Double?
     /// A published uplift applied to another scheme's rates, expressed as a decimal string.
     /// France's electric-vehicle rule is exactly this: the official text raises the standard
     /// scale by 20 % without publishing a second table, so the multiplier *is* the rule —
@@ -69,7 +145,7 @@ struct RateScheme: Codable, Sendable, Equatable {
     let bands: [RateBand]
 
     private enum CodingKeys: String, CodingKey {
-        case id, vehicleTypes, fuelTypes, powerBands, bands
+        case id, vehicleTypes, fuelTypes, powerBands, bands, annualCapDistance
         case bandModeRaw = "bandMode"
         case powerUnitRaw = "powerUnit"
         case rateMultiplierRaw = "rateMultiplier"
@@ -106,9 +182,11 @@ struct RateScheme: Codable, Sendable, Equatable {
         bandMode: BandMode = .marginal,
         powerUnit: PowerUnit = .fiscalHorsepower,
         rateMultiplier: Decimal? = nil,
+        annualCapDistance: Double? = nil,
         powerBands: [PowerBand]? = nil,
         bands: [RateBand]
     ) {
+        self.annualCapDistance = annualCapDistance
         self.id = id
         self.vehicleTypes = vehicleTypes
         self.fuelTypes = fuelTypes

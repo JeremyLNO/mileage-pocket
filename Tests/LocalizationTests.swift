@@ -97,9 +97,91 @@ final class RuntimeLocalizationKeyTests: XCTestCase {
         XCTAssertTrue(plural.contains("6"), plural)
     }
 
+    /// The catalogue's `one`/`other` variations, asserted on the *words* rather than on the
+    /// two strings differing.
+    ///
+    /// They always differ: both interpolate the count. Replacing the variations with a single
+    /// `"%lld business trips"` left the test green while the app drew "1 business trips".
     func testPluralRulesSelectDifferentFormsForOneAndMany() {
-        let one = L.plural("home.business.trips", 1)
-        let many = L.plural("home.business.trips", 5)
-        XCTAssertNotEqual(one, many, "a count of 1 must not read like a count of 5")
+        let previous = L.languageCode
+        defer { L.languageCode = previous }
+        L.languageCode = "en"
+
+        XCTAssertEqual(L.plural("home.business.trips", 1), "1 business trip")
+        XCTAssertEqual(L.plural("home.business.trips", 5), "5 business trips")
+    }
+
+    // MARK: - The language the user picked, not the device's
+
+    /// `NSLocalizedString` reads `Bundle.main`, which follows the *device* language. Every
+    /// string built outside a SwiftUI `Text` went through it — the notification bodies, the
+    /// plan label, the exported PDF — and stayed in the system language while the rest of the
+    /// app switched. On a French phone set to English in Settings, the PDF handed to an
+    /// accountant came out in French anyway; on an English phone set to French, in English.
+    func testLookupsFollowTheInAppLanguageRatherThanTheDevice() {
+        let previous = L.languageCode
+        defer { L.languageCode = previous }
+
+        L.languageCode = "en"
+        let english = L.string("activetrip.stop.accessibility")
+        L.languageCode = "fr"
+        let french = L.string("activetrip.stop.accessibility")
+
+        XCTAssertEqual(english, "Stop trip")
+        XCTAssertEqual(french, "Arrêter le trajet")
+        XCTAssertNotEqual(english, french)
+    }
+
+    func testFormattedLookupsAlsoFollowTheInAppLanguage() {
+        let previous = L.languageCode
+        defer { L.languageCode = previous }
+
+        L.languageCode = "de"
+        let german = L.format("pdf.page", 2, 7)
+        XCTAssertEqual(german, "Seite 2 von 7")
+    }
+
+    /// The report is built by a service, not a view, so it never sees `\.locale` from the
+    /// environment. It has to pin its own language — and the whole document, not just its
+    /// numbers, has to come out in it.
+    func testTheDocumentLanguageIsPinnedIndependentlyOfTheAppLanguage() {
+        let previous = L.languageCode
+        defer { L.languageCode = previous }
+        L.languageCode = "en"
+
+        let spanish = LocalizedStrings(locale: Locale(identifier: "es_ES"))
+        XCTAssertEqual(spanish("pdf.summary.distance"), "Distancia total")
+        XCTAssertEqual(spanish.format("pdf.page", 1, 3), "Página 1 de 3")
+        // And the app-wide language is untouched by it.
+        XCTAssertEqual(L.string("pdf.summary.distance"), "Total distance")
+    }
+
+    /// An unknown language must still produce text, not an empty string or a raw key.
+    func testAnUnsupportedLanguageFallsBackToSomethingReadable() {
+        let klingon = LocalizedStrings(languageCode: "tlh")
+        XCTAssertFalse(klingon("activetrip.stop.accessibility").isEmpty)
+        XCTAssertNotEqual(klingon("activetrip.stop.accessibility"), "activetrip.stop.accessibility")
+    }
+
+    /// The two location prompts are Info.plist keys, which `Localizable.xcstrings` does not
+    /// reach: they need their own catalogue, and without it iOS shows the English sentence
+    /// to every non-English user at the single most consequential moment in the app.
+    func testTheLocationPromptsAreTranslatedInEverySupportedLanguage() throws {
+        let keys = [
+            "NSLocationWhenInUseUsageDescription",
+            "NSLocationAlwaysAndWhenInUseUsageDescription",
+        ]
+        for language in AppLanguage.allCases {
+            let code = language.locale.language.languageCode?.identifier ?? "en"
+            let bundle = try XCTUnwrap(
+                Bundle.main.path(forResource: code, ofType: "lproj").flatMap(Bundle.init(path:)),
+                "\(code) has no lproj in the built app"
+            )
+            for key in keys {
+                let value = bundle.localizedString(forKey: key, value: "MISSING", table: "InfoPlist")
+                XCTAssertNotEqual(value, "MISSING", "\(key) is not translated in \(code)")
+                XCTAssertFalse(value.isEmpty)
+            }
+        }
     }
 }

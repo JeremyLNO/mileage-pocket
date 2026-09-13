@@ -52,6 +52,14 @@ final class RulePackStore: @unchecked Sendable {
         return (packsByCountry[country.uppercased()] ?? []).first { $0.version == version }
     }
 
+    /// Any version held for this country, newest first.
+    func anyPack(country: String) -> RulePack? {
+        lock.lock()
+        defer { lock.unlock() }
+        return (packsByCountry[country.uppercased()] ?? [])
+            .max { lhs, rhs in lhs.version.compare(rhs.version, options: .numeric) == .orderedAscending }
+    }
+
     /// Whether any version of this country's scale prices by annual distance.
     ///
     /// Asked without a date on purpose: the trigger for a replay is a trip being added or

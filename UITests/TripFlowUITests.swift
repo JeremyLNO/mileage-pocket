@@ -20,6 +20,9 @@ final class TripFlowUITests: XCTestCase {
         let start = app.buttons["Start trip"]
         XCTAssertTrue(start.waitForExistence(timeout: 10), "the START control must be on the first screen")
         start.tap()
+        // The prompt is raised by START, not by launching: answering it at launch was too
+        // early, and the trip then recorded 0.0 km while the dialog sat over the app.
+        allowLocationIfAsked()
 
         let stop = app.buttons["Stop trip"]
         XCTAssertTrue(stop.waitForExistence(timeout: 10), "STOP must appear as soon as a trip starts")
@@ -62,30 +65,50 @@ final class TripFlowUITests: XCTestCase {
         )
     }
 
-    /// Counts the taps the daily loop costs. Three is the design budget: START, STOP,
-    /// BUSINESS — Save is the fourth and the sheet is dismissible without it only by
-    /// discarding, so four is the honest ceiling.
-    func testTheDailyLoopStaysWithinItsTapBudget() {
+    /// The everyday loop must cost four taps — START, STOP, BUSINESS, Save — and nothing
+    /// must stand between them.
+    ///
+    /// This used to count a variable the test incremented itself and assert it was at most
+    /// four, which is true by construction: no change to the app could make it fail. What
+    /// actually has to be proved is that nothing is *interposed* — a paywall on START (which
+    /// shipped, and which the free period now prevents), a confirmation on STOP, a required
+    /// field on the summary — so each step asserts that the next control is already there and
+    /// that no sheet or alert arrived in between.
+    func testTheDailyLoopIsNotInterrupted() {
         let app = launchDemoApp()
-        var taps = 0
 
         let start = app.buttons["Start trip"]
         XCTAssertTrue(start.waitForExistence(timeout: 10))
-        start.tap(); taps += 1
+        start.tap()
+        allowLocationIfAsked()
 
+        // Tap 1 must put the app on the driving screen, not in front of an offer.
+        XCTAssertFalse(
+            app.staticTexts["Your mileage. Automatically documented."].waitForExistence(timeout: 2),
+            "starting a trip must never raise the paywall"
+        )
         let stop = app.buttons["Stop trip"]
-        XCTAssertTrue(stop.waitForExistence(timeout: 10))
+        XCTAssertTrue(stop.waitForExistence(timeout: 10), "START alone has to reach the driving screen")
+
         Thread.sleep(forTimeInterval: 6)
-        stop.tap(); taps += 1
+        stop.tap()
 
+        // Tap 2 must open the summary directly — no "are you sure", no wait on the network.
+        XCTAssertEqual(app.alerts.count, 0, "stopping must not ask anything")
         let business = app.buttons["Business"]
-        XCTAssertTrue(business.waitForExistence(timeout: 15))
-        business.tap(); taps += 1
+        XCTAssertTrue(business.waitForExistence(timeout: 15), "STOP alone has to reach the summary")
 
+        business.tap()
+
+        // Tap 3 classifies; Save must already be available, with nothing else required.
         let save = app.buttons["Save"]
-        XCTAssertTrue(save.waitForExistence(timeout: 5))
-        save.tap(); taps += 1
+        XCTAssertTrue(save.isHittable, "classifying must not unlock further required fields")
+        save.tap()
 
-        XCTAssertLessThanOrEqual(taps, 4, "the everyday loop must not cost more than four taps")
+        // Tap 4 lands back on Home, trip recorded.
+        XCTAssertTrue(
+            app.buttons["Start trip"].waitForExistence(timeout: 10),
+            "saving has to return to Home, ready for the next drive"
+        )
     }
 }

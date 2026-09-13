@@ -9,11 +9,21 @@ struct ReportData: Sendable {
     let personalTripCount: Int
     let totalDistanceMeters: Double
     let businessDistanceMeters: Double
-    let totalAmount: Decimal
+    /// One total per currency. A year that crosses a border produces two, and adding them
+    /// together would print a number that means nothing — the old code summed them and
+    /// labelled the result with whichever currency the first trip happened to use.
+    let totalsByCurrency: [(currency: String, amount: Decimal)]
     let currencyCode: String
     /// Every rule version that contributed. More than one means the scale changed inside
     /// the period, and the footer says so rather than implying a single rule applied.
     let ruleVersions: [String]
+
+    /// The largest currency's total. Never zero just because several currencies are in play —
+    /// that would have swapped one silent lie for another. Callers that print it must check
+    /// `isMixedCurrency` and disclose the rest.
+    var totalAmount: Decimal { totalsByCurrency.first?.amount ?? 0 }
+
+    var isMixedCurrency: Bool { totalsByCurrency.count > 1 }
 
     var isEmpty: Bool { rows.isEmpty }
 }
@@ -71,7 +81,14 @@ enum ReportBuilder {
         }
 
         let businessRows = rows.filter { $0.tripType == .business }
-        let total = rows.reduce(Decimal(0)) { $0 + ($1.amount ?? 0) }
+        var byCurrency: [String: Decimal] = [:]
+        for row in rows {
+            guard let amount = row.amount, amount != 0 else { continue }
+            byCurrency[row.currencyCode ?? fallbackCurrency, default: 0] += amount
+        }
+        let totals = byCurrency
+            .map { (currency: $0.key, amount: $0.value) }
+            .sorted { $0.amount > $1.amount }
 
         return ReportData(
             period: period,
@@ -80,24 +97,29 @@ enum ReportBuilder {
             personalTripCount: rows.count - businessRows.count,
             totalDistanceMeters: rows.reduce(0) { $0 + $1.distanceMeters },
             businessDistanceMeters: businessRows.reduce(0) { $0 + $1.distanceMeters },
-            totalAmount: total,
-            currencyCode: rows.compactMap(\.currencyCode).first ?? fallbackCurrency,
+            totalsByCurrency: totals,
+            currencyCode: totals.first?.currency ?? fallbackCurrency,
             ruleVersions: Array(Set(selected.compactMap(\.mileageRuleVersion))).sorted()
         )
     }
 
     /// Distance already driven in the trip's tax year *before* it, which tiered scales need.
-    /// Personal trips are excluded: they do not consume an allowance.
+    ///
+    /// The window is passed in rather than assumed to be the calendar year: Britain's opens
+    /// on 6 April and Australia's on 1 July, and counting from 1 January reset the British
+    /// 10 000-mile allowance three months early — re-pricing a whole quarter at the higher
+    /// rate and calling it official.
+    ///
+    /// Personal trips are excluded: they consume no allowance.
     static func yearlyDistanceMeters(
         before trip: Trip,
         in trips: [Trip],
-        calendar: Calendar = .current
+        window: Range<Date>
     ) -> Double {
-        let year = ReportPeriod.taxYear(of: trip.startedAt, calendar: calendar)
-        return trips
+        trips
             .filter { $0.id != trip.id }
             .filter { $0.tripType == .business }
-            .filter { ReportPeriod.taxYear(of: $0.startedAt, calendar: calendar) == year }
+            .filter { window.contains($0.startedAt) }
             .filter { $0.startedAt < trip.startedAt }
             .reduce(0) { $0 + $1.distanceMeters }
     }

@@ -6,10 +6,12 @@ import Foundation
 /// break. Every field is quoted and every embedded quote doubled — a spreadsheet that
 /// mis-parses one row silently shifts every column after it.
 enum CSVExporter {
-    static let columnCount = 7
+    static let columnCount = 8
 
     static func csv(_ data: ReportData, profile: ReportProfile) -> String {
-        let header = ["Date", "From", "To", "Purpose", "Distance (\(unitLabel(profile.unit)))", "Rate", "Amount"]
+        // The currency is its own column: without it a file mixing euros and dollars was
+        // indistinguishable from one that did not.
+        let header = ["Date", "From", "To", "Purpose", "Distance (\(unitLabel(profile.unit)))", "Rate", "Amount", "Currency"]
         var lines = [row(header)]
 
         let dateFormatter = ISO8601DateFormatter()
@@ -24,18 +26,29 @@ enum CSVExporter {
                 decimalString(profile.unit.value(fromMeters: entry.distanceMeters), places: 1),
                 entry.rate.map { rateString($0) } ?? "",
                 entry.amount.map { plain($0) } ?? "",
+                entry.amount == nil ? "" : (entry.currencyCode ?? ""),
             ]))
         }
 
-        lines.append(row([
-            "TOTAL",
-            "",
-            "",
-            "\(data.businessTripCount) business trips",
-            decimalString(profile.unit.value(fromMeters: data.totalDistanceMeters), places: 1),
-            "",
-            plain(data.totalAmount),
-        ]))
+        // One totals line per currency: adding them together would print a number that means
+        // nothing.
+        if data.totalsByCurrency.isEmpty {
+            lines.append(row([
+                "TOTAL", "", "", "\(data.businessTripCount) business trips",
+                decimalString(profile.unit.value(fromMeters: data.totalDistanceMeters), places: 1),
+                "", "", "",
+            ]))
+        }
+        for (index, total) in data.totalsByCurrency.enumerated() {
+            lines.append(row([
+                "TOTAL", "", "",
+                index == 0 ? "\(data.businessTripCount) business trips" : "",
+                index == 0 ? decimalString(profile.unit.value(fromMeters: data.totalDistanceMeters), places: 1) : "",
+                "",
+                plain(total.amount),
+                total.currency,
+            ]))
+        }
 
         // CRLF is what RFC 4180 specifies, and what Excel on Windows expects.
         return lines.joined(separator: "\r\n") + "\r\n"

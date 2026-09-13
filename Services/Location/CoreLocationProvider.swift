@@ -72,6 +72,20 @@ final class CoreLocationProvider: NSObject, LocationProviding {
         applyBackgroundUpdates()
         manager.showsBackgroundLocationIndicator = true
         manager.startUpdatingLocation()
+        applySignificantChangeMonitoring()
+    }
+
+    /// The one thing Always buys that When In Use does not: if iOS terminates the app
+    /// mid-drive — memory pressure, a reboot — a significant change relaunches it, and the
+    /// recorder picks the trip back up where it stopped. Without it the drive simply ends
+    /// wherever the app was killed, and the user finds out at the next launch.
+    ///
+    /// It is deliberately only armed while a trip is running: monitoring it permanently is
+    /// how an app ends up in the battery report for doing nothing.
+    private func applySignificantChangeMonitoring() {
+        guard manager.authorizationStatus == .authorizedAlways,
+              CLLocationManager.significantLocationChangeMonitoringAvailable() else { return }
+        manager.startMonitoringSignificantLocationChanges()
     }
 
     /// Background delivery works under **When In Use** as well as Always.
@@ -99,6 +113,7 @@ final class CoreLocationProvider: NSObject, LocationProviding {
         guard isUpdating else { return }
         isUpdating = false
         manager.stopUpdatingLocation()
+        manager.stopMonitoringSignificantLocationChanges()
         // Leaving this on keeps the app eligible to wake for location forever, which shows
         // up as battery drain attributed to an app that is doing nothing.
         manager.allowsBackgroundLocationUpdates = false
@@ -117,6 +132,8 @@ final class CoreLocationProvider: NSObject, LocationProviding {
             // Re-issuing is harmless when already running, and it is what actually gets
             // deliveries going when the prompt was answered after `startUpdates()`.
             manager.startUpdatingLocation()
+            // Always may have just been granted, mid-trip.
+            applySignificantChangeMonitoring()
         }
         onAuthorizationChange?(status)
     }

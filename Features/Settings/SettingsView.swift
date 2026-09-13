@@ -11,6 +11,7 @@ struct SettingsView: View {
     @State private var showsDeleteConfirmation = false
     @State private var showsPaywall = false
     @State private var exportFile: ExportedFile?
+    @State private var exportFailed = false
 
     private var settings: UserSettings { dependencies.settingsStore.settings }
     private var localization: LocalizationService { dependencies.localization }
@@ -22,6 +23,7 @@ struct SettingsView: View {
                 drivingSection
                 regionSection
                 calculationSection
+                notificationsSection
                 dataSection
                 subscriptionSection
                 aboutSection
@@ -35,6 +37,11 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showsPaywall) { PaywallView() }
             .sheet(item: $exportFile) { file in ShareSheet(url: file.url) }
+            .alert("export.failed.title", isPresented: $exportFailed) {
+                Button("common.ok", role: .cancel) {}
+            } message: {
+                Text("export.failed.message")
+            }
             .confirmationDialog("settings.delete.all", isPresented: $showsDeleteConfirmation, titleVisibility: .visible) {
                 Button("settings.delete.all.confirm", role: .destructive) { dependencies.deleteAllData() }
                 Button("common.cancel", role: .cancel) {}
@@ -79,7 +86,13 @@ struct SettingsView: View {
             NavigationLink {
                 VehiclesView()
             } label: {
-                LabeledContent("settings.vehicles", value: dependencies.defaultVehicleName() ?? String(localized: "home.no.vehicle"))
+                LabeledContent("settings.vehicles", value: dependencies.defaultVehicleName() ?? L.string("home.no.vehicle"))
+            }
+
+            NavigationLink {
+                ClientsProjectsView()
+            } label: {
+                Text("settings.clients")
             }
 
             Picker("settings.default.type", selection: Binding(
@@ -157,12 +170,12 @@ struct SettingsView: View {
             LabeledContent("settings.active.rule") {
                 Text(dependencies.activeRuleDescription())
                     .multilineTextAlignment(.trailing)
-                    .font(.system(size: 13))
+                    .scaledFont(13, relativeTo: .footnote)
             }
 
             if let source = dependencies.activeRuleSource() {
                 Button("settings.rule.source") { openURL(source) }
-                    .font(.system(size: 14))
+                    .scaledFont(14, relativeTo: .subheadline)
             }
         } header: {
             Text("settings.calculation")
@@ -172,6 +185,36 @@ struct SettingsView: View {
                 // verified scale in the app, and the report will say so too.
                 Text("settings.no.official.rule")
             }
+        }
+    }
+
+    /// Two switches for two reminders. Both were decided once, at onboarding, and never
+    /// again: the trip reminder is the one thing that catches a trip left running overnight,
+    /// and a user who tapped Skip could not turn it on from anywhere.
+    private var notificationsSection: some View {
+        Section {
+            if settings.notificationsEnabled {
+                Toggle("settings.notifications.trip", isOn: Binding(
+                    get: { settings.tripReminderEnabled },
+                    set: { settings.tripReminderEnabled = $0; dependencies.applyNotificationPreferences() }
+                ))
+                Toggle("settings.notifications.report", isOn: Binding(
+                    get: { settings.monthlyReportReminderEnabled },
+                    set: { settings.monthlyReportReminderEnabled = $0; dependencies.applyNotificationPreferences() }
+                ))
+            } else {
+                Button("onboarding.notifications.allow") {
+                    Task { await dependencies.requestNotificationPermission() }
+                }
+                .foregroundStyle(Theme.signal)
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    Link("settings.notifications.open", destination: url)
+                }
+            }
+        } header: {
+            Text("settings.notifications")
+        } footer: {
+            Text(settings.notificationsEnabled ? "settings.notifications.trip.help" : "settings.notifications.denied")
         }
     }
 
@@ -185,14 +228,22 @@ struct SettingsView: View {
             // lies about syncing is how someone loses data they believed was backed up.
             .disabled(!CloudKitAvailability.isEntitled)
             Button("settings.export.all") {
-                if let url = dependencies.exportAllData() { exportFile = ExportedFile(url: url) }
+                if let url = dependencies.exportAllData() {
+                    exportFile = ExportedFile(url: url)
+                } else {
+                    // Silence used to be the failure mode: the sheet simply never appeared.
+                    exportFailed = true
+                }
             }
             Button("settings.delete.all", role: .destructive) { showsDeleteConfirmation = true }
         } header: {
             Text("settings.data")
         } footer: {
-            if !CloudKitAvailability.isEntitled {
-                Text("settings.icloud.unavailable")
+            VStack(alignment: .leading, spacing: 6) {
+                if !CloudKitAvailability.isEntitled {
+                    Text("settings.icloud.unavailable")
+                }
+                Text("settings.export.all.note")
             }
         }
     }

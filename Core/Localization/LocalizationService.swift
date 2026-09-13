@@ -17,6 +17,7 @@ final class LocalizationService {
             selectedLanguage: settings.selectedLanguage,
             preferredLanguages: Locale.preferredLanguages
         )
+        L.languageCode = currentLanguage.locale.language.languageCode?.identifier ?? "en"
     }
 
     var locale: Locale { currentLanguage.locale }
@@ -25,6 +26,7 @@ final class LocalizationService {
         settings.selectedLanguage = language.rawValue
         settings.hasExplicitLanguageOverride = true
         currentLanguage = language
+        L.languageCode = language.locale.language.languageCode?.identifier ?? "en"
     }
 
     /// Drops the override and follows the system again.
@@ -36,6 +38,7 @@ final class LocalizationService {
             selectedLanguage: nil,
             preferredLanguages: Locale.preferredLanguages
         )
+        L.languageCode = currentLanguage.locale.language.languageCode?.identifier ?? "en"
     }
 }
 
@@ -44,6 +47,21 @@ final class LocalizationService {
 /// These helpers do the lookup first and format second, which is the only combination that
 /// resolves — and, for a count, the only one that applies the language's plural rule.
 enum L {
+    /// The language these helpers resolve in. Set by `LocalizationService` at launch and on
+    /// every change, so the picker in Settings reaches the strings SwiftUI cannot see: `Text`
+    /// follows `\.locale` from the environment, but a `String` built in a service does not,
+    /// and those went on being drawn in the *system* language while the rest of the app
+    /// switched.
+    nonisolated(unsafe) private static var _languageCode = "en"
+    private static let lock = NSLock()
+
+    static var languageCode: String {
+        get { lock.withLock { _languageCode } }
+        set { lock.withLock { _languageCode = newValue } }
+    }
+
+    private static var strings: LocalizedStrings { LocalizedStrings(languageCode: languageCode) }
+
     /// Looks up a key that is only known at runtime.
     ///
     /// `LocalizedStringKey("vehicle.type.\(raw)")` and
@@ -52,16 +70,16 @@ enum L {
     /// `"vehicle.type.%@"` with an argument. Nothing matches it, and SwiftUI draws the
     /// interpolated text — the raw key — on screen.
     static func string(_ key: String) -> String {
-        NSLocalizedString(key, comment: "")
+        strings(key)
     }
 
     static func format(_ key: String, _ arguments: CVarArg...) -> String {
-        String(format: NSLocalizedString(key, comment: ""), arguments: arguments)
+        String(format: strings(key), locale: Locale(identifier: languageCode), arguments: arguments)
     }
 
     /// Plural-aware. The catalog entry carries `one`/`other` variations; the rule is applied
     /// here, at format time, exactly as a `.stringsdict` entry is.
     static func plural(_ key: String, _ count: Int) -> String {
-        String.localizedStringWithFormat(NSLocalizedString(key, comment: ""), count)
+        String(format: strings(key), locale: Locale(identifier: languageCode), count)
     }
 }

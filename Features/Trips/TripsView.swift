@@ -95,7 +95,7 @@ private struct TripRow: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(verbatim: "\(labels.start) → \(labels.end)")
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(16, relativeTo: .body, weight: .semibold)
                     .lineLimit(1)
                 Spacer()
                 TripTypePill(type: trip.tripType)
@@ -109,12 +109,12 @@ private struct TripRow: View {
                     Text(Fmt.money(amount, currencyCode: currency, locale: locale)).monospacedDigit()
                 }
             }
-            .font(.system(size: 13))
+            .scaledFont(13, relativeTo: .footnote)
             .foregroundStyle(Theme.textSecondary)
 
             if let purpose = trip.purpose, !purpose.isEmpty {
                 Text(purpose)
-                    .font(.system(size: 13))
+                    .scaledFont(13, relativeTo: .footnote)
                     .foregroundStyle(Theme.textSecondary)
                     .lineLimit(1)
             }

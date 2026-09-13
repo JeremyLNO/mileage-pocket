@@ -45,9 +45,18 @@ final class Trip: Identifiable {
     var mileageRate: Decimal?
     var calculatedAmount: Decimal?
     var currencyCode: String?
+    /// The unit the frozen `mileageRate` is expressed in. Without it, correcting a distance
+    /// re-applied a per-kilometre rate to a mileage figure, or the reverse — and the display
+    /// unit is a Settings toggle that has nothing to do with the scale that was applied.
+    var mileageUnitRaw: String?
     var rateModeRaw: String = RateMode.official.rawValue
     var isOfficialRate: Bool = false
 
+    /// Seconds of driving GPS went quiet for, too long to reconstruct, so not counted.
+    ///
+    /// Kept on the trip rather than thrown away: the distance is genuinely short, and a
+    /// driver who is not told why has no reason to reach for the distance editor.
+    var unbridgedGapSeconds: Double = 0
     var isManuallyEdited: Bool = false
     var isManualEntry: Bool = false
 
@@ -69,6 +78,11 @@ final class Trip: Identifiable {
     var tripType: TripType {
         get { TripType(rawValue: tripTypeRaw) ?? .business }
         set { tripTypeRaw = newValue.rawValue }
+    }
+
+    var mileageUnit: DistanceUnit? {
+        get { mileageUnitRaw.flatMap(DistanceUnit.init(rawValue:)) }
+        set { mileageUnitRaw = newValue?.rawValue }
     }
 
     var rateMode: RateMode {

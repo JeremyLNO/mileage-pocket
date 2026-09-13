@@ -53,7 +53,7 @@ struct PaywallView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("paywall.restore") { Task { await restore() } }
-                        .font(.system(size: 14))
+                        .scaledFont(14, relativeTo: .subheadline)
                 }
             }
         }
@@ -70,10 +70,10 @@ struct PaywallView: View {
     private var header: some View {
         VStack(spacing: 10) {
             Image(systemName: "car.side.fill")
-                .font(.system(size: 42, weight: .semibold))
+                .scaledFont(42, relativeTo: .largeTitle, weight: .semibold)
                 .foregroundStyle(Theme.signal)
             Text("paywall.headline")
-                .font(.system(size: 30, weight: .bold))
+                .scaledFont(30, relativeTo: .largeTitle, weight: .bold)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Theme.textPrimary)
         }
@@ -85,10 +85,10 @@ struct PaywallView: View {
             ForEach(Self.featureKeys(), id: \.self) { key in
                 HStack(spacing: 10) {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 13, weight: .bold))
+                        .scaledFont(13, relativeTo: .footnote, weight: .bold)
                         .foregroundStyle(Theme.business)
                     Text(LocalizedStringKey(key))
-                        .font(.system(size: 16))
+                        .scaledFont(16, relativeTo: .body)
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
                 }
@@ -123,18 +123,18 @@ struct PaywallView: View {
                     ProgressView()
                 } else {
                     Text("paywall.unavailable")
-                        .font(.system(size: 15))
+                        .scaledFont(15, relativeTo: .subheadline)
                         .foregroundStyle(Theme.textSecondary)
                         .multilineTextAlignment(.center)
                     if let error = service.lastError {
                         Text(error)
-                            .font(.system(size: 12))
+                            .scaledFont(12, relativeTo: .caption)
                             .foregroundStyle(Theme.textSecondary)
                             .multilineTextAlignment(.center)
                             .accessibilityIdentifier("paywallError")
                     }
                     Button("paywall.retry") { Task { await service.load() } }
-                        .font(.system(size: 15, weight: .medium))
+                        .scaledFont(15, relativeTo: .subheadline, weight: .medium)
                 }
             }
             .frame(height: 120)
@@ -167,12 +167,12 @@ struct PaywallView: View {
                     .eyebrowStyle(Theme.textSecondary)
 
                 Text(plan.displayPrice)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .scaledFont(24, relativeTo: .title2, weight: .bold, design: .rounded)
                     .monospacedDigit()
                     .foregroundStyle(Theme.textPrimary)
 
                 Text(plan.isAnnual ? "paywall.per.year" : "paywall.per.month")
-                    .font(.system(size: 12))
+                    .scaledFont(12, relativeTo: .caption)
                     .foregroundStyle(Theme.textSecondary)
             }
             .frame(maxWidth: .infinity)
@@ -206,7 +206,7 @@ struct PaywallView: View {
                     Task { await purchase() }
                 } label: {
                     Text("paywall.cta.trial")
-                        .font(.system(size: 15, weight: .medium))
+                        .scaledFont(15, relativeTo: .subheadline, weight: .medium)
                         .foregroundStyle(Theme.signal)
                         .frame(maxWidth: .infinity, minHeight: 34)
                 }
@@ -215,7 +215,7 @@ struct PaywallView: View {
 
             if let plan = selectedPlan {
                 Text(footerText(for: plan))
-                    .font(.system(size: 12))
+                    .scaledFont(12, relativeTo: .caption)
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
@@ -228,9 +228,9 @@ struct PaywallView: View {
     /// the sentence is correct in every currency.
     private func footerText(for plan: PaywallPlan) -> String {
         if plan.hasIntroductoryOffer {
-            return String(format: String(localized: "paywall.footer.trial"), plan.displayPrice)
+            return L.format("paywall.footer.trial", plan.displayPrice)
         }
-        return String(format: String(localized: "paywall.footer.plain"), plan.displayPrice)
+        return L.format("paywall.footer.plain", plan.displayPrice)
     }
 
     private var legal: some View {
@@ -238,7 +238,7 @@ struct PaywallView: View {
             Button("paywall.terms") { open(AppLinks.terms) }
             Button("paywall.privacy") { open(AppLinks.privacy) }
         }
-        .font(.system(size: 12))
+        .scaledFont(12, relativeTo: .caption)
         .foregroundStyle(Theme.textSecondary)
     }
 

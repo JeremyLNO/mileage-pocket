@@ -9,8 +9,15 @@ struct MileagePocketApp: App {
         // iCloud is read from UserDefaults rather than the store, because the store cannot be
         // opened before this decision is made.
         let cloudEnabled = UserDefaults.standard.object(forKey: "iCloudSyncEnabled") as? Bool ?? true
-        let container = PersistenceController.makeContainerWithFallback(cloudKitEnabled: cloudEnabled)
-        _dependencies = State(initialValue: AppDependencies(container: container))
+        let opening = PersistenceController.openStore(cloudKitEnabled: cloudEnabled)
+        let dependencies = AppDependencies(container: opening.container, storeHealth: opening.health)
+        // Bootstrapped here rather than only from the root view: when iOS relaunches the app
+        // in the background after a significant location change — the app having been
+        // terminated mid-drive — no window is built, so a `task` on a view would never run
+        // and the trip would stay dead until the user opened the app themselves. It is a
+        // no-op the second time.
+        dependencies.bootstrap()
+        _dependencies = State(initialValue: dependencies)
     }
 
     var body: some Scene {

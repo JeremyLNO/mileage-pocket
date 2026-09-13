@@ -7,7 +7,9 @@ struct FilterConfig: Sendable, Equatable {
     /// Metres per second above which movement between two fixes is a receiver artefact,
     /// not a car. 60 m/s = 216 km/h.
     var maxSpeed: Double = 60
-    /// A fix delivered later than this after it was taken describes where the phone *was*.
+    /// How old the *first* fix of a trip may be. CoreLocation replays a cached position on
+    /// the opening callback; counting it anchors the trip wherever the phone last had a
+    /// signal. It is deliberately not applied to later fixes — see `accept(_:now:)`.
     var maxStaleness: TimeInterval = 30
     /// Longest silence that may still be crossed in a straight line (a tunnel, a car park).
     var tunnelBridgeMaxGap: TimeInterval = 300
@@ -56,6 +58,14 @@ enum FilterDecision: Equatable, Sendable {
 /// data** — the noiseless fixture still measures 998.9 m.
 struct LocationFilter {
     private(set) var totalDistanceMeters: Double
+    /// Seconds of driving the filter refused to reconstruct, summed over the trip.
+    ///
+    /// A silence too long to bridge is not counted — inventing a straight line across ten
+    /// minutes would put kilometres the user never drove on a tax document. But saying
+    /// nothing about it is its own fault: the driver sees a trip that is short and has no way
+    /// to know why. This is what lets the app tell them, and lets them correct the distance
+    /// by hand.
+    private(set) var unbridgedGapSeconds: TimeInterval = 0
     let config: FilterConfig
 
     // These describe the algorithm rather than policy, so they are not in FilterConfig.
@@ -98,9 +108,14 @@ struct LocationFilter {
     /// bridging: see the guard in `accept(_:now:)`.
     private var refusedJump = false
 
-    init(config: FilterConfig = FilterConfig(), startingDistanceMeters: Double = 0) {
+    init(
+        config: FilterConfig = FilterConfig(),
+        startingDistanceMeters: Double = 0,
+        startingGapSeconds: TimeInterval = 0
+    ) {
         self.config = config
         self.totalDistanceMeters = startingDistanceMeters
+        self.unbridgedGapSeconds = startingGapSeconds
     }
 
     /// Judges one fix and, when it counts, adds its distance to the running total.
@@ -114,13 +129,20 @@ struct LocationFilter {
             return .rejected(.poorAccuracy)
         }
 
-        // 2 — staleness. CoreLocation replays a cached fix on the first callback; counting
-        // it would anchor the trip wherever the phone last had a signal.
-        guard now.timeIntervalSince(sample.timestamp) <= config.maxStaleness else {
-            return .rejected(.stale)
-        }
-
+        // 2 — staleness, and only for the opening fix.
+        //
+        // CoreLocation replays a cached position on the first callback, which would anchor
+        // the trip wherever the phone last had a signal. That is the fault this rule exists
+        // for. Applying it to every fix cost real distance instead: iOS batches updates when
+        // the app has been in the background, and every fix in the batch but the last is
+        // older than 30 s by the time it is handed over — all of them refused, and a drive
+        // recorded through a locked screen came out a fraction of its length. Fixes that
+        // arrive late but *in order* describe positions the vehicle genuinely occupied; the
+        // order, speed and gap rules below are what judge them.
         guard let previous = lastAccepted else {
+            guard now.timeIntervalSince(sample.timestamp) <= config.maxStaleness else {
+                return .rejected(.stale)
+            }
             begin(at: sample)
             return .accepted(distanceMeters: 0)
         }
@@ -136,6 +158,7 @@ struct LocationFilter {
         // 5a — silence too long to reconstruct. The vehicle really did drive somewhere; we
         // simply do not know how far, and an invented figure is worse than a missing one.
         guard elapsed <= config.tunnelBridgeMaxGap else {
+            unbridgedGapSeconds += elapsed
             resync(to: sample)
             return .rejected(.gapTooLong)
         }
@@ -191,6 +214,7 @@ struct LocationFilter {
             // reasonable — would hand the user kilometres they never drove. Rejoin the fix,
             // count nothing.
             guard !refusedJump else {
+                unbridgedGapSeconds += elapsed
                 resync(to: sample)
                 return .rejected(.gapTooLong)
             }

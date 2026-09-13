@@ -18,10 +18,10 @@ struct VehiclesView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(vehicle.name)
-                                .font(.system(size: 16, weight: .semibold))
+                                .scaledFont(16, relativeTo: .body, weight: .semibold)
                                 .foregroundStyle(Theme.textPrimary)
                             Text(vehicleSubtitle(vehicle))
-                                .font(.system(size: 13))
+                                .scaledFont(13, relativeTo: .footnote)
                                 .foregroundStyle(Theme.textSecondary)
                         }
                         Spacer()
@@ -127,9 +127,12 @@ struct VehicleEditor: View {
                     Toggle("vehicle.set.default", isOn: $vehicle.isDefault)
                 }
             }
-            .navigationTitle(vehicle.name.isEmpty ? String(localized: "vehicles.add") : vehicle.name)
+            .navigationTitle(vehicle.name.isEmpty ? L.string("vehicles.add") : vehicle.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("common.cancel") { dismiss() }
+                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("common.done") { save() }
                         .disabled(vehicle.name.trimmingCharacters(in: .whitespaces).isEmpty)

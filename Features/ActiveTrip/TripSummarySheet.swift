@@ -20,10 +20,12 @@ struct TripSummarySheet: View {
     @State private var tripType: TripType?
     @State private var purpose: String = ""
     @State private var clientName: String = ""
+    @State private var projectName: String = ""
     @State private var suggestion: FrequentLocation?
     @State private var showsDiscardConfirmation = false
 
     @Query(sort: \Client.lastUsedAt, order: .reverse) private var clients: [Client]
+    @Query(sort: \Project.lastUsedAt, order: .reverse) private var projects: [Project]
 
     private var settings: UserSettings { dependencies.settingsStore.settings }
 
@@ -38,6 +40,7 @@ struct TripSummarySheet: View {
                         suggestionBanner
                         purposeField
                         clientField
+                        projectField
                     }
                 }
                 .padding(20)
@@ -127,7 +130,7 @@ struct TripSummarySheet: View {
             )
             if let amount = trip.calculatedAmount, let currency = trip.currencyCode, amount > 0 {
                 Text(Fmt.money(amount, currencyCode: currency, locale: locale))
-                    .font(.system(size: 22, weight: .semibold))
+                    .scaledFont(22, relativeTo: .title2, weight: .semibold)
                     .monospacedDigit()
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -135,7 +138,7 @@ struct TripSummarySheet: View {
                 let labels = dependencies.endpointLabels(for: trip)
                 return "\(labels.start) → \(labels.end)"
             }())
-                .font(.system(size: 14))
+                .scaledFont(14, relativeTo: .subheadline)
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
@@ -154,9 +157,9 @@ struct TripSummarySheet: View {
             withAnimation(.snappy(duration: 0.2)) { tripType = type }
         } label: {
             VStack(spacing: 8) {
-                Image(systemName: systemImage).font(.system(size: 22, weight: .semibold))
+                Image(systemName: systemImage).scaledFont(22, relativeTo: .title2, weight: .semibold)
                 Text(type == .business ? "trip.type.business" : "trip.type.personal")
-                    .font(.system(size: 16, weight: .semibold))
+                    .scaledFont(16, relativeTo: .body, weight: .semibold)
             }
             .frame(maxWidth: .infinity, minHeight: 92)
             .foregroundStyle(tripType == type ? .white : Theme.tint(for: type))
@@ -180,7 +183,7 @@ struct TripSummarySheet: View {
                 HStack {
                     Image(systemName: "sparkles")
                     Text(L.format("summary.suggestion", name))
-                        .font(.system(size: 15, weight: .medium))
+                        .scaledFont(15, relativeTo: .subheadline, weight: .medium)
                     Spacer()
                     Text("summary.suggestion.apply").eyebrowStyle(Theme.signal)
                 }
@@ -201,7 +204,7 @@ struct TripSummarySheet: View {
                             purpose = L.string("purpose.\(preset.rawValue)")
                         } label: {
                             Text(L.string("purpose.\(preset.rawValue)"))
-                                .font(.system(size: 14, weight: .medium))
+                                .scaledFont(14, relativeTo: .subheadline, weight: .medium)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(Theme.surfaceRaised, in: Capsule())
@@ -230,7 +233,33 @@ struct TripSummarySheet: View {
                     HStack(spacing: 8) {
                         ForEach(clients.prefix(8)) { client in
                             Button(client.name) { clientName = client.name }
-                                .font(.system(size: 14))
+                                .scaledFont(14, relativeTo: .subheadline)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Theme.surfaceRaised, in: Capsule())
+                                .foregroundStyle(Theme.textPrimary)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Projects existed in the model and on the trip, and no screen in the app could ever
+    /// set one. Same shape as the client field: type a name, or tap one already used.
+    private var projectField: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("summary.project").eyebrowStyle()
+            TextField("summary.project.placeholder", text: $projectName)
+                .textFieldStyle(.plain)
+                .padding(14)
+                .background(Theme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            if !projects.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(projects.prefix(8)) { project in
+                            Button(project.name) { projectName = project.name }
+                                .scaledFont(14, relativeTo: .subheadline)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(Theme.surfaceRaised, in: Capsule())
@@ -265,6 +294,9 @@ struct TripSummarySheet: View {
         trip.purpose = purpose.isEmpty ? nil : purpose
         if !clientName.isEmpty {
             trip.clientID = dependencies.client(named: clientName).id
+        }
+        if !projectName.isEmpty {
+            trip.projectID = dependencies.project(named: projectName, clientID: trip.clientID).id
         }
         dependencies.finishTrip(trip)
         dismiss()

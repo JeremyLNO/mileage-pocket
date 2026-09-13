@@ -64,16 +64,82 @@ extension AppDependencies {
         return created
     }
 
+    func projectName(for id: UUID) -> String? {
+        let projects = (try? context.fetch(FetchDescriptor<Project>())) ?? []
+        return projects.first { $0.id == id }?.name
+    }
+
+    /// Finds a project by name — within a client when one is given — or creates it. Matching
+    /// mirrors `client(named:)`: case-insensitive, so the same project typed twice does not
+    /// become two.
+    func project(named name: String, clientID: UUID? = nil) -> Project {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let projects = (try? context.fetch(FetchDescriptor<Project>())) ?? []
+        if let existing = projects.first(where: {
+            $0.name.compare(trimmed, options: .caseInsensitive) == .orderedSame
+                && (clientID == nil || $0.clientID == clientID)
+        }) {
+            existing.lastUsedAt = .now
+            if existing.clientID == nil { existing.clientID = clientID }
+            return existing
+        }
+        let created = Project(name: trimmed, clientID: clientID)
+        created.lastUsedAt = .now
+        context.insert(created)
+        return created
+    }
+
+    /// Deleting a client must not take its trips with it. A mileage log is a record: the
+    /// drive happened, and losing it because a name was tidied up would be the one
+    /// unrecoverable outcome. The trips are detached, and so are the client's projects.
+    func deleteClient(_ client: Client) {
+        let id = client.id
+        for trip in (try? context.fetch(FetchDescriptor<Trip>(predicate: #Predicate { $0.clientID == id }))) ?? [] {
+            trip.clientID = nil
+            trip.updatedAt = .now
+        }
+        for project in (try? context.fetch(FetchDescriptor<Project>(predicate: #Predicate { $0.clientID == id }))) ?? [] {
+            project.clientID = nil
+        }
+        context.delete(client)
+        try? context.save()
+        invalidate()
+    }
+
+    func deleteProject(_ project: Project) {
+        let id = project.id
+        for trip in (try? context.fetch(FetchDescriptor<Trip>(predicate: #Predicate { $0.projectID == id }))) ?? [] {
+            trip.projectID = nil
+            trip.updatedAt = .now
+        }
+        context.delete(project)
+        try? context.save()
+        invalidate()
+    }
+
+    func tripCount(forClient id: UUID) -> Int {
+        (try? context.fetchCount(FetchDescriptor<Trip>(predicate: #Predicate { $0.clientID == id }))) ?? 0
+    }
+
+    func tripCount(forProject id: UUID) -> Int {
+        (try? context.fetchCount(FetchDescriptor<Trip>(predicate: #Predicate { $0.projectID == id }))) ?? 0
+    }
+
     // MARK: - Vehicles
 
+    /// A vehicle to edit, deliberately **not** inserted yet.
+    ///
+    /// Inserting it up front meant abandoning the editor — swiping the sheet away, which is
+    /// how half of iOS is dismissed — left a nameless car in the list, and if it was the
+    /// first one, a nameless car as the default. `saveVehicle` inserts it; nothing else has
+    /// to remember to clean up.
     func makeVehicle() -> Vehicle {
         let vehicles = (try? context.fetch(FetchDescriptor<Vehicle>())) ?? []
-        let vehicle = Vehicle(name: "", vehicleType: .car, isDefault: vehicles.isEmpty)
-        context.insert(vehicle)
-        return vehicle
+        return Vehicle(name: "", vehicleType: .car, isDefault: vehicles.isEmpty)
     }
 
     func saveVehicle(_ vehicle: Vehicle) {
+        if vehicle.modelContext == nil { context.insert(vehicle) }
         if vehicle.isDefault {
             // Exactly one default: two would make "which car was this?" unanswerable.
             let vehicles = (try? context.fetch(FetchDescriptor<Vehicle>())) ?? []
@@ -119,7 +185,7 @@ extension AppDependencies {
 
     func activeRuleDescription() -> String {
         let rule = currentRule()
-        return rule.isOfficial ? rule.summary : String(localized: "rate.custom")
+        return rule.isOfficial ? rule.summary : L.string("rate.custom")
     }
 
     func activeRuleSource() -> URL? { currentRule().sourceURL }
@@ -127,9 +193,9 @@ extension AppDependencies {
     func ruleAvailabilityMessage(for countryCode: String) -> String {
         if ruleEngine.officialPack(for: countryCode) != nil {
             let name = CountryCatalog.info(for: countryCode, locale: localization.locale)?.name ?? countryCode
-            return String(format: String(localized: "onboarding.country.official"), name)
+            return L.format("onboarding.country.official", name)
         }
-        return String(localized: "onboarding.country.custom")
+        return L.string("onboarding.country.custom")
     }
 
     // MARK: - Smart destinations
@@ -245,19 +311,69 @@ extension AppDependencies {
         }
     }
 
-    /// The plain data dump in Settings, deliberately **not** behind the paywall: a person's
-    /// own record has to remain retrievable whether or not they are paying.
+    /// The archive behind "Export all my data", deliberately **not** behind the paywall.
+    ///
+    /// It used to hand back the very same CSV the paid export produces — in fact a superset,
+    /// personal trips included — which made the paid export decorative. But a person must be
+    /// able to leave with what they recorded, so the answer is not to remove it: it is to
+    /// make it an *archive* rather than a *report*. JSON of the raw records, complete and
+    /// machine-readable, with none of the formatting, totals or rule provenance that make the
+    /// report worth paying for.
     func exportAllData() -> URL? {
         let trips = (try? context.fetch(FetchDescriptor<Trip>(sortBy: [SortDescriptor(\.startedAt)]))) ?? []
-        let data = ReportBuilder.build(
-            trips: trips,
-            period: .custom(start: trips.first?.startedAt ?? .now, end: trips.last?.startedAt ?? .now),
-            includePersonal: true,
-            vehicleNames: vehicleNames(),
-            fallbackCurrency: settingsStore.settings.currencyCode
-        )
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("MileagePocket-AllData.csv")
-        try? CSVExporter.write(CSVExporter.csv(data, profile: reportProfile()), to: url)
+        let vehicles = (try? context.fetch(FetchDescriptor<Vehicle>())) ?? []
+        let clients = (try? context.fetch(FetchDescriptor<Client>())) ?? []
+        let settings = settingsStore.settings
+
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+
+        let payload: [String: Any] = [
+            "exportedAt": formatter.string(from: .now),
+            "app": "Mileage Pocket",
+            "settings": [
+                "country": settings.countryCode,
+                "currency": settings.currencyCode,
+                "distanceUnit": settings.distanceUnitRaw,
+            ],
+            "vehicles": vehicles.map { vehicle in
+                [
+                    "id": vehicle.id.uuidString,
+                    "name": vehicle.name,
+                    "type": vehicle.vehicleTypeRaw,
+                    "registration": vehicle.registration ?? "",
+                ]
+            },
+            "clients": clients.map { ["id": $0.id.uuidString, "name": $0.name] },
+            "trips": trips.map { trip in
+                [
+                    "id": trip.id.uuidString,
+                    "startedAt": formatter.string(from: trip.startedAt),
+                    "endedAt": trip.endedAt.map { formatter.string(from: $0) } ?? "",
+                    "distanceMeters": trip.distanceMeters,
+                    "type": trip.tripTypeRaw,
+                    "purpose": trip.purpose ?? "",
+                    "from": trip.startAddress ?? "",
+                    "fromStreet": trip.startStreet ?? "",
+                    "to": trip.endAddress ?? "",
+                    "toStreet": trip.endStreet ?? "",
+                    "country": trip.countryCode,
+                    "rate": trip.mileageRate.map { "\($0)" } ?? "",
+                    "amount": trip.calculatedAmount.map { "\($0)" } ?? "",
+                    "currency": trip.currencyCode ?? "",
+                    "unit": trip.mileageUnitRaw ?? "",
+                    "ruleVersion": trip.mileageRuleVersion ?? "",
+                    "vehicleId": trip.vehicleID?.uuidString ?? "",
+                    "manuallyEdited": trip.isManuallyEdited,
+                ]
+            },
+        ]
+
+        guard let data = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]) else {
+            return nil
+        }
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("MileagePocket-data.json")
+        try? data.write(to: url, options: .atomic)
         return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
 
@@ -266,12 +382,12 @@ extension AppDependencies {
         let rule = currentRule()
         let country = CountryCatalog.info(for: settings.countryCode, locale: localization.locale)
         return ReportProfile(
-            userName: settings.userName ?? String(localized: "report.unnamed.driver"),
+            userName: settings.userName ?? L.string("report.unnamed.driver"),
             companyName: settings.companyName,
             vehicleLabel: defaultVehicleName(),
             countryCode: settings.countryCode,
             countryName: country?.name ?? settings.countryCode,
-            ruleDescription: rule.isOfficial ? rule.summary : String(localized: "rate.custom"),
+            ruleDescription: rule.isOfficial ? rule.summary : L.string("rate.custom"),
             ruleVersion: rule.version,
             ruleSourceURL: rule.sourceURL,
             isOfficialRate: rule.isOfficial,
@@ -326,19 +442,19 @@ extension AppDependencies {
             if freePeriod.isActive() {
                 return L.plural("settings.plan.freedays", freeDaysRemaining)
             }
-            return String(localized: "settings.plan.free")
+            return L.string("settings.plan.free")
         case let .trial(productID, _):
-            return String(localized: "settings.plan.trial") + " · " + planName(productID)
+            return L.string("settings.plan.trial") + " · " + planName(productID)
         case let .subscribed(productID, _):
             return planName(productID)
         case let .gracePeriod(productID, _):
-            return planName(productID) + " · " + String(localized: "settings.plan.grace")
+            return planName(productID) + " · " + L.string("settings.plan.grace")
         }
     }
 
     private func planName(_ productID: String) -> String {
         ProductIDs.isAnnual(productID)
-            ? String(localized: "paywall.plan.annual")
-            : String(localized: "paywall.plan.monthly")
+            ? L.string("paywall.plan.annual")
+            : L.string("paywall.plan.monthly")
     }
 }

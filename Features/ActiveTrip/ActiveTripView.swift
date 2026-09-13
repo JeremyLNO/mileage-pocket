@@ -26,7 +26,9 @@ struct ActiveTripView: View {
     private var unit: DistanceUnit { settings.distanceUnit }
 
     var body: some View {
-        ZStack {
+        @Bindable var dependencies = dependencies
+
+        return ZStack {
             map
             VStack(spacing: 0) {
                 readout
@@ -45,6 +47,14 @@ struct ActiveTripView: View {
             ))
         }
         .statusBarHidden(false)
+        .alert(
+            L.string("activetrip.stop.failed.title"),
+            isPresented: $dependencies.stopFailed
+        ) {
+            Button(L.string("common.ok"), role: .cancel) {}
+        } message: {
+            Text(L.string("activetrip.stop.failed.message"))
+        }
     }
 
     private var map: some View {
@@ -74,7 +84,7 @@ struct ActiveTripView: View {
                 .eyebrowStyle(Theme.signal)
 
             Text(Fmt.timer(dependencies.activeDuration(now: now)))
-                .font(.meter(40, weight: .medium))
+                .scaledFont(40, relativeTo: .largeTitle, weight: .medium, design: .monospaced, maximum: 60)
                 .monospacedDigit()
                 .foregroundStyle(.white.opacity(0.85))
 
@@ -87,13 +97,13 @@ struct ActiveTripView: View {
 
             if let vehicle = dependencies.activeVehicleName {
                 Label(vehicle, systemImage: "car.side.fill")
-                    .font(.system(size: 14, weight: .medium))
+                    .scaledFont(14, relativeTo: .subheadline, weight: .medium)
                     .foregroundStyle(.white.opacity(0.55))
             }
 
             if dependencies.isTripPaused {
                 Label("activetrip.paused", systemImage: "pause.circle.fill")
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(13, relativeTo: .footnote, weight: .semibold)
                     .foregroundStyle(Theme.signal)
             }
         }
@@ -106,11 +116,11 @@ struct ActiveTripView: View {
             dependencies.stopTrip()
         } label: {
             Text("activetrip.stop")
-                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .scaledFont(26, relativeTo: .title2, weight: .bold, design: .rounded)
                 .tracking(2)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, minHeight: 76)
-                .background(Color.red.gradient, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .background(Theme.stop.gradient, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 28)

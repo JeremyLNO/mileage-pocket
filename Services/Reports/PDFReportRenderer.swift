@@ -20,9 +20,13 @@ struct PDFReportRenderer {
     }
 
     func render(_ data: ReportData, profile: ReportProfile, to url: URL) throws -> URL {
+        // The document is written in the language the user picked, not the device's: a
+        // French driver hands this to a French accountant, and it used to come out in
+        // English whatever the app was set to.
+        let t = LocalizedStrings(locale: profile.locale)
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = [
-            kCGPDFContextTitle as String: "Mileage Report — \(data.period.title(locale: profile.locale))",
+            kCGPDFContextTitle as String: "\(t("pdf.document.title")) — \(data.period.title(locale: profile.locale))",
             kCGPDFContextAuthor as String: profile.userName,
             kCGPDFContextCreator as String: "Mileage Pocket",
         ]
@@ -67,7 +71,7 @@ struct PDFReportRenderer {
                 y += 12
                 y = drawSummary(data, profile: profile, at: y)
                 y += 20
-                draw("No business trips recorded for this period.", at: CGPoint(x: margin, y: y), font: .systemFont(ofSize: 11), color: .secondaryLabel)
+                draw(t("pdf.empty"), at: CGPoint(x: margin, y: y), font: .systemFont(ofSize: 11), color: .secondaryLabel)
                 drawPageFooter(profile: profile, page: 1, of: 1)
             }
         }
@@ -125,21 +129,22 @@ struct PDFReportRenderer {
     // MARK: - Blocks
 
     private func drawDocumentHeader(_ data: ReportData, profile: ReportProfile, at y: CGFloat) -> CGFloat {
+        let t = LocalizedStrings(locale: profile.locale)
         var cursor = y
-        draw("MILEAGE REPORT", at: CGPoint(x: margin, y: cursor), font: .systemFont(ofSize: 10, weight: .semibold), color: .systemOrange)
+        draw(t("pdf.title"), at: CGPoint(x: margin, y: cursor), font: .systemFont(ofSize: 10, weight: .semibold), color: .systemOrange)
         cursor += 16
         draw(data.period.title(locale: profile.locale), at: CGPoint(x: margin, y: cursor), font: .systemFont(ofSize: 26, weight: .bold))
         cursor += 34
 
         let left: [(String, String)] = [
-            ("Name", profile.userName),
-            ("Company", profile.companyName ?? "—"),
-            ("Vehicle", profile.vehicleLabel ?? "—"),
+            (t("pdf.name"), profile.userName),
+            (t("pdf.company"), profile.companyName ?? "—"),
+            (t("pdf.vehicle"), profile.vehicleLabel ?? "—"),
         ]
         let right: [(String, String)] = [
-            ("Country", profile.countryName),
-            ("Rule", profile.ruleDescription),
-            ("Rule version", profile.ruleVersion),
+            (t("pdf.country"), profile.countryName),
+            (t("pdf.rule"), profile.ruleDescription),
+            (t("pdf.rule.version"), profile.ruleVersion),
         ]
 
         let columnStart = cursor
@@ -152,7 +157,7 @@ struct PDFReportRenderer {
         for (label, value) in right {
             // The rule's own name is long and is the one field a reader checks: it wraps
             // rather than ending in an ellipsis.
-            let wraps = label == "Rule"
+            let wraps = label == t("pdf.rule")
             let used = drawLabelledValue(
                 label, value,
                 at: CGPoint(x: margin + contentWidth / 2, y: rightCursor),
@@ -168,11 +173,16 @@ struct PDFReportRenderer {
     }
 
     private func drawSummary(_ data: ReportData, profile: ReportProfile, at y: CGFloat) -> CGFloat {
+        let t = LocalizedStrings(locale: profile.locale)
+        // Every currency present, not a sum of dollars and euros under one symbol.
+        let totals = data.totalsByCurrency
+            .map { Fmt.money($0.amount, currencyCode: $0.currency, locale: profile.locale) }
+            .joined(separator: " + ")
         let tiles: [(String, String)] = [
-            ("Business trips", "\(data.businessTripCount)"),
-            ("Total distance", Fmt.distance(meters: data.totalDistanceMeters, unit: profile.unit, locale: profile.locale)),
-            (profile.isOfficialRate ? "Total deduction" : "Total reimbursement",
-             Fmt.money(data.totalAmount, currencyCode: data.currencyCode, locale: profile.locale)),
+            (t("pdf.summary.trips"), "\(data.businessTripCount)"),
+            (t("pdf.summary.distance"), Fmt.distance(meters: data.totalDistanceMeters, unit: profile.unit, locale: profile.locale)),
+            (profile.isOfficialRate ? t("pdf.summary.deduction") : t("pdf.summary.reimbursement"),
+             totals.isEmpty ? "—" : totals),
         ]
         let tileWidth = contentWidth / CGFloat(tiles.count)
         for (index, tile) in tiles.enumerated() {
@@ -184,8 +194,12 @@ struct PDFReportRenderer {
     }
 
     private func drawTableHeader(profile: ReportProfile, at y: CGFloat) -> CGFloat {
+        let t = LocalizedStrings(locale: profile.locale)
         let unit = profile.unit == .kilometers ? "km" : "mi"
-        let titles = ["Date", "From", "To", "Purpose", "Distance (\(unit))", "Rate", "Amount"]
+        let titles = [
+            t("pdf.column.date"), t("pdf.column.from"), t("pdf.column.to"), t("pdf.column.purpose"),
+            t.format("pdf.column.distance", unit), t("pdf.column.rate"), t("pdf.column.amount"),
+        ]
         let rect = CGRect(x: margin, y: y, width: contentWidth, height: headerRowHeight)
         UIColor.systemGray6.setFill()
         UIBezierPath(roundedRect: rect, cornerRadius: 4).fill()
@@ -235,18 +249,22 @@ struct PDFReportRenderer {
     }
 
     private func drawTotals(_ data: ReportData, profile: ReportProfile, at y: CGFloat) -> CGFloat {
+        let t = LocalizedStrings(locale: profile.locale)
         drawRule(y: y)
         let cursor = y + 6
-        draw("TOTAL — \(data.businessTripCount) business trips", at: CGPoint(x: margin + 5, y: cursor + 4), font: .systemFont(ofSize: 9, weight: .semibold))
+        draw(t.format("pdf.totals", data.businessTripCount), at: CGPoint(x: margin + 5, y: cursor + 4), font: .systemFont(ofSize: 9, weight: .semibold))
         draw(
             Fmt.distanceValue(meters: data.totalDistanceMeters, unit: profile.unit, locale: profile.locale),
             in: CGRect(x: columnX(4) + 5, y: cursor + 4, width: columns[4] - 10, height: 14),
             font: .monospacedDigitSystemFont(ofSize: 9, weight: .semibold),
             alignment: .right
         )
+        let totals = data.totalsByCurrency
+            .map { Fmt.money($0.amount, currencyCode: $0.currency, locale: profile.locale) }
+            .joined(separator: " + ")
         draw(
-            Fmt.money(data.totalAmount, currencyCode: data.currencyCode, locale: profile.locale),
-            in: CGRect(x: columnX(6) - 40, y: cursor + 4, width: columns[6] + 35, height: 14),
+            totals.isEmpty ? "—" : totals,
+            in: CGRect(x: columnX(4), y: cursor + 4, width: columns[4] + columns[5] + columns[6] - 5, height: 14),
             font: .monospacedDigitSystemFont(ofSize: 9, weight: .bold),
             alignment: .right
         )
@@ -254,21 +272,31 @@ struct PDFReportRenderer {
     }
 
     private func drawDisclaimer(profile: ReportProfile, data: ReportData, at y: CGFloat) {
+        let t = LocalizedStrings(locale: profile.locale)
         var cursor = y
+        let generatedOn = Date.now.formatted(
+            Date.FormatStyle(date: .abbreviated, time: .shortened).locale(profile.locale)
+        )
         var lines = [
-            "Generated on \(Date.now.formatted(date: .abbreviated, time: .shortened)) by Mileage Pocket.",
-            "Country: \(profile.countryName) (\(profile.countryCode)) · Rule: \(profile.ruleDescription) · Version: \(profile.ruleVersion)",
+            t.format("pdf.footer.generated", generatedOn),
+            t.format(
+                "pdf.footer.rule",
+                profile.countryName, profile.countryCode, profile.ruleDescription, profile.ruleVersion
+            ),
         ]
         if let source = profile.ruleSourceURL {
-            lines.append("Source: \(source.absoluteString)")
+            lines.append(t.format("pdf.footer.source", source.absoluteString))
+        }
+        if data.isMixedCurrency {
+            lines.append(t.format("pdf.footer.mixed.currency", data.totalsByCurrency.map(\.currency).joined(separator: ", ")))
         }
         if data.ruleVersions.count > 1 {
-            lines.append("Note: more than one rule version applies inside this period (\(data.ruleVersions.joined(separator: ", "))). Each trip keeps the rate in force on its own date.")
+            lines.append(t.format("pdf.footer.mixed.versions", data.ruleVersions.joined(separator: ", ")))
         }
         if !profile.isOfficialRate {
-            lines.append("This report uses a rate you configured yourself, not an official published scale.")
+            lines.append(t("pdf.footer.custom.rate"))
         }
-        lines.append("Calculated using the applicable mileage rate configured in Mileage Pocket. Verify eligibility according to your local tax regulations. This document is not a certified tax statement.")
+        lines.append(t("pdf.footer.disclaimer"))
 
         for line in lines {
             let height = draw(
@@ -283,6 +311,7 @@ struct PDFReportRenderer {
     }
 
     private func drawPageFooter(profile: ReportProfile, page: Int, of total: Int) {
+        let t = LocalizedStrings(locale: profile.locale)
         draw(
             "Mileage Pocket",
             in: CGRect(x: margin, y: pageSize.height - margin + 8, width: contentWidth / 2, height: 12),
@@ -290,7 +319,7 @@ struct PDFReportRenderer {
             color: .tertiaryLabel
         )
         draw(
-            "Page \(page) of \(total)",
+            t.format("pdf.page", page, total),
             in: CGRect(x: margin + contentWidth / 2, y: pageSize.height - margin + 8, width: contentWidth / 2, height: 12),
             font: .systemFont(ofSize: 7.5),
             color: .tertiaryLabel,

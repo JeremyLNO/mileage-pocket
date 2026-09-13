@@ -70,7 +70,12 @@ final class RouteCompactorTests: XCTestCase {
         XCTAssertEqual(RouteCompactor.decode(Data([0xFF, 0x02, 0x03])), [])
     }
 
-    func testSevenHundredAndTwentyPointsFitInSixKilobytes() {
+    /// The size budget, set just above what the encoding actually produces.
+    ///
+    /// It was 6 KB against a real ~2.9 KB — room for the blob to double before anything
+    /// turned red, and doubling it is exactly what a wrong coordinate scale does. 3.2 KB
+    /// leaves headroom for ordinary drift and none for a regression of that size.
+    func testSevenHundredAndTwentyPointsStayUnderThreeAndAHalfKilobytes() {
         let route = RouteFixtures.straightLine(
             pointCount: 720, stepMeters: 20, speedMetersPerSecond: 20
         )
@@ -78,7 +83,7 @@ final class RouteCompactorTests: XCTestCase {
 
         XCTAssertEqual(RouteCompactor.decode(encoded).count, 720)
         XCTAssertLessThan(
-            encoded.count, 6 * 1024,
+            encoded.count, 3_200,
             "a route blob rides in every trip record and syncs to iCloud; \(encoded.count) bytes"
         )
     }

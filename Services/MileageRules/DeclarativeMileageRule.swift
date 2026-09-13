@@ -40,8 +40,8 @@ struct DeclarativeMileageRule: MileageRule {
         let tripDistance = distanceUnit.value(fromMeters: distance)
         let alreadyDriven = distanceUnit.value(fromMeters: max(0, yearlyDistanceMeters))
 
-        let before = cumulative(alreadyDriven, bands: bands, mode: scheme.bandMode)
-        let after = cumulative(alreadyDriven + tripDistance, bands: bands, mode: scheme.bandMode)
+        let before = cumulative(alreadyDriven, bands: bands, scheme: scheme)
+        let after = cumulative(alreadyDriven + tripDistance, bands: bands, scheme: scheme)
         let exact = max(0, after - before)
         let amount = MileageRounding.money(exact)
 
@@ -72,7 +72,21 @@ struct DeclarativeMileageRule: MileageRule {
     }
 
     /// What the year owes after `distance` has been driven, in the pack's own unit.
-    func cumulative(_ distance: Double, bands: [RateBand], mode: BandMode) -> Decimal {
+    ///
+    /// Both ceilings live here rather than at the call site, because the whole engine rests
+    /// on this being the year's true total: clamp it once and every trip's share follows,
+    /// including the one that straddles the ceiling.
+    func cumulative(_ distance: Double, bands: [RateBand], scheme: RateScheme) -> Decimal {
+        // Australia's method prices the first 5 000 km of the year and nothing after: the
+        // kilometres beyond it are real, they simply earn nothing under this scale.
+        let priced = min(distance, scheme.annualCapDistance ?? .greatestFiniteMagnitude)
+        let total = uncapped(priced, bands: bands, mode: scheme.bandMode)
+        // Switzerland caps what the year may claim in money, not in distance.
+        guard let capAmount = pack.annualCapAmount else { return total }
+        return min(total, capAmount)
+    }
+
+    private func uncapped(_ distance: Double, bands: [RateBand], mode: BandMode) -> Decimal {
         guard distance > 0 else { return 0 }
 
         switch mode {

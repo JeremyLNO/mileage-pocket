@@ -68,12 +68,27 @@ final class AppDependencies {
     var locationRefused = false
     /// Set the moment a trip stops, cleared when the summary sheet is done with it.
     var finishedTrip: Trip?
+    /// Set when `stop()` could not write the trip. The recorder has put itself back to
+    /// recording, so the drive continues; this is what tells the driver to try again.
+    var stopFailed = false
+
+    /// How the store opened. Anything but `.healthy` is surfaced to the user: an app that
+    /// quietly records into an in-memory store looks perfectly normal right up until the
+    /// launch where the week's drives are gone.
+    let storeHealth: StoreHealth
+
+    /// Set once at launch when `storeHealth` is not `.healthy`, cleared when the user has
+    /// read it. Held here rather than in the view so dismissing it survives a redraw.
+    var storeWarningPending = false
 
     init(
         container: ModelContainer,
+        storeHealth: StoreHealth = .healthy,
         recorderFactory: ((ModelContext) -> any TripRecording)? = nil
     ) {
         self.container = container
+        self.storeHealth = storeHealth
+        self.storeWarningPending = storeHealth != .healthy
         // The container's own main context, never a second one.
         //
         // `.modelContainer(_:)` hands views `container.mainContext`, which is what every
@@ -101,7 +116,16 @@ final class AppDependencies {
         )
     }
 
+    /// Guards against a second pass. `bootstrap()` is called from the app's `init` — so that
+    /// a launch *into the background*, woken by a significant location change after iOS
+    /// terminated the app mid-drive, resumes the trip even though no view is ever built —
+    /// and again from the root view's `task`, which is what covers every ordinary launch.
+    private var didBootstrap = false
+
     func bootstrap() {
+        guard !didBootstrap else { return }
+        didBootstrap = true
+
         // Read (and, on a first launch, written) before anything can ask about access.
         if DemoMode.resetsFreePeriod {
             InstallDateStore.clear()
@@ -125,7 +149,7 @@ final class AppDependencies {
         }
         applyDebugOnboardingState()
         subscriptions.start()
-        try? recorder.resumeIfNeeded()
+        adoptTripInProgress()
         syncRecorderState()
         exportDemoReportIfRequested()
         // Fire-and-forget: a rule pack refresh must never hold up a launch, and the endpoint
@@ -133,6 +157,23 @@ final class AppDependencies {
         Task.detached(priority: .background) { [rulePackUpdater] in
             await rulePackUpdater?.refresh()
         }
+    }
+
+    /// Picks up whatever the last run left behind.
+    ///
+    /// A trip too old to still be the one being driven is closed at its last fix rather than
+    /// resumed — it is a real drive and must be kept — and the Live Activity from the
+    /// previous run is re-adopted or cleared, so the lock screen never shows a trip that is
+    /// no longer running.
+    private func adoptTripInProgress() {
+        let outcome = (try? recorder.resumeIfNeeded()) ?? ResumeOutcome.none
+        if case .recovered(let trip) = outcome {
+            applyCalculation(to: trip)
+            try? context.save()
+            recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)
+            Task { [recorder] in await recorder.attachPlaces(to: trip) }
+        }
+        liveActivity.adopt(isRecording: outcome == .resumed)
     }
 
     /// Onboarding state is set from the launch flags on **every** launch, not only when the
@@ -184,11 +225,13 @@ final class AppDependencies {
         do {
             try recorder.start(vehicleID: vehicleID)
             liveActivity.start(
-                vehicleName: activeVehicleName ?? String(localized: "home.no.vehicle"),
+                vehicleName: activeVehicleName ?? L.string("home.no.vehicle"),
                 unit: settingsStore.settings.distanceUnit,
                 startedAt: recorder.startedAt ?? .now
             )
-            notifications.scheduleTripStillRunningReminder()
+            if settingsStore.settings.notificationsEnabled, settingsStore.settings.tripReminderEnabled {
+                notifications.scheduleTripStillRunningReminder()
+            }
             syncRecorderState()
         } catch RecorderError.locationUnavailable {
             // Recording without location produced a running timer over a 0 m trip and said
@@ -205,17 +248,45 @@ final class AppDependencies {
         let distance = activeDistanceMeters
         let unit = settingsStore.settings.distanceUnit
 
-        Task {
-            defer {
-                liveActivity.end(distanceMeters: distance, startedAt: startedAt, unit: unit)
-                notifications.cancelTripReminders()
-                syncRecorderState()
-            }
-            guard let trip = try? await recorder.stop() else { return }
+        do {
+            let trip = try recorder.stop()
             applyCalculation(to: trip)
             try? context.save()
             finishedTrip = trip
+            // The addresses are fetched after the trip is on screen. Reverse-geocoding is two
+            // network calls with no deadline of their own; making STOP wait for them meant a
+            // driver pressing Stop and watching a frozen screen for several seconds.
+            Task { [recorder] in
+                await recorder.attachPlaces(to: trip)
+                invalidate()
+            }
+        } catch {
+            // The recorder rolled back and is recording again, so the drive is not lost
+            // — but saying nothing would leave the driver pressing a STOP that appears
+            // to do nothing at all. The lock screen and the reminders stay up precisely
+            // because the trip is still running.
+            stopFailed = true
+            syncRecorderState()
+            return
         }
+        liveActivity.end(distanceMeters: distance, startedAt: startedAt, unit: unit)
+        notifications.cancelTripReminders()
+        syncRecorderState()
+    }
+
+    /// Applies an edit made on the trip detail screen.
+    ///
+    /// The classification and the vehicle both change what the trip is worth, and a tiered
+    /// scale makes that change ripple through the rest of the year — a trip reclassified as
+    /// personal gives its kilometres back to the allowance, and every later trip of that year
+    /// is worth more. Repricing only this one row would leave the year internally
+    /// inconsistent, which is exactly the bug the cumulative recalculation exists for.
+    func repriceEditedTrip(_ trip: Trip) {
+        applyCalculation(to: trip)
+        trip.updatedAt = .now
+        try? context.save()
+        recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)
+        invalidate()
     }
 
     /// Called when the summary sheet's Save is pressed: the classification is already on the
@@ -283,7 +354,10 @@ final class AppDependencies {
 
         let rule = currentRule(on: trip.startedAt)
         let allTrips = (try? context.fetch(FetchDescriptor<Trip>())) ?? []
-        let yearly = ReportBuilder.yearlyDistanceMeters(before: trip, in: allTrips)
+        let yearly = ReportBuilder.yearlyDistanceMeters(
+            before: trip, in: allTrips,
+            window: taxYearWindow(for: trip.countryCode, containing: trip.startedAt)
+        )
 
         let calculation = rule.calculate(
             distanceMeters: trip.distanceMeters,
@@ -298,6 +372,7 @@ final class AppDependencies {
         let hasUsableRate = calculation.isOfficial || calculation.rate > 0
         trip.mileageRate = hasUsableRate ? calculation.rate : nil
         trip.calculatedAmount = hasUsableRate ? calculation.amount : nil
+        trip.mileageUnit = hasUsableRate ? calculation.unit : nil
         trip.currencyCode = calculation.currencyCode
         trip.mileageRuleVersion = calculation.ruleVersion
         trip.isOfficialRate = calculation.isOfficial
@@ -311,12 +386,26 @@ final class AppDependencies {
             try? context.save()
             return
         }
-        let unit = settingsStore.settings.distanceUnit
+        // The unit the rate was frozen in, never the one Settings currently displays.
+        let unit = trip.mileageUnit ?? settingsStore.settings.distanceUnit
         let distance = Decimal(unit.value(fromMeters: trip.distanceMeters))
         trip.calculatedAmount = MileageRounding.money(distance * rate)
         trip.updatedAt = .now
         try? context.save()
         recorderRevision += 1
+    }
+
+    /// The window a country's allowance counts over — 6 April in Britain, 1 July in
+    /// Australia, 1 January almost everywhere else. Falls back to the calendar year for a
+    /// country with no pack, where nothing accumulates anyway.
+    func taxYearWindow(for countryCode: String, containing date: Date) -> Range<Date> {
+        if let pack = ruleEngine.officialPack(for: countryCode, on: date) {
+            return pack.taxYearRange(containing: date)
+        }
+        if let anyVersion = ruleEngine.anyPack(for: countryCode) {
+            return anyVersion.taxYearRange(containing: date)
+        }
+        return ReportPeriod.year(Calendar.current.component(.year, from: date)).range()
     }
 
     /// Re-runs the arithmetic of every business trip in a tax year, under each trip's own
@@ -333,12 +422,12 @@ final class AppDependencies {
     func recalculateCumulativeYear(containing date: Date, countryCode: String) {
         guard ruleEngine.hasCumulativeScale(country: countryCode) else { return }
 
-        let year = ReportPeriod.taxYear(of: date)
+        let window = taxYearWindow(for: countryCode, containing: date)
         let all = (try? context.fetch(FetchDescriptor<Trip>(sortBy: [SortDescriptor(\.startedAt)]))) ?? []
         let affected = all.filter {
             $0.tripType == .business
                 && $0.countryCode.caseInsensitiveCompare(countryCode) == .orderedSame
-                && ReportPeriod.taxYear(of: $0.startedAt) == year
+                && window.contains($0.startedAt)
         }
         guard !affected.isEmpty else { return }
 
@@ -356,6 +445,7 @@ final class AppDependencies {
                     trip.mileageRate = calculation.rate
                     trip.calculatedAmount = calculation.amount
                     trip.currencyCode = calculation.currencyCode
+                    trip.mileageUnit = calculation.unit
                     trip.updatedAt = .now
                     // Only kilometres actually priced under the scale consume its allowance.
                     // A trip outside every validity window has no official amount, so it is
@@ -399,7 +489,23 @@ final class AppDependencies {
     func requestNotificationPermission() async {
         let granted = await notifications.requestAuthorization()
         settingsStore.settings.notificationsEnabled = granted
-        if granted { notifications.scheduleMonthlyReportReminder() }
+        settingsStore.save()
+        applyNotificationPreferences()
+    }
+
+    /// Brings the scheduled notifications in line with the two switches in Settings. Called
+    /// whenever either is flipped, so turning the monthly reminder off actually cancels it
+    /// rather than leaving it queued for the 1st.
+    func applyNotificationPreferences() {
+        let settings = settingsStore.settings
+        if settings.notificationsEnabled, settings.monthlyReportReminderEnabled {
+            notifications.scheduleMonthlyReportReminder()
+        } else {
+            notifications.cancelMonthlyReportReminder()
+        }
+        if !(settings.notificationsEnabled && settings.tripReminderEnabled) {
+            notifications.cancelTripReminders()
+        }
         settingsStore.save()
     }
 

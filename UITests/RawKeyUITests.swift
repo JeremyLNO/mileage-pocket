@@ -49,12 +49,18 @@ final class RawKeyUITests: XCTestCase {
 
         // The picker's own menu is where the keys appeared, and it is only rendered once open.
         let picker = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", "Car")).firstMatch
-        if picker.waitForExistence(timeout: 3) {
-            picker.tap()
-            // Give the menu a moment to present before reading its labels.
-            XCTAssertTrue(app.buttons["Van"].waitForExistence(timeout: 5), "the vehicle type menu must be open")
-            assertNoRawKeys(in: app, screen: "onboarding — vehicle type menu")
-        }
+        // Asserted rather than skipped: this menu is the only place the historical fault
+        // (`vehicle.type.%@` drawn on screen) ever appeared, and an `if` with no `else` let
+        // the whole point of this file be silently skipped — changing the default vehicle
+        // type, or running in another language, left it green having asserted nothing.
+        XCTAssertTrue(
+            picker.waitForExistence(timeout: 10),
+            "the vehicle-type control must be reachable — it is the screen this file exists for"
+        )
+        picker.tap()
+        // Give the menu a moment to present before reading its labels.
+        XCTAssertTrue(app.buttons["Van"].waitForExistence(timeout: 5), "the vehicle type menu must be open")
+        assertNoRawKeys(in: app, screen: "onboarding — vehicle type menu")
     }
 
     func testMainTabsShowNoRawKeys() {

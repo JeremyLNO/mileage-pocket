@@ -76,13 +76,13 @@ struct HomeView: View {
 
             if let model, model.monthAmount > 0 {
                 Text(L.format("home.estimated", Fmt.money(model.monthAmount, currencyCode: model.currencyCode, locale: locale)))
-                    .font(.system(size: 17, weight: .medium))
+                    .scaledFont(17, relativeTo: .body, weight: .medium)
                     .foregroundStyle(Theme.textSecondary)
             }
 
             if let model, model.businessTripCount > 0 {
                 Text(L.plural("home.business.trips", model.businessTripCount))
-                    .font(.system(size: 14))
+                    .scaledFont(14, relativeTo: .subheadline)
                     .foregroundStyle(Theme.textSecondary)
                     .padding(.top, 2)
             }
@@ -104,9 +104,9 @@ struct HomeView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "car.side.fill")
                     Text(activeVehicleName)
-                    Image(systemName: "chevron.down").font(.system(size: 11, weight: .semibold))
+                    Image(systemName: "chevron.down").scaledFont(11, relativeTo: .caption2, weight: .semibold)
                 }
-                .font(.system(size: 15, weight: .medium))
+                .scaledFont(15, relativeTo: .subheadline, weight: .medium)
                 .foregroundStyle(Theme.textSecondary)
             }
         }
@@ -123,7 +123,7 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("home.last.trip").eyebrowStyle()
                         Text(verbatim: endpoints(of: trip))
-                            .font(.system(size: 17, weight: .semibold))
+                            .scaledFont(17, relativeTo: .body, weight: .semibold)
                             .foregroundStyle(Theme.textPrimary)
                             .lineLimit(1)
                         HStack(spacing: 10) {
@@ -137,7 +137,7 @@ struct HomeView: View {
                             Spacer()
                             TripTypePill(type: trip.tripType)
                         }
-                        .font(.system(size: 15))
+                        .scaledFont(15, relativeTo: .subheadline)
                         .foregroundStyle(Theme.textSecondary)
                     }
                 }
@@ -169,7 +169,7 @@ struct HomeView: View {
         }
         return vehicles.first(where: \.isDefault)?.name
             ?? vehicles.first?.name
-            ?? String(localized: "home.no.vehicle")
+            ?? L.string("home.no.vehicle")
     }
 
     private func startTrip() {

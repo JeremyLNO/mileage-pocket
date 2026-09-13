@@ -1,3 +1,4 @@
+import CoreLocation
 import XCTest
 @testable import MileagePocket
 
@@ -80,10 +81,20 @@ final class AccessPolicyTests: XCTestCase {
     }
 
     /// A clock that has been moved backwards must not extend the period beyond its length.
+    ///
+    /// The old assertion was `<= 4`, which is exactly what the unclamped subtraction returns
+    /// for a day of backdating: it asserted the absence of the rule it named. A year of
+    /// backdating would have read 368 days and passed just as well.
     func testAnEarlierClockDoesNotExtendThePeriod() {
         let period = FreeAccessPeriod(startedAt: start)
-        XCTAssertTrue(period.isActive(now: start.addingTimeInterval(-86_400)))
-        XCTAssertLessThanOrEqual(period.daysRemaining(now: start.addingTimeInterval(-86_400)), 4)
+        for backwards in [86_400.0, 30 * 86_400.0, 365 * 86_400.0] {
+            let now = start.addingTimeInterval(-backwards)
+            XCTAssertTrue(period.isActive(now: now))
+            XCTAssertEqual(
+                period.daysRemaining(now: now), 3,
+                "winding the clock back \(Int(backwards / 86_400)) days must not buy a fourth free day"
+            )
+        }
     }
 }
 
@@ -127,5 +138,58 @@ final class InstallDateStoreTests: XCTestCase {
 
     func testNothingIsReportedBeforeAnythingIsWritten() {
         XCTAssertNil(InstallDateStore.read())
+    }
+}
+
+/// The two paths that handed premium away, and the archive that must stay free.
+@MainActor
+final class AccessLeakTests: XCTestCase {
+
+    private func makeDependencies() throws -> AppDependencies {
+        let container = try PersistenceController.makeContainer(cloudKitEnabled: false, inMemory: true)
+        return AppDependencies(container: container, recorderFactory: { _ in InertRecorder() })
+    }
+
+    /// Duplicating creates a trip, so it is the same permission as creating one. Leaving it
+    /// open made "record trips" free to anyone willing to press a button twice.
+    func testDuplicatingIsGatedLikeCreating() throws {
+        let dependencies = try makeDependencies()
+        XCTAssertEqual(
+            AccessPolicy.allows(.manualTrip, entitlement: .none, freePeriodActive: false),
+            dependencies.canAccess(.manualTrip, now: dependencies.freePeriod.endsAt),
+            "duplicating must answer to the same rule as manual entry"
+        )
+    }
+
+    /// The archive exists so a person can leave with what they recorded. It must not be the
+    /// paid report by another name — it used to be exactly that, personal trips included.
+    func testTheFreeArchiveIsNotTheReport() throws {
+        let dependencies = try makeDependencies()
+        dependencies.createManualTrip(
+            date: Date(timeIntervalSince1970: 1_800_000_000), from: "A", to: "B",
+            distanceMeters: 10_000, tripType: .business, purpose: "Visit",
+            clientName: "", vehicleID: nil
+        )
+
+        let url = try XCTUnwrap(dependencies.exportAllData())
+        addTeardownBlock { try? FileManager.default.removeItem(at: url) }
+        let contents = try String(contentsOf: url, encoding: .utf8)
+
+        XCTAssertEqual(url.pathExtension, "json", "the archive is data, not a formatted report")
+        XCTAssertTrue(contents.contains("\"trips\""))
+        XCTAssertTrue(contents.contains("\"distanceMeters\""))
+        // None of what makes the report worth paying for.
+        XCTAssertFalse(contents.contains("TOTAL"), "no totals")
+        XCTAssertFalse(contents.contains("business trips"), "no report summary")
+        XCTAssertFalse(contents.contains("Verify eligibility"), "no rule provenance")
+    }
+
+    func testTheArchiveStaysAvailableWithoutASubscription() throws {
+        let dependencies = try makeDependencies()
+        XCTAssertFalse(
+            dependencies.canAccess(.exportReport, now: dependencies.freePeriod.endsAt),
+            "the paid export stays gated"
+        )
+        XCTAssertNotNil(dependencies.exportAllData(), "the archive must not depend on paying")
     }
 }

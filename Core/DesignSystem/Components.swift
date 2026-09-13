@@ -33,13 +33,19 @@ struct MeterReadout: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(value)
-                .font(.meter(size, weight: .medium))
+                // Capped: this figure sits in a fixed cradle-height layout, and the ramp at
+                // the largest accessibility sizes would take a 64 pt number past the width of
+                // the phone. It still grows — just not without limit.
+                .scaledFont(
+                    size, relativeTo: .largeTitle, weight: .medium,
+                    design: .monospaced, maximum: size * 1.5
+                )
                 .monospacedDigit()
                 .tracking(-1)
                 .foregroundStyle(color)
                 .contentTransition(.numericText())
             Text(unit)
-                .font(.system(size: max(13, size * 0.26), weight: .semibold, design: .rounded))
+                .scaledFont(max(13, size * 0.26), relativeTo: .footnote, weight: .semibold, design: .rounded)
                 .foregroundStyle(Theme.textSecondary)
         }
         .lineLimit(1)
@@ -54,6 +60,9 @@ struct PrimaryButton: View {
     let title: LocalizedStringKey
     var systemImage: String?
     var tint: Color = Theme.signal
+    /// What the label is drawn in. Follows the fill rather than being white by default: the
+    /// dark-mode amber under a white label measured 2.1:1.
+    var labelColor: Color = Theme.onSignal
     var isEnabled: Bool = true
     let action: () -> Void
 
@@ -65,9 +74,9 @@ struct PrimaryButton: View {
                 }
                 Text(title)
             }
-            .font(.system(size: 17, weight: .semibold))
+            .scaledFont(17, relativeTo: .body, weight: .semibold)
             .frame(maxWidth: .infinity, minHeight: 54)
-            .foregroundStyle(.white)
+            .foregroundStyle(labelColor)
             .background(tint.opacity(isEnabled ? 1 : 0.4), in: RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous))
         }
         .disabled(!isEnabled)
@@ -81,7 +90,7 @@ struct SecondaryButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 16, weight: .medium))
+                .scaledFont(16, relativeTo: .body, weight: .medium)
                 .frame(maxWidth: .infinity, minHeight: 50)
                 .foregroundStyle(Theme.textPrimary)
                 .background(Theme.surfaceRaised, in: RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous))
@@ -128,11 +137,11 @@ struct DialButton: View {
 
                 VStack(spacing: 4) {
                     Text(title)
-                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .scaledFont(26, relativeTo: .title2, weight: .bold, design: .rounded)
                         .tracking(1.5)
                     if let subtitle {
                         Text(subtitle)
-                            .font(.system(size: 13, weight: .medium))
+                            .scaledFont(13, relativeTo: .footnote, weight: .medium)
                             .opacity(0.85)
                     }
                 }
@@ -172,7 +181,7 @@ struct StatTile: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(value)
-                .font(.meterSmall)
+                .scaledFont(17, relativeTo: .body, weight: .medium, design: .monospaced)
                 .monospacedDigit()
                 .foregroundStyle(Theme.textPrimary)
         }
@@ -190,13 +199,13 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 10) {
             Image(systemName: systemImage)
-                .font(.system(size: 40, weight: .light))
+                .scaledFont(40, relativeTo: .largeTitle, weight: .light)
                 .foregroundStyle(Theme.textSecondary)
             Text(title)
-                .font(.system(size: 18, weight: .semibold))
+                .scaledFont(18, relativeTo: .title3, weight: .semibold)
                 .foregroundStyle(Theme.textPrimary)
             Text(message)
-                .font(.system(size: 15))
+                .scaledFont(15, relativeTo: .subheadline)
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
         }

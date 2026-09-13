@@ -26,6 +26,37 @@ final class TripActivityController {
 
     var isRunning: Bool { activityID != nil }
 
+    /// Reconciles the lock screen with what the app is actually doing, at launch.
+    ///
+    /// An activity outlives the process that started it: force-quit mid-drive and the lock
+    /// screen goes on showing a trip with a frozen distance, forever, because nothing owns
+    /// it any more. Worse, the next START passed the `activityID == nil` guard and requested
+    /// a *second* activity beside the stranded one.
+    /// - Parameter isRecording: whether the recorder picked the trip back up.
+    func adopt(isRecording: Bool) {
+        let existing = Activity<TripAttributes>.activities
+        guard let first = existing.first else { return }
+
+        // Kept as ids, never as `Activity` values: `Activity` is not `Sendable`, so handing
+        // one to a task is a data race Swift 6 refuses. The live object is looked up again
+        // inside the task, where it originates and never crosses a boundary.
+        let keptID = isRecording ? first.id : nil
+        let strayIDs = existing.map(\.id).filter { $0 != keptID }
+
+        activityID = keptID
+        if keptID != nil {
+            // The throttle must not hold back the first push of the resumed trip.
+            lastUpdate = .distantPast
+            lastDistance = 0
+        }
+        guard !strayIDs.isEmpty else { return }
+        Task {
+            for activity in Activity<TripAttributes>.activities where strayIDs.contains(activity.id) {
+                await activity.end(nil, dismissalPolicy: .immediate)
+            }
+        }
+    }
+
     func start(vehicleName: String, unit: DistanceUnit, startedAt: Date) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled, activityID == nil else { return }
         let attributes = TripAttributes(vehicleName: vehicleName)

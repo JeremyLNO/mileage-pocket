@@ -64,11 +64,11 @@ struct OnboardingFlow: View {
                     .frame(width: 104, height: 104)
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 Text("onboarding.welcome.headline")
-                    .font(.system(size: 32, weight: .bold))
+                    .scaledFont(32, relativeTo: .largeTitle, weight: .bold)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Theme.textPrimary)
                 Text("onboarding.welcome.subtitle")
-                    .font(.system(size: 17))
+                    .scaledFont(17, relativeTo: .body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -85,9 +85,9 @@ struct OnboardingFlow: View {
                     showsCountryPicker = true
                 } label: {
                     HStack(spacing: 12) {
-                        Text(CountryCatalog.flag(for: country)).font(.system(size: 26))
+                        Text(CountryCatalog.flag(for: country)).scaledFont(26, relativeTo: .title2)
                         Text(CountryCatalog.info(for: country, locale: locale)?.name ?? country)
-                            .font(.system(size: 18, weight: .semibold))
+                            .scaledFont(18, relativeTo: .title3, weight: .semibold)
                             .foregroundStyle(Theme.textPrimary)
                         Spacer()
                         Image(systemName: "chevron.right").foregroundStyle(Theme.textSecondary)
@@ -98,7 +98,7 @@ struct OnboardingFlow: View {
                 .buttonStyle(.plain)
 
                 Text(dependencies.ruleAvailabilityMessage(for: country))
-                    .font(.system(size: 14))
+                    .scaledFont(14, relativeTo: .subheadline)
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -169,7 +169,7 @@ struct OnboardingFlow: View {
                     advance()
                 }
                 Button("onboarding.skip") { advance() }
-                    .font(.system(size: 15))
+                    .scaledFont(15, relativeTo: .subheadline)
                     .foregroundStyle(Theme.textSecondary)
             }
         }
@@ -179,11 +179,11 @@ struct OnboardingFlow: View {
         stepLayout {
             VStack(spacing: 18) {
                 Image(systemName: "location.fill.viewfinder")
-                    .font(.system(size: 56))
+                    .scaledFont(56, relativeTo: .largeTitle)
                     .foregroundStyle(Theme.signal)
                 stepTitle("onboarding.location.title", subtitle: "onboarding.location.subtitle")
                 Text("onboarding.location.detail")
-                    .font(.system(size: 14))
+                    .scaledFont(14, relativeTo: .subheadline)
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
@@ -199,7 +199,7 @@ struct OnboardingFlow: View {
         stepLayout {
             VStack(spacing: 18) {
                 Image(systemName: "bell.badge.fill")
-                    .font(.system(size: 56))
+                    .scaledFont(56, relativeTo: .largeTitle)
                     .foregroundStyle(Theme.signal)
                 stepTitle("onboarding.notifications.title", subtitle: "onboarding.notifications.subtitle")
             }
@@ -212,7 +212,7 @@ struct OnboardingFlow: View {
                     }
                 }
                 Button("onboarding.skip") { advance() }
-                    .font(.system(size: 15))
+                    .scaledFont(15, relativeTo: .subheadline)
                     .foregroundStyle(Theme.textSecondary)
             }
         }
@@ -229,12 +229,12 @@ struct OnboardingFlow: View {
     private func stepTitle(_ title: LocalizedStringKey, subtitle: LocalizedStringKey) -> some View {
         VStack(spacing: 8) {
             Text(title)
-                .font(.system(size: 27, weight: .bold))
+                .scaledFont(27, relativeTo: .title2, weight: .bold)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
             Text(subtitle)
-                .font(.system(size: 16))
+                .scaledFont(16, relativeTo: .body)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Theme.textSecondary)
                 // Without this the subtitle loses its layout negotiation against the controls

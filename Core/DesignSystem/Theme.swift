@@ -12,11 +12,32 @@ enum Theme {
     // MARK: - Palette
 
     /// Signal amber — the brand accent and the only colour allowed on a primary action.
-    static let signal = Color(light: 0xE8730A, dark: 0xFF9A2E)
+    ///
+    /// The light value is deeper than the icon's amber on purpose. This colour is used as
+    /// *text* — the eyebrow labels, the tint on every button and on the tab bar — and the
+    /// brighter original measured 3.05:1 against white, well under the 4.5:1 WCAG asks of
+    /// body text. At 5.1:1 it still reads as the same amber, and white on it (the START
+    /// button) gains the same margin. The dial keeps the bright gradient: it is a large
+    /// filled object, not text.
+    static let signal = Color(light: 0xB05304, dark: 0xFF9A2E)
+    /// What a label on a `signal` fill is drawn in.
+    ///
+    /// It cannot be white in both appearances: the dark-mode amber is bright, and white on it
+    /// measures 2.1:1 — the START button, the biggest control in the app, was the least
+    /// readable text in it. Dark ink on that amber gives 8.7:1, which is also how iOS draws
+    /// a label on its own bright accents.
+    static let onSignal = Color(light: 0xFFFFFF, dark: 0x0D1520)
+
+    /// STOP. A fixed red rather than `Color.red`: the system red is tuned to be *seen*, not
+    /// to carry white text — it measures 3.5:1 under a white label, and this is the one
+    /// control pressed without looking.
+    static let stop = Color(light: 0xC2181B, dark: 0xC2181B)
+
     /// Instrument navy — the dark ground of trip mode and of dark appearance.
     static let ink = Color(light: 0x0D1520, dark: 0x080D15)
-    /// Business trips.
-    static let business = Color(light: 0x0E8F6E, dark: 0x2BC49A)
+    /// Business trips. Darkened for the same reason as `signal`: it labels a pill, and at
+    /// the original value it measured 4.06:1 against white.
+    static let business = Color(light: 0x0A7A5D, dark: 0x2BC49A)
     /// Personal trips: deliberately desaturated, so a glance separates them without
     /// competing with the amber.
     static let personal = Color(light: 0x5A6B85, dark: 0x8496B2)

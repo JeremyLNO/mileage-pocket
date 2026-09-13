@@ -237,7 +237,7 @@ L'exemple chiffré de HMRC est sans ambiguïté : `10,000 x 45p plus 2,000 x 25p
 
 ### Subtilités
 
-- ⚠️ **Plafond annuel de 3 200 CHF** pour l'impôt fédéral direct sur les frais de déplacement domicile ↔ travail (art. 26 al. 1 let. a LIFD, cité dans le Steuermäppchen de l'AFC). **Non modélisé** — le schéma n'a pas de champ plafond.
+- ⚠️ **Plafond annuel de 3 200 CHF** pour l'impôt fédéral direct sur les frais de déplacement domicile ↔ travail (art. 26 al. 1 let. a LIFD, cité dans le Steuermäppchen de l'AFC). **Modélisé** depuis le 2026-09-13 via `annualCapAmount` sur le pack.
 - ⚠️ **Motos non incluses.** Le brochure AFC *période fiscale 2025* donne 40 ct./km pour une moto à plaque blanche et un forfait annuel de 700 CHF pour vélo / cyclomoteur / moto à plaque jaune, mais le communiqué de 2026 ne mentionne **que** la voiture et ne reconduit pas explicitement ces montants. Ils ne sont donc pas repris.
 - Le site `fedlex.admin.ch` (texte consolidé de la *Berufskostenverordnung*) exige JavaScript et n'a pas pu être lu directement ; le communiqué officiel du DFF fait foi.
 - Les barèmes cantonaux diffèrent du fédéral (jusqu'à 4 paliers de distance dans certains cantons) — hors périmètre.
@@ -259,7 +259,7 @@ L'exemple chiffré de HMRC est sans ambiguïté : `10,000 x 45p plus 2,000 x 25p
 
 ### Subtilités
 
-- ⚠️ **Plafond de 5 000 km par véhicule et par an** (méthode *cents per kilometre*, ITAA 1997 s. 28-25). **Non modélisé** — le schéma impose `toDistance = null` sur la dernière tranche et interdit un taux nul, on ne peut donc pas encoder un arrêt. À afficher comme avertissement dans l'app.
+- ⚠️ **Plafond de 5 000 km par véhicule et par an** (méthode *cents per kilometre*, ITAA 1997 s. 28-25). **Modélisé** depuis le 2026-09-13 via `annualCapDistance` sur le scheme : au-delà, la méthode ne rapporte rien. L'année australienne ouvre le 1er juillet (`taxYearStart`).
 - Le taux 2026-27 de 91 ¢ intègre un relèvement exceptionnel et temporaire de 2 ¢ par rapport au taux de base de 89 ¢ : il faudra re-vérifier le taux 2027-28.
 - `ato.gov.au` renvoie systématiquement un HTTP 403 aux requêtes automatisées ; le Federal Register of Legislation (source primaire) a servi de substitut.
 
@@ -419,6 +419,40 @@ Trois blocages cumulés :
 | CH | Plafond annuel de 3 200 CHF (IFD) | champ plafond de montant |
 | US | Taux différent avant le 1ᵉʳ juillet 2026 (72,5 ¢) | un seul intervalle de validité par fichier |
 | IT | Barème par modèle de véhicule, actualisé chaque semaine | — (hors de portée par nature) |
+
+## Limites connues des barèmes livrés
+
+Deux écarts sont documentés ici plutôt que codés, parce que les coder à moitié produirait un
+montant faux présenté comme officiel — ce qui est pire que l'écart lui-même.
+
+### Canada — territoires du Nord (+4 ¢/km)
+
+L'ARC accorde 4 cents de plus par kilomètre au Yukon, dans les Territoires du Nord-Ouest et au
+Nunavut. Le pack `CA` ne porte qu'un barème national : l'app applique donc **0,73 / 0,67**
+partout, ce qui **sous-estime** l'indemnité d'un résident de ces trois territoires.
+
+Le modèle de pack n'a pas de dimension régionale, et en ajouter une correctement suppose : un
+champ région dans le pack, un sélecteur en Réglages visible uniquement pour les pays concernés,
+la région figée sur le trajet pour que le rapport reste reproductible, et des tests sur chaque
+combinaison. C'est une fonctionnalité, pas un correctif, et l'appliquer à la hâte sur un chemin
+qui produit de l'argent serait moins bien que l'écart actuel.
+
+**Contournement dans l'app** : Réglages → Calcul → taux personnalisé, à 0,77 / 0,71. Le rapport
+indique alors explicitement « barème configuré par vous, pas un barème officiel publié », ce qui
+est la mention correcte dans ce cas.
+
+### Irlande — taux réduits
+
+Revenue publie, à côté du barème « civil service », des **taux réduits** applicables dans des
+circonstances précises (déplacement non effectué dans le cadre normal des fonctions, rappel au
+travail…). L'app applique toujours le barème standard.
+
+Le déclencheur est juridique, pas géométrique : rien dans un trajet GPS ne permet de savoir
+qu'il relève du taux réduit. Choisir automatiquement serait produire une déclaration fausse.
+
+**Contournement dans l'app** : taux personnalisé pour les trajets concernés.
+
+---
 
 ## Sources
 

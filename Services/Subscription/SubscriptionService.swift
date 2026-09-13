@@ -94,6 +94,13 @@ final class SubscriptionService {
     func load() async {
         isLoading = true
         defer { isLoading = false }
+
+        // The entitlement is read from the local receipt and needs no network, so it is
+        // resolved *first*. Resolving it after `Product.products` meant a subscriber on a
+        // slow or absent connection sat at `.none` for the length of that call — long enough
+        // to press START and be shown a paywall they had already paid for.
+        await refreshEntitlement()
+
         do {
             let loaded = try await Product.products(for: ProductIDs.all)
             products = loaded.sorted { lhs, _ in lhs.id == ProductIDs.monthly }
@@ -101,6 +108,7 @@ final class SubscriptionService {
         } catch {
             lastError = error.localizedDescription
         }
+        // Run again: the grace-period check needs a product to reach the subscription group.
         await refreshEntitlement()
     }
 

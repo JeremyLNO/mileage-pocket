@@ -152,10 +152,32 @@ final class MileageCalculationTests: XCTestCase {
         XCTAssertEqual(amount(rule, km: 1_000), Decimal(string: "500.00"))
     }
 
+    /// Which side of 5 000 the bound falls on, asked of a scale where the two sides give
+    /// different answers.
+    ///
+    /// The ordinary fixture is continuous at the bound — 5 000 × 0.500 and
+    /// 5 000 × 0.300 + 1 000 are both 2 500 — so it cannot tell an inclusive `<=` from an
+    /// exclusive `<`. Flipping `RateBand.contains` left every whole-band test in the repo
+    /// green. This scale is deliberately discontinuous there.
     func testWholeBandBoundaryIsInclusiveOfTheLowerBand() {
-        let rule = DeclarativeMileageRule(pack: pack(schemes: [wholeScheme]))
-        // Exactly 5 000 km is still the first line: 5 000 × 0.500, no constant.
-        XCTAssertEqual(amount(rule, km: 5_000), Decimal(string: "2500.00"))
+        let discontinuous = RateScheme(
+            id: "car",
+            vehicleTypes: VehicleType.allCases,
+            bandMode: .whole,
+            bands: [
+                RateBand(fromDistance: 0, toDistance: 5_000, rate: Decimal(string: "0.500")!),
+                // No constant, and a far lower rate: at exactly 5 000 this line is worth
+                // 1 500, against the lower line's 2 500.
+                RateBand(fromDistance: 5_000, toDistance: nil, rate: Decimal(string: "0.300")!),
+            ]
+        )
+        let rule = DeclarativeMileageRule(pack: pack(schemes: [discontinuous]))
+        XCTAssertEqual(
+            amount(rule, km: 5_000), Decimal(string: "2500.00"),
+            "exactly 5 000 km belongs to the band that ends at 5 000, not to the one that starts there"
+        )
+        // And one kilometre past it does change line.
+        XCTAssertEqual(amount(rule, km: 5_001), Decimal(string: "1500.30"))
     }
 
     func testWholeBandCrossingRepricesTheWholeYearNotJustTheExcess() {

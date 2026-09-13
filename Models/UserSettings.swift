@@ -27,6 +27,12 @@ final class UserSettings {
     var iCloudSyncEnabled: Bool = true
     var hasCompletedOnboarding: Bool = false
     var notificationsEnabled: Bool = false
+    /// The two reminders, each switchable on its own. They used to be decided once at
+    /// onboarding and never again: declining there meant no reminder was reachable from
+    /// anywhere in the app, and accepting meant the monthly one could only be silenced by
+    /// turning off every notification in iOS Settings.
+    var tripReminderEnabled: Bool = true
+    var monthlyReportReminderEnabled: Bool = true
 
     init() {
         self.id = UUID()

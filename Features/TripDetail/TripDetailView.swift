@@ -10,8 +10,11 @@ struct TripDetailView: View {
 
     let trip: Trip
 
+    @State private var showsEditor = false
     @State private var showsDistanceEditor = false
     @State private var showsRecalculateConfirmation = false
+    @State private var showsDeleteConfirmation = false
+    @State private var showsPaywall = false
     @State private var editedDistance = ""
 
     private var unit: DistanceUnit { dependencies.settingsStore.settings.distanceUnit }
@@ -44,6 +47,19 @@ struct TripDetailView: View {
             Button("common.save") { applyDistanceEdit() }
         } message: {
             Text("detail.edit.distance.message")
+        }
+        .sheet(isPresented: $showsPaywall) { PaywallView() }
+        .sheet(isPresented: $showsEditor) { TripEditor(trip: trip) }
+        // Deleting was the one destructive action with no confirmation, while recalculating —
+        // which is reversible — had one.
+        .confirmationDialog("detail.delete.title", isPresented: $showsDeleteConfirmation, titleVisibility: .visible) {
+            Button("common.delete", role: .destructive) {
+                dependencies.delete(trip)
+                dismiss()
+            }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("detail.delete.message")
         }
         .confirmationDialog("detail.recalculate", isPresented: $showsRecalculateConfirmation, titleVisibility: .visible) {
             Button("detail.recalculate.confirm") { dependencies.recalculate(trip) }
@@ -82,7 +98,7 @@ struct TripDetailView: View {
             )
             if let amount = trip.calculatedAmount, let currency = trip.currencyCode {
                 Text(Fmt.money(amount, currencyCode: currency, locale: locale))
-                    .font(.system(size: 20, weight: .semibold))
+                    .scaledFont(20, relativeTo: .title3, weight: .semibold)
                     .monospacedDigit()
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -91,7 +107,23 @@ struct TripDetailView: View {
                 Label("detail.edited", systemImage: "pencil")
                     .eyebrowStyle(Theme.signal)
             }
+            if trip.unbridgedGapSeconds > 0 {
+                gapNotice
+            }
         }
+    }
+
+    /// A stretch the receiver went quiet for and the filter refused to invent across. The
+    /// distance really is short, and the driver is the only one who can say by how much.
+    private var gapNotice: some View {
+        Label(
+            L.format("trip.gap.notice", Fmt.duration(trip.unbridgedGapSeconds, locale: locale)),
+            systemImage: "antenna.radiowaves.left.and.right.slash"
+        )
+        .font(.footnote)
+        .foregroundStyle(Theme.textSecondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 4)
     }
 
     private var detailsCard: some View {
@@ -109,6 +141,9 @@ struct TripDetailView: View {
                 if let clientID = trip.clientID, let name = dependencies.clientName(for: clientID) {
                     row("detail.client", name)
                 }
+                if let projectID = trip.projectID, let name = dependencies.projectName(for: projectID) {
+                    row("detail.project", name)
+                }
             }
         }
     }
@@ -120,7 +155,7 @@ struct TripDetailView: View {
                 if let rate = trip.mileageRate, let currency = trip.currencyCode {
                     row("detail.rate", Fmt.rate(rate, currencyCode: currency, unit: unit, locale: locale))
                 }
-                row("detail.rule", trip.isOfficialRate ? String(localized: "rate.official") : String(localized: "rate.custom"))
+                row("detail.rule", trip.isOfficialRate ? L.string("rate.official") : L.string("rate.custom"))
                 if let version = trip.mileageRuleVersion {
                     row("detail.rule.version", version)
                 }
@@ -130,21 +165,27 @@ struct TripDetailView: View {
 
     private var actions: some View {
         VStack(spacing: 10) {
+            SecondaryButton(title: "detail.edit") { showsEditor = true }
             SecondaryButton(title: "detail.edit.distance") {
                 editedDistance = Fmt.distanceValue(meters: trip.distanceMeters, unit: unit, locale: Locale(identifier: "en_US_POSIX"))
                 showsDistanceEditor = true
             }
             SecondaryButton(title: "detail.recalculate") { showsRecalculateConfirmation = true }
             SecondaryButton(title: "detail.duplicate") {
+                // A duplicate is a new trip. Leaving it ungated made "record trips" free for
+                // anyone willing to press it twice.
+                guard dependencies.canAccess(.manualTrip) else {
+                    showsPaywall = true
+                    return
+                }
                 dependencies.duplicate(trip)
                 dismiss()
             }
             Button(role: .destructive) {
-                dependencies.delete(trip)
-                dismiss()
+                showsDeleteConfirmation = true
             } label: {
                 Text("common.delete")
-                    .font(.system(size: 16, weight: .medium))
+                    .scaledFont(16, relativeTo: .body, weight: .medium)
                     .frame(maxWidth: .infinity, minHeight: 50)
             }
         }
@@ -160,11 +201,11 @@ struct TripDetailView: View {
     private func row(_ label: LocalizedStringKey, _ value: String) -> some View {
         HStack(alignment: .firstTextBaseline) {
             Text(label)
-                .font(.system(size: 14))
+                .scaledFont(14, relativeTo: .subheadline)
                 .foregroundStyle(Theme.textSecondary)
             Spacer(minLength: 16)
             Text(value)
-                .font(.system(size: 15, weight: .medium))
+                .scaledFont(15, relativeTo: .subheadline, weight: .medium)
                 .foregroundStyle(Theme.textPrimary)
                 .multilineTextAlignment(.trailing)
         }

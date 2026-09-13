@@ -40,11 +40,31 @@ protocol TripRecording: AnyObject {
     /// Accepted fixes so far, for drawing the live route.
     var routeSamples: [LocationSample] { get }
     func start(vehicleID: UUID?) throws
-    func stop() async throws -> Trip
-    func resumeIfNeeded() throws
+    /// Ends the trip and writes it. Synchronous, and that is the point: the write must not
+    /// sit behind a network call. Addresses arrive afterwards, through `attachPlaces`.
+    func stop() throws -> Trip
+    /// Picks up a trip the app was killed in the middle of — or closes it, when it is too
+    /// old to still be the drive the user is on.
+    @discardableResult
+    func resumeIfNeeded() throws -> ResumeOutcome
+    /// Reverse-geocodes a trip's two endpoints. Split out of `stop()` so a trip recovered at
+    /// launch gets its addresses too, without the launch waiting on the network.
+    func attachPlaces(to trip: Trip) async
     /// Asks for the location permission. The screen that asks does not need to know a
     /// `LocationProviding` exists.
     func requestPermission()
+}
+
+/// What `resumeIfNeeded()` found.
+enum ResumeOutcome: Equatable {
+    /// Nothing was in flight.
+    case none
+    /// A trip was picked up where it left off and is recording again.
+    case resumed
+    /// A trip was found but was too old to still be the one the user is driving, so it was
+    /// closed at its last known fix. Dropping it instead would throw away a real drive; going
+    /// on recording it would bolt Tuesday's commute onto Friday's.
+    case recovered(Trip)
 }
 
 enum RecorderError: Error, Equatable {
@@ -130,7 +150,9 @@ final class TripRecorder: TripRecording {
 
         let id = UUID()
         let startTime = now()
-        let active = ActiveTripState(tripID: id, startedAt: startTime, vehicleID: vehicleID)
+        let active = ActiveTripState(
+            tripID: id, startedAt: startTime, vehicleID: vehicleID, deviceID: DeviceIdentity.current
+        )
         context.insert(active)
         try context.save()
 
@@ -154,24 +176,27 @@ final class TripRecorder: TripRecording {
         provider.requestAlways()
     }
 
-    func resumeIfNeeded() throws {
-        guard state == .idle else { return }
-        guard let active = try fetchActiveState() else { return }
+    /// How long an in-flight row stays resumable. Past this, the app was not merely
+    /// backgrounded — it was closed for hours — and the fixes that would be appended belong
+    /// to a different drive. Six hours clears a long motorway day and a ferry crossing while
+    /// still catching "I opened the app again the next morning".
+    static let maximumResumeAge: TimeInterval = 6 * 3600
 
-        tripID = active.tripID
-        startedAt = active.startedAt
-        vehicleID = active.vehicleID
-        activeState = active
-        currentDistanceMeters = active.distanceMeters
-        // Seed the filter with the distance already banked: it restarts with no previous
-        // fix, so the first one after a resume simply re-anchors and counts nothing.
-        filter = LocationFilter(config: config, startingDistanceMeters: active.distanceMeters)
-        if let latitude = active.startLatitude, let longitude = active.startLongitude {
-            startCoordinate = (latitude, longitude)
+    @discardableResult
+    func resumeIfNeeded() throws -> ResumeOutcome {
+        guard state == .idle else { return .none }
+        guard let active = try fetchActiveState() else { return .none }
+
+        // Too old to still be this drive: close it at its own last fix rather than resuming.
+        // Resuming bolted the gap between the two onto the distance — a phone left in a
+        // drawer for a day and then opened at the office banked the whole commute twice.
+        if now().timeIntervalSince(active.lastUpdatedAt) > Self.maximumResumeAge {
+            adopt(active)
+            let trip = try finalize(endedAt: active.lastUpdatedAt)
+            return .recovered(trip)
         }
-        if let latitude = active.lastLatitude, let longitude = active.lastLongitude {
-            lastCoordinate = (latitude, longitude)
-        }
+
+        adopt(active)
         routeSamples = (try? storedPoints(for: active.tripID))?.map(Self.sample(from:)) ?? []
         state = .recording(
             startedAt: active.startedAt,
@@ -180,23 +205,60 @@ final class TripRecorder: TripRecording {
         )
 
         listen()
+        return .resumed
     }
 
-    func stop() async throws -> Trip {
+    /// Loads an in-flight row into the recorder's own fields. Shared by the resume path and
+    /// the recovery path, which differ only in what they do next.
+    private func adopt(_ active: ActiveTripState) {
+        // Stamped on adoption so a row written before this field existed stops being
+        // ambiguous the first time a device touches it.
+        if active.deviceID == nil {
+            active.deviceID = DeviceIdentity.current
+            try? context.save()
+        }
+        tripID = active.tripID
+        startedAt = active.startedAt
+        vehicleID = active.vehicleID
+        activeState = active
+        currentDistanceMeters = active.distanceMeters
+        // Seed the filter with the distance already banked: it restarts with no previous
+        // fix, so the first one after a resume simply re-anchors and counts nothing.
+        filter = LocationFilter(
+            config: config,
+            startingDistanceMeters: active.distanceMeters,
+            startingGapSeconds: active.unbridgedGapSeconds
+        )
+        if let latitude = active.startLatitude, let longitude = active.startLongitude {
+            startCoordinate = (latitude, longitude)
+        }
+        if let latitude = active.lastLatitude, let longitude = active.lastLongitude {
+            lastCoordinate = (latitude, longitude)
+        }
+    }
+
+    func stop() throws -> Trip {
+        try finalize(endedAt: now())
+    }
+
+    /// Writes the trip and clears the in-flight row. Synchronous on purpose: everything that
+    /// can lose data happens here, in one transaction, before any `await` — and the summary
+    /// screen opens on it immediately instead of waiting out two reverse-geocodes.
+    private func finalize(endedAt: Date) throws -> Trip {
         guard let tripID, let startedAt else { throw RecorderError.notRecording }
 
-        // Cut the feed before the awaits below, or a fix that arrives mid-geocode is filed
-        // against a trip that has already ended.
+        // Cut the feed before anything else, or a fix that arrives mid-save is filed against
+        // a trip that has already ended.
         provider.stopUpdates()
         provider.onSample = nil
 
-        let endedAt = now()
         let points = (try? storedPoints(for: tripID)) ?? []
         let samples = points.map(Self.sample(from:))
 
         let trip = Trip(id: tripID, startedAt: startedAt)
         trip.endedAt = endedAt
         trip.rawDistanceMeters = filter.totalDistanceMeters
+        trip.unbridgedGapSeconds = filter.unbridgedGapSeconds
         trip.vehicleID = vehicleID
         trip.startLatitude = startCoordinate?.latitude ?? samples.first?.latitude
         trip.startLongitude = startCoordinate?.longitude ?? samples.first?.longitude
@@ -214,10 +276,39 @@ final class TripRecorder: TripRecording {
         // Leaving them would push hundreds of thousands of rows into the user's iCloud.
         for point in points { context.delete(point) }
         if let activeState { context.delete(activeState) }
-        try context.save()
+
+        do {
+            try context.save()
+        } catch {
+            // A failed save used to leave the recorder mid-teardown: the feed was cut, the
+            // state stayed `.recording`, and the driving screen sat there with a frozen
+            // distance and a STOP button that could no longer do anything. Put the trip back
+            // the way it was and start listening again, so the drive is still recoverable and
+            // the caller can say what went wrong.
+            context.rollback()
+            resumeAfterFailedStop()
+            throw error
+        }
 
         reset()
+        return trip
+    }
 
+    /// Re-arms recording after a `stop()` that could not be saved. The row and its fixes are
+    /// still in the store — the rollback put them back — so the recorder re-adopts them.
+    private func resumeAfterFailedStop() {
+        guard let active = try? fetchActiveState() else { return }
+        adopt(active)
+        routeSamples = (try? storedPoints(for: active.tripID))?.map(Self.sample(from:)) ?? []
+        state = .recording(
+            startedAt: active.startedAt,
+            distanceMeters: active.distanceMeters,
+            duration: now().timeIntervalSince(active.startedAt)
+        )
+        listen()
+    }
+
+    func attachPlaces(to trip: Trip) async {
         // Exactly two lookups per trip — where it started and where it ended. One per fix
         // would be thousands of calls and a rate-limited app by the second drive.
         if let latitude = trip.startLatitude, let longitude = trip.startLongitude {
@@ -232,8 +323,6 @@ final class TripRecorder: TripRecording {
         }
         trip.updatedAt = now()
         try? context.save()
-
-        return trip
     }
 
     // MARK: - Ingestion
@@ -271,6 +360,7 @@ final class TripRecorder: TripRecording {
             ))
 
             activeState.distanceMeters = currentDistanceMeters
+            activeState.unbridgedGapSeconds = filter.unbridgedGapSeconds
             activeState.lastLatitude = sample.latitude
             activeState.lastLongitude = sample.longitude
             activeState.lastUpdatedAt = sample.timestamp
@@ -286,6 +376,13 @@ final class TripRecorder: TripRecording {
 
         case .paused:
             state = .paused
+
+        case .rejected(.gapTooLong):
+            // Nothing to publish — no distance was counted — but the silence itself is
+            // banked so it survives a kill and reaches the trip.
+            activeState.unbridgedGapSeconds = filter.unbridgedGapSeconds
+            try? context.save()
+            return
 
         case .rejected:
             // A rejected fix still means time passed; the UI's clock is driven by its own
@@ -306,14 +403,24 @@ final class TripRecorder: TripRecording {
         return try context.fetch(descriptor)
     }
 
+    /// Only rows this device wrote, plus rows from a build that predates `deviceID`.
+    ///
+    /// `ActiveTripState` syncs, so the unfiltered fetch handed the iPad the iPhone's trip in
+    /// progress: the iPad resumed it, both devices appended fixes under the same trip id, and
+    /// the second one to stop overwrote the first.
+    private func ownActiveStates() throws -> [ActiveTripState] {
+        let mine = DeviceIdentity.current
+        return try context
+            .fetch(FetchDescriptor<ActiveTripState>(sortBy: [SortDescriptor(\.startedAt, order: .reverse)]))
+            .filter { $0.deviceID == nil || $0.deviceID == mine }
+    }
+
     private func fetchActiveState() throws -> ActiveTripState? {
-        try context.fetch(
-            FetchDescriptor<ActiveTripState>(sortBy: [SortDescriptor(\.startedAt, order: .reverse)])
-        ).first
+        try ownActiveStates().first
     }
 
     private func discardActiveState() throws {
-        for state in try context.fetch(FetchDescriptor<ActiveTripState>()) {
+        for state in try ownActiveStates() {
             for point in try storedPoints(for: state.tripID) { context.delete(point) }
             context.delete(state)
         }
