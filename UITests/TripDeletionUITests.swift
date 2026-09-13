@@ -12,6 +12,19 @@ final class TripDeletionUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    /// Deleting asks for confirmation — it is destructive and irreversible. The dialog's own
+    /// Delete is a second, distinct button.
+    private func confirmDeletion(_ app: XCUIApplication) {
+        let confirm = app.sheets.buttons["Delete"].firstMatch
+        if confirm.waitForExistence(timeout: 5) {
+            confirm.tap()
+            return
+        }
+        // Presented as an alert on some size classes.
+        let alertConfirm = app.alerts.buttons["Delete"].firstMatch
+        if alertConfirm.waitForExistence(timeout: 3) { alertConfirm.tap() }
+    }
+
     func testDeletingATripRemovesItFromTheListWithoutRelaunching() {
         // `--reset-data` reseeds: these tests delete rows, and the seed only runs on an
         // empty store, so without it the demo data would shrink with every run.
@@ -33,6 +46,7 @@ final class TripDeletionUITests: XCTestCase {
         let delete = app.buttons["Delete"]
         XCTAssertTrue(delete.waitForExistence(timeout: 10), "the detail screen must offer Delete")
         delete.tap()
+        confirmDeletion(app)
 
         XCTAssertTrue(app.navigationBars["Trips"].waitForExistence(timeout: 10), "deleting must return to the list")
 
@@ -63,6 +77,12 @@ final class TripDeletionUITests: XCTestCase {
         let delete = app.buttons["Delete"]
         XCTAssertTrue(delete.waitForExistence(timeout: 10))
         delete.tap()
+        confirmDeletion(app)
+
+        // The tab switch has to wait for the pop to land: a tab tap fired while the
+        // navigation stack is still animating back is swallowed, and the app simply stays
+        // on Trips — which reads exactly like a missing Home card.
+        XCTAssertTrue(app.navigationBars["Trips"].waitForExistence(timeout: 10))
 
         app.tabBars.buttons["Home"].tap()
         XCTAssertTrue(lastTripDistance.waitForExistence(timeout: 10))
