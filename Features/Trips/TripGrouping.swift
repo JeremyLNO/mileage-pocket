@@ -37,14 +37,20 @@ enum TripGrouping {
         }
     }
 
+    /// Every boundary is derived from the injected `now`.
+    ///
+    /// `isDateInToday` and `isDateInYesterday` read the *system* clock and ignore the `now`
+    /// passed in, so this function silently disagreed with its own parameter — invisible in
+    /// production, where `now` is always the real time, and invisible in the tests too until
+    /// midnight passed mid-session and "yesterday" became "this week".
     static func section(for date: Date, now: Date = .now, calendar: Calendar = .current) -> TripSection {
-        if calendar.isDateInToday(date) || calendar.isDate(date, inSameDayAs: now) { return .today }
-        if calendar.isDateInYesterday(date) { return .yesterday }
-
         let startOfToday = calendar.startOfDay(for: now)
-        if let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: startOfToday), date >= sevenDaysAgo {
-            return .thisWeek
-        }
-        return .earlier
+        if date >= startOfToday { return .today }
+
+        guard let startOfYesterday = calendar.date(byAdding: .day, value: -1, to: startOfToday) else { return .earlier }
+        if date >= startOfYesterday { return .yesterday }
+
+        guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: startOfToday) else { return .earlier }
+        return date >= sevenDaysAgo ? .thisWeek : .earlier
     }
 }

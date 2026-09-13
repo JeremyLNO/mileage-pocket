@@ -10,6 +10,11 @@ import SwiftUI
 /// It can always be dismissed. A paywall with no exit is a common rejection, and the spec is
 /// explicit that a person's own data must stay reachable without paying.
 struct PaywallView: View {
+    /// How this screen leaves. Presented as a sheet it dismisses itself; embedded in the
+    /// onboarding flow there is nothing to dismiss, and `dismiss()` silently does nothing —
+    /// which is exactly how the close button ended up inert on the last onboarding screen.
+    var onClose: (() -> Void)?
+
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
@@ -43,7 +48,7 @@ struct PaywallView: View {
             .background(Theme.background)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button { dismiss() } label: { Image(systemName: "xmark") }
+                    Button { close() } label: { Image(systemName: "xmark") }
                         .accessibilityLabel(Text("common.close"))
                 }
                 ToolbarItem(placement: .primaryAction) {
@@ -187,11 +192,25 @@ struct PaywallView: View {
 
     private var callToAction: some View {
         VStack(spacing: 10) {
-            PrimaryButton(
-                title: hasIntroductoryOffer ? "paywall.cta.trial" : "paywall.cta.subscribe",
-                isEnabled: selectedPlan != nil && !isPurchasing
-            ) {
+            PrimaryButton(title: "paywall.cta.subscribe", isEnabled: selectedPlan != nil && !isPurchasing) {
                 Task { await purchase() }
+            }
+
+            // Same App Store purchase as the button above: StoreKit grants an introductory
+            // offer on eligibility and there is no way to buy without it. The two differ in
+            // wording and weight, not in what they do — so this one is shown only when the
+            // trial is genuinely on offer, rather than sitting there as a second identical
+            // control.
+            if hasIntroductoryOffer {
+                Button {
+                    Task { await purchase() }
+                } label: {
+                    Text("paywall.cta.trial")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Theme.signal)
+                        .frame(maxWidth: .infinity, minHeight: 34)
+                }
+                .disabled(selectedPlan == nil || isPurchasing)
             }
 
             if let plan = selectedPlan {
@@ -228,13 +247,22 @@ struct PaywallView: View {
         openURL(url)
     }
 
+    /// Leaves the screen whichever way it was presented.
+    private func close() {
+        if let onClose {
+            onClose()
+        } else {
+            dismiss()
+        }
+    }
+
     private func purchase() async {
         guard let selectedProduct else { return }
         isPurchasing = true
         defer { isPurchasing = false }
         do {
             if try await service.purchase(selectedProduct) {
-                dismiss()
+                close()
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -244,7 +272,7 @@ struct PaywallView: View {
     private func restore() async {
         do {
             try await service.restore()
-            if service.entitlement.isActive { dismiss() }
+            if service.entitlement.isActive { close() }
         } catch {
             errorMessage = error.localizedDescription
         }

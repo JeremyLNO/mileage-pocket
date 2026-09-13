@@ -219,8 +219,9 @@ struct OnboardingFlow: View {
     }
 
     private var paywallStep: some View {
-        PaywallView()
-            .onDisappear { dependencies.completeOnboarding() }
+        // Closing the paywall here means "finish onboarding without subscribing", not
+        // "dismiss a sheet": there is no sheet to dismiss, so the action is passed in.
+        PaywallView(onClose: { dependencies.completeOnboarding() })
     }
 
     // MARK: - Layout helpers

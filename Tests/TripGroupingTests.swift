@@ -110,3 +110,36 @@ final class GeocodingFormatTests: XCTestCase {
         XCTAssertEqual(GeocodingService.format(placemark(name: "Somewhere")), "Somewhere")
     }
 }
+
+extension TripGroupingTests {
+    /// The injected clock must be the only clock. This is what broke: the grouping read the
+    /// system date behind the `now` it was handed, so the suite was green only while the two
+    /// agreed — and turned red on its own when the day changed mid-session.
+    func testGroupingIgnoresTheSystemClockEntirely() {
+        // A reference day far from any real "today", so a system-clock read cannot agree by
+        // accident.
+        let reference = calendar.date(from: DateComponents(year: 2024, month: 3, day: 15, hour: 14))!
+        let startOfReferenceDay = calendar.startOfDay(for: reference)
+
+        XCTAssertEqual(TripGrouping.section(for: reference, now: reference, calendar: calendar), .today)
+        XCTAssertEqual(TripGrouping.section(for: startOfReferenceDay, now: reference, calendar: calendar), .today)
+        XCTAssertEqual(
+            TripGrouping.section(for: startOfReferenceDay.addingTimeInterval(-1), now: reference, calendar: calendar),
+            .yesterday,
+            "one second before today starts is yesterday, whatever the system date is"
+        )
+
+        let twoDaysBefore = calendar.date(byAdding: .day, value: -2, to: reference)!
+        XCTAssertEqual(TripGrouping.section(for: twoDaysBefore, now: reference, calendar: calendar), .thisWeek)
+
+        let thirtyDaysBefore = calendar.date(byAdding: .day, value: -30, to: reference)!
+        XCTAssertEqual(TripGrouping.section(for: thirtyDaysBefore, now: reference, calendar: calendar), .earlier)
+    }
+
+    /// A trip whose timestamp is slightly ahead of `now` — a clock skew, a fix that arrives
+    /// with a future timestamp — belongs to today rather than falling off the list.
+    func testAFutureTimestampIsGroupedAsToday() {
+        let soon = now.addingTimeInterval(600)
+        XCTAssertEqual(TripGrouping.section(for: soon, now: now, calendar: calendar), .today)
+    }
+}

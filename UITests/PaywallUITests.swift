@@ -75,3 +75,28 @@ final class PaywallUITests: XCTestCase {
         add(attachment)
     }
 }
+
+extension PaywallUITests {
+    /// The onboarding paywall is a page in a `TabView`, not a sheet — so `dismiss()` has
+    /// nothing to dismiss and the close button did nothing at all. Tapping it must land the
+    /// user in the app.
+    func testClosingTheOnboardingPaywallEntersTheApp() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--onboarding-step=5", "--fake-store"]
+        app.launch()
+
+        XCTAssertTrue(
+            app.staticTexts["Your mileage. Automatically documented."].waitForExistence(timeout: 15),
+            "the onboarding paywall must be showing"
+        )
+
+        let close = app.buttons["Close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        close.tap()
+
+        XCTAssertTrue(
+            app.buttons["Start trip"].waitForExistence(timeout: 10),
+            "closing the onboarding paywall must finish onboarding and open the app"
+        )
+    }
+}
