@@ -21,9 +21,9 @@ struct SettingsView: View {
             Form {
                 accountSection
                 drivingSection
+                carPlaySection
                 regionSection
                 calculationSection
-                carPlaySection
                 notificationsSection
                 dataSection
                 subscriptionSection
