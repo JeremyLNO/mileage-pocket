@@ -178,6 +178,13 @@ extension AppDependencies {
         invalidate()
     }
 
+    func delete(_ trip: Trip) {
+        context.delete(trip)
+        try? context.save()
+        refreshWidgetSnapshot()
+        invalidate()
+    }
+
     func duplicate(_ trip: Trip) {
         let copy = Trip(startedAt: .now)
         copy.endedAt = Date.now.addingTimeInterval(trip.duration)

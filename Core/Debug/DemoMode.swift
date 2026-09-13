@@ -37,6 +37,11 @@ enum DemoMode {
         CommandLine.arguments.contains("--reset-onboarding") || onboardingStep != nil
     }
 
+    /// `--reset-data` wipes the store and seeds it again. Tests that delete trips need it:
+    /// the seed only runs on an empty store, so without this each run would permanently
+    /// shrink the demo data until the suite ran out of rows to delete.
+    static var resetsData: Bool { CommandLine.arguments.contains("--reset-data") }
+
     /// `--reset-free-period` restarts the free days from now.
     static var resetsFreePeriod: Bool { CommandLine.arguments.contains("--reset-free-period") }
 
@@ -53,6 +58,7 @@ enum DemoMode {
     static var resetsOnboarding: Bool { false }
     static var onboardingStep: Int? { nil }
     static var resetsFreePeriod: Bool { false }
+    static var resetsData: Bool { false }
     #endif
 
     private static func value(forArgument name: String) -> String? {
@@ -70,6 +76,12 @@ enum DemoMode {
     @MainActor
     static func seed(context: ModelContext, settings: UserSettings) -> Bool {
         guard isEnabled else { return false }
+        if resetsData {
+            for trip in (try? context.fetch(FetchDescriptor<Trip>())) ?? [] { context.delete(trip) }
+            for vehicle in (try? context.fetch(FetchDescriptor<Vehicle>())) ?? [] { context.delete(vehicle) }
+            for client in (try? context.fetch(FetchDescriptor<Client>())) ?? [] { context.delete(client) }
+            try? context.save()
+        }
         let existing = (try? context.fetch(FetchDescriptor<Trip>())) ?? []
         guard existing.isEmpty else { return false }
 

@@ -71,7 +71,13 @@ final class AppDependencies {
         recorderFactory: ((ModelContext) -> any TripRecording)? = nil
     ) {
         self.container = container
-        let context = ModelContext(container)
+        // The container's own main context, never a second one.
+        //
+        // `.modelContainer(_:)` hands views `container.mainContext`, which is what every
+        // `@Query` observes. A private `ModelContext(container)` alongside it means writes
+        // land in a context no list is watching: deleting a trip persisted, but the row
+        // stayed on screen until the next launch.
+        let context = container.mainContext
         self.context = context
 
         let settingsStore = SettingsStore(context: context)

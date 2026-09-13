@@ -96,6 +96,7 @@
 		F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90E39E390D840036CEECC96 /* LaunchUITests.swift */; };
 		D40B5893CDDDB9BB012E05AB /* PaywallUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F10061DFC9A55731D6762AC /* PaywallUITests.swift */; };
 		2B7B1371DC73B2FBA38EB4B1 /* RawKeyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772E7A8B996007A055835216 /* RawKeyUITests.swift */; };
+		2DDC6CA1E9143B5E60C91066 /* TripDeletionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30594C9B775BABE7D4D0B9D8 /* TripDeletionUITests.swift */; };
 		D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */; };
 		CFE5743C0B854222020EBF4E /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670A6678249D2849C2BC6FA4 /* UITestSupport.swift */; };
 		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
@@ -210,6 +211,7 @@
 		E90E39E390D840036CEECC96 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchUITests.swift"; sourceTree = "<group>"; };
 		6F10061DFC9A55731D6762AC /* PaywallUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PaywallUITests.swift"; sourceTree = "<group>"; };
 		772E7A8B996007A055835216 /* RawKeyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RawKeyUITests.swift"; sourceTree = "<group>"; };
+		30594C9B775BABE7D4D0B9D8 /* TripDeletionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripDeletionUITests.swift"; sourceTree = "<group>"; };
 		8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripFlowUITests.swift"; sourceTree = "<group>"; };
 		670A6678249D2849C2BC6FA4 /* UITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITestSupport.swift"; sourceTree = "<group>"; };
 		8D7172619DB15AD08404D409 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -605,6 +607,7 @@
 				E90E39E390D840036CEECC96 /* LaunchUITests.swift */,
 				6F10061DFC9A55731D6762AC /* PaywallUITests.swift */,
 				772E7A8B996007A055835216 /* RawKeyUITests.swift */,
+				30594C9B775BABE7D4D0B9D8 /* TripDeletionUITests.swift */,
 				8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */,
 				670A6678249D2849C2BC6FA4 /* UITestSupport.swift */,
 			);
@@ -975,6 +978,7 @@
 				F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */,
 				D40B5893CDDDB9BB012E05AB /* PaywallUITests.swift in Sources */,
 				2B7B1371DC73B2FBA38EB4B1 /* RawKeyUITests.swift in Sources */,
+				2DDC6CA1E9143B5E60C91066 /* TripDeletionUITests.swift in Sources */,
 				D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */,
 				CFE5743C0B854222020EBF4E /* UITestSupport.swift in Sources */,
 			);

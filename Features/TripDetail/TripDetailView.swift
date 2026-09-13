@@ -140,8 +140,7 @@ struct TripDetailView: View {
                 dismiss()
             }
             Button(role: .destructive) {
-                context.delete(trip)
-                try? context.save()
+                dependencies.delete(trip)
                 dismiss()
             } label: {
                 Text("common.delete")
