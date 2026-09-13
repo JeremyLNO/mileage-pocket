@@ -200,5 +200,12 @@
   "paywall.unavailable": "Plans are unavailable right now.",
   "paywall.retry": "Try again",
   "settings.icloud.unavailable": "iCloud sync is not available in this build. Your trips are stored on this iPhone.",
-  "settings.plan.freedays": "%lld days of free access left"
+  "settings.plan.freedays": "%lld days of free access left",
+  "home.location.refused.title": "Location is off",
+  "home.location.refused.message": "Mileage Pocket cannot measure a trip without location access. Turn it on in Settings to start recording.",
+  "home.location.refused.settings": "Open Settings",
+  "summary.route": "Your route",
+  "summary.discard.title": "Discard this trip?",
+  "summary.discard.message": "The distance you just drove will be deleted. This cannot be undone.",
+  "summary.discard.confirm": "Discard"
 }

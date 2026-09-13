@@ -87,11 +87,14 @@ private struct TripRow: View {
     let trip: Trip
     let unit: DistanceUnit
     @Environment(\.locale) private var locale
+    @Environment(AppDependencies.self) private var dependencies
+
+    private var labels: (start: String, end: String) { dependencies.endpointLabels(for: trip) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("\(trip.startAddress ?? "—") → \(trip.endAddress ?? "—")")
+                Text(verbatim: "\(labels.start) → \(labels.end)")
                     .font(.system(size: 16, weight: .semibold))
                     .lineLimit(1)
                 Spacer()

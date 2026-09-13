@@ -18,8 +18,11 @@ final class TripActivityController {
     private var lastUpdate = Date.distantPast
     private var lastDistance: Double = 0
 
-    private let minimumInterval: TimeInterval = 30
-    private let minimumDistanceDelta: Double = 500
+    // The lock screen and CarPlay showed 0.0 km while the app itself had 0.2: at 30 s / 500 m
+    // the first push of a trip lands long after the driver has already looked. The Info.plist
+    // declares NSSupportsLiveActivitiesFrequentUpdates, which is what buys this budget.
+    private let minimumInterval: TimeInterval = 5
+    private let minimumDistanceDelta: Double = 100
 
     var isRunning: Bool { activityID != nil }
 
@@ -32,7 +35,9 @@ final class TripActivityController {
             content: ActivityContent(state: state, staleDate: nil),
             pushType: nil
         ).id
-        lastUpdate = .now
+        // Distant past, not now: otherwise the very first distance update is held back by the
+        // throttle and the lock screen sits at 0.0 km for the opening seconds of every trip.
+        lastUpdate = .distantPast
         lastDistance = 0
     }
 

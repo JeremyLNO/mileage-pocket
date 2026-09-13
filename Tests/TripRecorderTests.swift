@@ -13,6 +13,7 @@ final class TripRecorderTests: XCTestCase {
     @MainActor
     private final class FakeLocationProvider: LocationProviding {
         var onSample: ((LocationSample) -> Void)?
+        var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)?
         var authorization: CLAuthorizationStatus = .authorizedAlways
         private(set) var startCount = 0
         private(set) var stopCount = 0
@@ -22,14 +23,21 @@ final class TripRecorderTests: XCTestCase {
         func stopUpdates() { stopCount += 1 }
         func requestAlways() { requestAlwaysCount += 1 }
         func emit(_ sample: LocationSample) { onSample?(sample) }
+
+        /// Answers the permission prompt, the way iOS does after `startUpdates()` has
+        /// already run on a user's first trip.
+        func answerPrompt(with status: CLAuthorizationStatus) {
+            authorization = status
+            onAuthorizationChange?(status)
+        }
     }
 
     @MainActor
     private final class CountingGeocoder: Geocoding {
         private(set) var calls: [(latitude: Double, longitude: Double)] = []
-        func address(latitude: Double, longitude: Double) async -> String? {
+        func place(latitude: Double, longitude: Double) async -> PlaceLabel? {
             calls.append((latitude, longitude))
-            return "Address \(calls.count)"
+            return PlaceLabel(street: "Street \(calls.count)", town: "Town \(calls.count)")
         }
     }
 
@@ -133,8 +141,12 @@ final class TripRecorderTests: XCTestCase {
         )
         XCTAssertEqual(rig.geocoder.calls.first?.latitude ?? 0, line[0].latitude, accuracy: 1e-6)
         XCTAssertEqual(rig.geocoder.calls.last?.latitude ?? 0, line[line.count - 1].latitude, accuracy: 1e-4)
-        XCTAssertEqual(trip.startAddress, "Address 1")
-        XCTAssertEqual(trip.endAddress, "Address 2")
+        XCTAssertEqual(trip.startAddress, "Town 1")
+        XCTAssertEqual(trip.endAddress, "Town 2")
+        // Both levels are stored: dropping the street here is what forced "Paris → Paris"
+        // onto every local trip.
+        XCTAssertEqual(trip.startStreet, "Street 1")
+        XCTAssertEqual(trip.endStreet, "Street 2")
     }
 
     // MARK: - 3. Crash recovery
@@ -322,5 +334,45 @@ final class TripRecorderTests: XCTestCase {
         } catch {
             XCTAssertEqual(error as? RecorderError, .notRecording)
         }
+    }
+}
+
+extension TripRecorderTests {
+    /// Recording with location refused produced the worst possible outcome: a running timer,
+    /// a driving screen, and a trip saved at 0 m, with nothing said. It must refuse instead.
+    @MainActor
+    func testStartingWithLocationDeniedThrowsInsteadOfRecordingNothing() throws {
+        let harness = try makeRig()
+        harness.provider.authorization = .denied
+
+        XCTAssertThrowsError(try harness.recorder.start(vehicleID: nil)) { error in
+            guard case RecorderError.locationUnavailable(.denied) = error else {
+                return XCTFail("expected .locationUnavailable, got \(error)")
+            }
+        }
+        XCTAssertEqual(harness.recorder.state, .idle, "no trip may be left in flight")
+        XCTAssertEqual(harness.provider.startCount, 0, "the provider must not be started")
+    }
+
+    func testStartingWithLocationRestrictedAlsoRefuses() throws {
+        let harness = try makeRig()
+        harness.provider.authorization = .restricted
+        XCTAssertThrowsError(try harness.recorder.start(vehicleID: nil))
+    }
+
+    /// `.notDetermined` is allowed through — the prompt is raised alongside — and the answer
+    /// must reach the app, which is what enables background delivery mid-trip.
+    @MainActor
+    func testAnswerToThePromptIsForwardedWhileRecording() throws {
+        let harness = try makeRig()
+        harness.provider.authorization = .notDetermined
+
+        var reported: [CLAuthorizationStatus] = []
+        harness.recorder.onAuthorizationChange = { reported.append($0) }
+
+        XCTAssertNoThrow(try harness.recorder.start(vehicleID: nil))
+        harness.provider.answerPrompt(with: .authorizedWhenInUse)
+
+        XCTAssertEqual(reported, [.authorizedWhenInUse], "the answer must reach the app mid-trip")
     }
 }

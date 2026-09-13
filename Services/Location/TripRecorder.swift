@@ -26,6 +26,8 @@ protocol TripRecording: AnyObject {
     /// `@Observable` — it is a service, not view state — so this is how the UI learns that
     /// the distance moved.
     var onUpdate: (() -> Void)? { get set }
+    /// Forwarded from the provider so the app can react to a prompt answered mid-trip.
+    var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)? { get set }
     var authorizationStatus: CLAuthorizationStatus { get }
     /// When the trip began. Read this for the on-screen stopwatch rather than digging it out
     /// of `state`: the `.paused` case carries no payload, and a stopwatch that resets at
@@ -48,6 +50,9 @@ protocol TripRecording: AnyObject {
 enum RecorderError: Error, Equatable {
     case alreadyRecording
     case notRecording
+    /// Location is off or refused. Recording anyway produced the worst outcome there is: a
+    /// running timer, a driving screen, and a trip saved at 0 m with nothing said.
+    case locationUnavailable(CLAuthorizationStatus)
 }
 
 /// Records one drive: fixes in, a `Trip` out.
@@ -64,6 +69,7 @@ final class TripRecorder: TripRecording {
     /// Live distance, valid in every state — including `.paused`, which the enum cannot carry.
     private(set) var currentDistanceMeters: Double = 0
     var onUpdate: (() -> Void)?
+    var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)?
 
     /// Accepted fixes so far, for the live map. Rebuilt from the store after a resume.
     private(set) var routeSamples: [LocationSample] = []
@@ -99,12 +105,24 @@ final class TripRecorder: TripRecording {
         self.config = config
         self.now = now
         self.filter = LocationFilter(config: config)
+        provider.onAuthorizationChange = { [weak self] status in
+            self?.onAuthorizationChange?(status)
+        }
     }
 
     // MARK: - Lifecycle
 
     func start(vehicleID: UUID?) throws {
         guard state == .idle else { throw RecorderError.alreadyRecording }
+        // Refused up front rather than recording nothing in silence. `.notDetermined` is
+        // allowed through: the prompt is raised alongside, and the authorisation callback
+        // starts delivery as soon as it is answered.
+        switch provider.authorization {
+        case .denied, .restricted:
+            throw RecorderError.locationUnavailable(provider.authorization)
+        default:
+            break
+        }
 
         // A leftover row from an abandoned trip would be offered as "resume" on the next
         // launch, attaching this drive's fixes to the wrong trip.
@@ -203,10 +221,14 @@ final class TripRecorder: TripRecording {
         // Exactly two lookups per trip — where it started and where it ended. One per fix
         // would be thousands of calls and a rate-limited app by the second drive.
         if let latitude = trip.startLatitude, let longitude = trip.startLongitude {
-            trip.startAddress = await geocoder.address(latitude: latitude, longitude: longitude)
+            let place = await geocoder.place(latitude: latitude, longitude: longitude)
+            trip.startAddress = place?.town
+            trip.startStreet = place?.street
         }
         if let latitude = trip.endLatitude, let longitude = trip.endLongitude {
-            trip.endAddress = await geocoder.address(latitude: latitude, longitude: longitude)
+            let place = await geocoder.place(latitude: latitude, longitude: longitude)
+            trip.endAddress = place?.town
+            trip.endStreet = place?.street
         }
         trip.updatedAt = now()
         try? context.save()

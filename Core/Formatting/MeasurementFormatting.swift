@@ -76,3 +76,9 @@ enum Fmt {
         "\(rateAmount(rate, currencyCode: currencyCode, locale: locale))/\(unitAbbreviation(unit, locale: locale))"
     }
 }
+
+extension String {
+    /// Falls back when the string is empty, so a joined address of nothing reads as "—"
+    /// rather than as a blank row.
+    func ifEmpty(_ fallback: String) -> String { isEmpty ? fallback : self }
+}

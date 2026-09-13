@@ -43,6 +43,7 @@
 		23638FC08D9A8DBFA7D6031E /* LocationSample+CoreLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8AF7C43708D243FBEE0DB71 /* LocationSample+CoreLocation.swift */; };
 		5225A3D98A585B9475F0CD6E /* LocationSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3218CCB3CF7A72827E8ACBE /* LocationSample.swift */; };
 		D7AB4AFF8A5416658A9060F9 /* RouteCompactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC9218A9D25DE8D6E850B89 /* RouteCompactor.swift */; };
+		2FEC4ECE7FB390B82BBD2E4F /* TripEndpointLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397AD91D774C756080915483 /* TripEndpointLabel.swift */; };
 		5B8D3E67ACEE7B8B7BE72FF5 /* TripRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD66E5B85706FD7B8AF1BDA /* TripRecorder.swift */; };
 		38F3832C5506C8C838966ADF /* CountryRuleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6126F9D5753419AEDB490D /* CountryRuleEngine.swift */; };
 		F921308F8D76E90AF60508C1 /* DeclarativeMileageRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE00B3642E52CDF81C8C8610 /* DeclarativeMileageRule.swift */; };
@@ -90,6 +91,7 @@
 		996305294A1DD93E6593CD58 /* RulePackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */; };
 		29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */; };
 		4ABED5DA3350D8C5A2B9CDC9 /* SubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289B64711928B877FD8DDEEC /* SubscriptionTests.swift */; };
+		1068DB8C9B49E708FC261DF1 /* TripEndpointLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D73395EA8332DDD92A4C45D /* TripEndpointLabelTests.swift */; };
 		4EBFCC94CE9B21EB8ECD38E0 /* TripGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */; };
 		6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */; };
 		547BCB0E5CF93F5A6F0F4116 /* RouteFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B87813E46E7FAA074042AE /* RouteFixtures.swift */; };
@@ -172,6 +174,7 @@
 		D8AF7C43708D243FBEE0DB71 /* LocationSample+CoreLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocationSample+CoreLocation.swift"; sourceTree = "<group>"; };
 		F3218CCB3CF7A72827E8ACBE /* LocationSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocationSample.swift"; sourceTree = "<group>"; };
 		2FC9218A9D25DE8D6E850B89 /* RouteCompactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RouteCompactor.swift"; sourceTree = "<group>"; };
+		397AD91D774C756080915483 /* TripEndpointLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripEndpointLabel.swift"; sourceTree = "<group>"; };
 		8AD66E5B85706FD7B8AF1BDA /* TripRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripRecorder.swift"; sourceTree = "<group>"; };
 		FA6126F9D5753419AEDB490D /* CountryRuleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CountryRuleEngine.swift"; sourceTree = "<group>"; };
 		BE00B3642E52CDF81C8C8610 /* DeclarativeMileageRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeclarativeMileageRule.swift"; sourceTree = "<group>"; };
@@ -206,6 +209,7 @@
 		769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RulePackTests.swift"; sourceTree = "<group>"; };
 		B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmokeTests.swift"; sourceTree = "<group>"; };
 		289B64711928B877FD8DDEEC /* SubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionTests.swift"; sourceTree = "<group>"; };
+		1D73395EA8332DDD92A4C45D /* TripEndpointLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripEndpointLabelTests.swift"; sourceTree = "<group>"; };
 		20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripGroupingTests.swift"; sourceTree = "<group>"; };
 		4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripRecorderTests.swift"; sourceTree = "<group>"; };
 		E90E39E390D840036CEECC96 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchUITests.swift"; sourceTree = "<group>"; };
@@ -397,6 +401,7 @@
 				D8AF7C43708D243FBEE0DB71 /* LocationSample+CoreLocation.swift */,
 				F3218CCB3CF7A72827E8ACBE /* LocationSample.swift */,
 				2FC9218A9D25DE8D6E850B89 /* RouteCompactor.swift */,
+				397AD91D774C756080915483 /* TripEndpointLabel.swift */,
 				8AD66E5B85706FD7B8AF1BDA /* TripRecorder.swift */,
 			);
 			path = Location;
@@ -595,6 +600,7 @@
 				769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */,
 				B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */,
 				289B64711928B877FD8DDEEC /* SubscriptionTests.swift */,
+				1D73395EA8332DDD92A4C45D /* TripEndpointLabelTests.swift */,
 				20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */,
 				4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */,
 			);
@@ -911,6 +917,7 @@
 				23638FC08D9A8DBFA7D6031E /* LocationSample+CoreLocation.swift in Sources */,
 				5225A3D98A585B9475F0CD6E /* LocationSample.swift in Sources */,
 				D7AB4AFF8A5416658A9060F9 /* RouteCompactor.swift in Sources */,
+				2FEC4ECE7FB390B82BBD2E4F /* TripEndpointLabel.swift in Sources */,
 				5B8D3E67ACEE7B8B7BE72FF5 /* TripRecorder.swift in Sources */,
 				38F3832C5506C8C838966ADF /* CountryRuleEngine.swift in Sources */,
 				F921308F8D76E90AF60508C1 /* DeclarativeMileageRule.swift in Sources */,
@@ -965,6 +972,7 @@
 				996305294A1DD93E6593CD58 /* RulePackTests.swift in Sources */,
 				29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */,
 				4ABED5DA3350D8C5A2B9CDC9 /* SubscriptionTests.swift in Sources */,
+				1068DB8C9B49E708FC261DF1 /* TripEndpointLabelTests.swift in Sources */,
 				4EBFCC94CE9B21EB8ECD38E0 /* TripGroupingTests.swift in Sources */,
 				6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */,
 				547BCB0E5CF93F5A6F0F4116 /* RouteFixtures.swift in Sources */,

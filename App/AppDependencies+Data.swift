@@ -24,6 +24,16 @@ extension AppDependencies {
 
     func defaultVehicleName() -> String? { defaultVehicle()?.name }
 
+    /// How a trip is named on screen: towns when they differ, streets when both ends share
+    /// one. Centralised so a list row, the detail screen and a report cannot disagree.
+    nonisolated func endpointLabels(for trip: Trip) -> (start: String, end: String) {
+        TripEndpointLabel.format(
+            start: PlaceLabel(street: trip.startStreet, town: trip.startAddress),
+            end: PlaceLabel(street: trip.endStreet, town: trip.endAddress),
+            distanceMeters: trip.distanceMeters
+        )
+    }
+
     func vehicleName(for id: UUID?) -> String? {
         guard let id else { return nil }
         return vehicle(for: id)?.name

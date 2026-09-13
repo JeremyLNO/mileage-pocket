@@ -10,6 +10,7 @@ import Foundation
 @MainActor
 protocol LocationProviding: AnyObject {
     var onSample: ((LocationSample) -> Void)? { get set }
+    var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)? { get set }
     func startUpdates()
     func stopUpdates()
     var authorization: CLAuthorizationStatus { get }
@@ -23,6 +24,9 @@ protocol LocationProviding: AnyObject {
 @MainActor
 final class CoreLocationProvider: NSObject, LocationProviding {
     var onSample: ((LocationSample) -> Void)?
+    /// Fires whenever the authorisation changes, so the app can react to a prompt answered
+    /// after recording already started — which is what happens on a user's very first trip.
+    var onAuthorizationChange: ((CLAuthorizationStatus) -> Void)?
 
     /// Energy: a tighter filter in town where turns matter, a looser one on the motorway
     /// where the road is straight. Spec §4 — kilometre accuracy is never the thing traded.
@@ -65,14 +69,30 @@ final class CoreLocationProvider: NSObject, LocationProviding {
     func startUpdates() {
         guard !isUpdating else { return }
         isUpdating = true
-        // Setting this without the `location` background mode raises an exception, so it is
-        // set here rather than in init: the Info.plist declares it, and this keeps the
-        // failure mode obvious if that ever changes.
-        if manager.authorizationStatus == .authorizedAlways {
-            manager.allowsBackgroundLocationUpdates = true
-        }
+        applyBackgroundUpdates()
         manager.showsBackgroundLocationIndicator = true
         manager.startUpdatingLocation()
+    }
+
+    /// Background delivery works under **When In Use** as well as Always.
+    ///
+    /// Gating it on `.authorizedAlways` was the bug behind the whole product failing at its
+    /// one job: almost nobody grants Always at the first prompt, so almost every trip stopped
+    /// counting the moment the screen locked — the timer kept running, the distance did not.
+    /// A nine-minute drive recorded 1.9 km.
+    ///
+    /// With the `location` background mode declared, When In Use plus this flag plus the blue
+    /// status indicator is exactly the arrangement a running or cycling tracker uses. Always
+    /// buys only relaunch-after-termination, which is a separate feature.
+    private func applyBackgroundUpdates() {
+        switch manager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            // Setting this without the background mode declared raises; the Info.plist
+            // declares it, and this keeps the failure obvious if that ever changes.
+            manager.allowsBackgroundLocationUpdates = true
+        default:
+            manager.allowsBackgroundLocationUpdates = false
+        }
     }
 
     func stopUpdates() {
@@ -89,6 +109,16 @@ final class CoreLocationProvider: NSObject, LocationProviding {
             onSample?(sample)
             adaptDistanceFilter(to: sample.speed)
         }
+    }
+
+    private func authorizationChanged(to status: CLAuthorizationStatus) {
+        applyBackgroundUpdates()
+        if isUpdating, status == .authorizedAlways || status == .authorizedWhenInUse {
+            // Re-issuing is harmless when already running, and it is what actually gets
+            // deliveries going when the prompt was answered after `startUpdates()`.
+            manager.startUpdatingLocation()
+        }
+        onAuthorizationChange?(status)
     }
 
     private func adaptDistanceFilter(to speed: CLLocationSpeed) {
@@ -114,6 +144,16 @@ extension CoreLocationProvider: CLLocationManagerDelegate {
         // created on the main actor, so the isolation being assumed here is real.
         let samples = locations.map(LocationSample.init)
         MainActor.assumeIsolated { receive(samples) }
+    }
+
+    /// The first trip of a user's life starts before the prompt is answered. Without this,
+    /// the answer arrived and nothing acted on it: background updates stayed off for the
+    /// whole trip, and the next launch was the earliest anything could change.
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let status = manager.authorizationStatus
+        // Only the status crosses the boundary; the manager itself is reached through the
+        // stored property, which is already main-actor isolated.
+        MainActor.assumeIsolated { authorizationChanged(to: status) }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

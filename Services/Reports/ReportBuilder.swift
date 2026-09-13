@@ -57,8 +57,8 @@ enum ReportBuilder {
             ReportRow(
                 id: trip.id,
                 date: trip.startedAt,
-                from: trip.startAddress ?? "—",
-                to: trip.endAddress ?? "—",
+                from: trip.startAddress ?? trip.startStreet ?? "—",
+                to: trip.endAddress ?? trip.endStreet ?? "—",
                 purpose: trip.purpose ?? "",
                 distanceMeters: trip.distanceMeters,
                 rate: trip.mileageRate,

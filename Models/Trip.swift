@@ -20,8 +20,13 @@ final class Trip: Identifiable {
     var endLatitude: Double?
     var endLongitude: Double?
 
+    /// The town at each end — "Courbevoie".
     var startAddress: String?
     var endAddress: String?
+    /// The street at each end — "12 Avenue Gambetta". Kept alongside the town because a trip
+    /// that starts and ends in the same town is named by its streets or by nothing at all.
+    var startStreet: String?
+    var endStreet: String?
 
     /// Distance as measured by the GPS filter. Never overwritten by a manual correction.
     var rawDistanceMeters: Double = 0

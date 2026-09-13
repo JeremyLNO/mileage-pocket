@@ -96,18 +96,23 @@ final class GeocodingFormatTests: XCTestCase {
         return MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 48.8566, longitude: 2.3522), addressDictionary: address)
     }
 
-    func testATownWinsOverAStreet() {
-        let result = GeocodingService.format(placemark(subThoroughfare: "118", thoroughfare: "Voie Georges Pompidou", locality: "Paris"))
-        XCTAssertEqual(result, "Paris")
+    /// Both levels are extracted; which one is shown is `TripEndpointLabel`'s decision.
+    func testBothStreetAndTownAreKept() {
+        let label = GeocodingService.label(placemark(subThoroughfare: "118", thoroughfare: "Voie Georges Pompidou", locality: "Paris"))
+        XCTAssertEqual(label.street, "118 Voie Georges Pompidou")
+        XCTAssertEqual(label.town, "Paris")
     }
 
-    func testAStreetIsUsedOnlyWhenThereIsNoTown() {
-        let result = GeocodingService.format(placemark(subThoroughfare: "12", thoroughfare: "A6 Autoroute du Soleil"))
-        XCTAssertEqual(result, "12 A6 Autoroute du Soleil")
+    func testAStreetSurvivesWithoutATown() {
+        let label = GeocodingService.label(placemark(subThoroughfare: "12", thoroughfare: "A6 Autoroute du Soleil"))
+        XCTAssertEqual(label.street, "12 A6 Autoroute du Soleil")
+        XCTAssertNil(label.town)
     }
 
     func testFallsBackToTheNameWhenNothingElseIsKnown() {
-        XCTAssertEqual(GeocodingService.format(placemark(name: "Somewhere")), "Somewhere")
+        let label = GeocodingService.label(placemark(name: "Somewhere"))
+        XCTAssertEqual(label.street, "Somewhere")
+        XCTAssertNil(label.town)
     }
 }
 

@@ -1,3 +1,5 @@
+import CoreLocation
+import MapKit
 import SwiftUI
 import SwiftData
 
@@ -19,6 +21,7 @@ struct TripSummarySheet: View {
     @State private var purpose: String = ""
     @State private var clientName: String = ""
     @State private var suggestion: FrequentLocation?
+    @State private var showsDiscardConfirmation = false
 
     @Query(sort: \Client.lastUsedAt, order: .reverse) private var clients: [Client]
 
@@ -28,6 +31,7 @@ struct TripSummarySheet: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 22) {
+                    routeMap
                     figures
                     classification
                     if tripType == .business {
@@ -48,12 +52,70 @@ struct TripSummarySheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("common.discard", role: .destructive) { discard() }
+                    Button("common.discard", role: .destructive) { showsDiscardConfirmation = true }
                 }
             }
         }
         .interactiveDismissDisabled()
+        // Destructive, in the position where "Cancel" normally lives, and the only visible way
+        // out of a sheet that cannot be swiped away: a reflex tap used to erase the drive that
+        // was just recorded.
+        .confirmationDialog("summary.discard.title", isPresented: $showsDiscardConfirmation, titleVisibility: .visible) {
+            Button("summary.discard.confirm", role: .destructive) { discard() }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("summary.discard.message")
+        }
         .task { prepare() }
+    }
+
+    /// The drive itself, before any of the questions.
+    ///
+    /// It is also the only honest thing on this sheet when reverse geocoding failed: the
+    /// addresses read "— → —", but the shape of the route is still recognisable and is what
+    /// tells someone which trip they are about to classify.
+    @ViewBuilder
+    private var routeMap: some View {
+        let route = decodedRoute
+        if route.count > 1 {
+            Map(initialPosition: .region(region(for: route))) {
+                MapPolyline(coordinates: route)
+                    .stroke(Theme.signal, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+                if let first = route.first {
+                    Marker("detail.start", systemImage: "flag.fill", coordinate: first).tint(Theme.business)
+                }
+                if let last = route.last {
+                    Marker("detail.end", systemImage: "flag.checkered", coordinate: last).tint(Theme.signal)
+                }
+            }
+            .mapStyle(.standard(pointsOfInterest: .excludingAll))
+            .frame(height: 190)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+            .allowsHitTesting(false)
+            .accessibilityLabel(Text("summary.route"))
+        }
+    }
+
+    private var decodedRoute: [CLLocationCoordinate2D] {
+        guard let data = trip.encodedRoute else { return [] }
+        return RouteCompactor.decode(data).map {
+            CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude)
+        }
+    }
+
+    private func region(for coordinates: [CLLocationCoordinate2D]) -> MKCoordinateRegion {
+        let latitudes = coordinates.map(\.latitude)
+        let longitudes = coordinates.map(\.longitude)
+        guard let minLat = latitudes.min(), let maxLat = latitudes.max(),
+              let minLon = longitudes.min(), let maxLon = longitudes.max()
+        else { return MKCoordinateRegion() }
+        return MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2),
+            span: MKCoordinateSpan(
+                latitudeDelta: max(0.004, (maxLat - minLat) * 1.5),
+                longitudeDelta: max(0.004, (maxLon - minLon) * 1.5)
+            )
+        )
     }
 
     private var figures: some View {
@@ -69,7 +131,10 @@ struct TripSummarySheet: View {
                     .monospacedDigit()
                     .foregroundStyle(Theme.textSecondary)
             }
-            Text("\(trip.startAddress ?? "—") → \(trip.endAddress ?? "—")")
+            Text(verbatim: {
+                let labels = dependencies.endpointLabels(for: trip)
+                return "\(labels.start) → \(labels.end)"
+            }())
                 .font(.system(size: 14))
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)

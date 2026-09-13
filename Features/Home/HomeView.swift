@@ -7,6 +7,7 @@ struct HomeView: View {
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.modelContext) private var context
     @Environment(\.locale) private var locale
+    @Environment(\.openURL) private var openURL
 
     @State private var model: HomeModel?
     @State private var showsVehiclePicker = false
@@ -47,6 +48,17 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showsPaywall) {
             PaywallView()
+        }
+        .alert("home.location.refused.title", isPresented: Binding(
+            get: { dependencies.locationRefused },
+            set: { if !$0 { dependencies.locationRefused = false } }
+        )) {
+            Button("home.location.refused.settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+            }
+            Button("common.cancel", role: .cancel) { dependencies.locationRefused = false }
+        } message: {
+            Text("home.location.refused.message")
         }
     }
 
@@ -110,7 +122,7 @@ struct HomeView: View {
                 Card {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("home.last.trip").eyebrowStyle()
-                        Text("\(trip.startAddress ?? "—") → \(trip.endAddress ?? "—")")
+                        Text(verbatim: endpoints(of: trip))
                             .font(.system(size: 17, weight: .semibold))
                             .foregroundStyle(Theme.textPrimary)
                             .lineLimit(1)
@@ -143,6 +155,13 @@ struct HomeView: View {
     }
 
     // MARK: - Actions
+
+    /// "Paris → Versailles" between towns; the two streets when both ends share a town, where
+    /// the town alone would read "Paris → Paris" and say nothing.
+    private func endpoints(of trip: Trip) -> String {
+        let labels = dependencies.endpointLabels(for: trip)
+        return "\(labels.start) → \(labels.end)"
+    }
 
     private var activeVehicleName: String {
         if let id = settings.defaultVehicleID, let vehicle = vehicles.first(where: { $0.id == id }) {

@@ -97,8 +97,8 @@ struct TripDetailView: View {
     private var detailsCard: some View {
         Card {
             VStack(spacing: 0) {
-                row("detail.from", trip.startAddress ?? "—")
-                row("detail.to", trip.endAddress ?? "—")
+                row("detail.from", fullAddress(street: trip.startStreet, town: trip.startAddress))
+                row("detail.to", fullAddress(street: trip.endStreet, town: trip.endAddress))
                 row("detail.departure", trip.startedAt.formatted(date: .omitted, time: .shortened))
                 row("detail.arrival", trip.endedAt?.formatted(date: .omitted, time: .shortened) ?? "—")
                 row("detail.duration", Fmt.duration(trip.duration, locale: locale))
@@ -148,6 +148,13 @@ struct TripDetailView: View {
                     .frame(maxWidth: .infinity, minHeight: 50)
             }
         }
+    }
+
+    /// The detail screen has the room, and it is where someone checks exactly where they
+    /// went — so both levels are shown here, unlike the list rows.
+    private func fullAddress(street: String?, town: String?) -> String {
+        [street, town].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: ", ")
+            .ifEmpty("—")
     }
 
     private func row(_ label: LocalizedStringKey, _ value: String) -> some View {

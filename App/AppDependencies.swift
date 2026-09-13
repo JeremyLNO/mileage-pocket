@@ -63,6 +63,9 @@ final class AppDependencies {
     private(set) var isTripPaused = false
     private(set) var activeDistanceMeters: Double = 0
     private(set) var activeStartedAt: Date?
+    /// Set when a trip could not start because location is off or refused. The view shows it;
+    /// before, the app opened its driving screen and recorded nothing, saying nothing.
+    var locationRefused = false
     /// Set the moment a trip stops, cleared when the summary sheet is done with it.
     var finishedTrip: Trip?
 
@@ -105,6 +108,13 @@ final class AppDependencies {
         }
         freePeriod = FreeAccessPeriod(startedAt: InstallDateStore.firstLaunchDate())
         recorder.onUpdate = { [weak self] in self?.syncRecorderState() }
+        // The first trip of a user's life starts before the prompt is answered; when the
+        // answer arrives, background delivery is enabled and the screen stops lying.
+        recorder.onAuthorizationChange = { [weak self] status in
+            guard let self else { return }
+            locationRefused = (status == .denied || status == .restricted) && isRecording
+            syncRecorderState()
+        }
         if DemoMode.seed(context: context, settings: settingsStore.settings) {
             // Seeded trips go through the same calculation path as recorded ones — a demo
             // that skipped it would show a screen no real user ever sees.
@@ -180,9 +190,12 @@ final class AppDependencies {
             )
             notifications.scheduleTripStillRunningReminder()
             syncRecorderState()
+        } catch RecorderError.locationUnavailable {
+            // Recording without location produced a running timer over a 0 m trip and said
+            // nothing at all. Refuse visibly instead.
+            locationRefused = true
+            syncRecorderState()
         } catch {
-            // Starting can only fail for want of location permission; the view already shows
-            // the permission state, so there is nothing useful to raise here.
             syncRecorderState()
         }
     }
