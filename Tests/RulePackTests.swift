@@ -251,3 +251,55 @@ final class RulePackTests: XCTestCase {
         XCTAssertEqual(try amount("BE", distance: 100, unit: .kilometers, on: date(2026, 9, 12)), Decimal(string: "44.40"))
     }
 }
+
+extension RulePackTests {
+    /// Against the real French pack, where the electric scheme is listed first.
+    func testFranceWithNoVehicleUsesTheCarScaleNotTheElectricOne() throws {
+        let day = date(2026, 6, 1)
+        let noVehicle = try amount("FR", distance: 1_000, unit: .kilometers, on: day, vehicle: nil)
+        let plainCar = try amount(
+            "FR", distance: 1_000, unit: .kilometers, on: day,
+            vehicle: Vehicle(name: "Car", vehicleType: .car)
+        )
+        XCTAssertEqual(noVehicle, plainCar, "an unrecorded vehicle must be priced as a car")
+
+        let electric = try amount(
+            "FR", distance: 1_000, unit: .kilometers, on: day,
+            vehicle: Vehicle(name: "EV", vehicleType: .electricCar)
+        )
+        XCTAssertEqual(
+            electric, MileageRounding.money(plainCar * Decimal(string: "1.20")!),
+            "the +20 % uplift belongs to electric cars and to nothing else"
+        )
+        XCTAssertNotEqual(noVehicle, electric)
+    }
+
+    /// A bicycle is not in the French scale. Charging it the car rate invents a figure.
+    func testFranceGivesNoOfficialAmountForABicycle() throws {
+        let pack = try XCTUnwrap(store.pack(country: "FR", on: date(2026, 6, 1)))
+        let rule = DeclarativeMileageRule(pack: pack)
+        let bicycle = Vehicle(name: "Vélo", vehicleType: .bicycle)
+
+        let result = rule.calculate(
+            distanceMeters: 100_000, vehicle: bicycle,
+            date: date(2026, 6, 1), yearlyDistanceMeters: 0
+        )
+        XCTAssertFalse(result.isOfficial)
+        XCTAssertEqual(result.amount, 0)
+    }
+
+    /// The British scale covers bicycles, so this one must stay official — the guard above
+    /// must not become "anything unusual is unsupported".
+    func testBritainDoesCoverBicycles() throws {
+        let pack = try XCTUnwrap(store.pack(country: "GB", on: date(2026, 9, 12)))
+        let rule = DeclarativeMileageRule(pack: pack)
+        let bicycle = Vehicle(name: "Bike", vehicleType: .bicycle)
+
+        let result = rule.calculate(
+            distanceMeters: DistanceUnit.miles.meters(fromValue: 100), vehicle: bicycle,
+            date: date(2026, 9, 12), yearlyDistanceMeters: 0
+        )
+        XCTAssertTrue(result.isOfficial)
+        XCTAssertEqual(result.amount, Decimal(string: "20.00"))
+    }
+}

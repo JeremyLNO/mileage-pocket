@@ -291,8 +291,12 @@ final class AppDependencies {
             yearlyDistanceMeters: yearly
         )
 
-        trip.mileageRate = calculation.rate
-        trip.calculatedAmount = calculation.amount
+        // No applicable scale and no rate the user set: the amount is *unknown*, not zero.
+        // Writing 0,00 € put a precise-looking figure on a report — trips outside a pack's
+        // validity window, and vehicles no published scale covers, all came out as zero.
+        let hasUsableRate = calculation.isOfficial || calculation.rate > 0
+        trip.mileageRate = hasUsableRate ? calculation.rate : nil
+        trip.calculatedAmount = hasUsableRate ? calculation.amount : nil
         trip.currencyCode = calculation.currencyCode
         trip.mileageRuleVersion = calculation.ruleVersion
         trip.isOfficialRate = calculation.isOfficial

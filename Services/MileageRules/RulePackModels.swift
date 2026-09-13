@@ -109,10 +109,16 @@ struct RateScheme: Codable, Sendable, Equatable {
         self.bands = bands
     }
 
+    /// Whether this scheme covers that vehicle.
+    ///
+    /// An unknown vehicle is treated as a **car**, never as "matches anything". Returning
+    /// true for `nil` meant the first scheme in the pack always won — and in France the first
+    /// scheme is the electric one, with its published +20 % uplift. Every French trip taken
+    /// before a vehicle was added was billed 20 % too high and marked official.
     func matches(vehicle: Vehicle?) -> Bool {
-        guard let vehicle else { return true }
-        guard vehicleTypes.contains(vehicle.vehicleType) else { return false }
-        if let fuelTypes, let fuel = vehicle.fuelType, !fuelTypes.contains(fuel) { return false }
+        let type = vehicle?.vehicleType ?? .car
+        guard vehicleTypes.contains(type) else { return false }
+        if let fuelTypes, let fuel = vehicle?.fuelType, !fuelTypes.contains(fuel) { return false }
         return true
     }
 

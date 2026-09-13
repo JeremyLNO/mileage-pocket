@@ -27,6 +27,8 @@ struct DeclarativeMileageRule: MileageRule {
     ) -> MileageCalculation {
         let distance = max(0, distanceMeters)
         guard distance > 0, let scheme = scheme(for: vehicle) else {
+            // `isOfficial` is false here: no published scale covers this vehicle, so the
+            // caller must not print this as a regulated amount.
             return MileageCalculation.zero(currencyCode: currencyCode, unit: distanceUnit)
         }
 
@@ -59,11 +61,14 @@ struct DeclarativeMileageRule: MileageRule {
         )
     }
 
-    /// The first scheme whose vehicle constraints the vehicle satisfies; the first scheme
-    /// overall when the vehicle is unknown, so a trip recorded before the user added a
-    /// vehicle still gets a figure instead of a zero.
+    /// The scheme that covers this vehicle, or none.
+    ///
+    /// There is deliberately no "first scheme" fallback. It charged a bicycle in France at
+    /// the electric-car rate and a motorcycle in Germany at the car rate — an invented figure
+    /// presented as the official scale. A vehicle the published scale does not cover has no
+    /// official amount, and saying so is the only honest answer.
     private func scheme(for vehicle: Vehicle?) -> RateScheme? {
-        pack.schemes.first { $0.matches(vehicle: vehicle) } ?? pack.schemes.first
+        pack.schemes.first { $0.matches(vehicle: vehicle) }
     }
 
     /// What the year owes after `distance` has been driven, in the pack's own unit.

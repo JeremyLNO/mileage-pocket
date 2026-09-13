@@ -313,3 +313,61 @@ final class MileageCalculationTests: XCTestCase {
         XCTAssertEqual(amount(rule, km: 15), Decimal(string: "5.00"))
     }
 }
+
+extension MileageCalculationTests {
+    /// The worst defect this app has had: with no vehicle recorded, the first scheme in the
+    /// pack won — and in France that is the electric one, +20 %. Every French trip taken
+    /// before a vehicle was added was billed 20 % high and marked official.
+    func testAnUnknownVehicleIsTreatedAsACarNotAsWhateverComesFirst() {
+        let electric = RateScheme(
+            id: "electric", vehicleTypes: [.electricCar], rateMultiplier: Decimal(string: "1.20"),
+            bands: [RateBand(fromDistance: 0, toDistance: nil, rate: Decimal(string: "0.500")!)]
+        )
+        let car = RateScheme(
+            id: "car", vehicleTypes: [.car, .van],
+            bands: [RateBand(fromDistance: 0, toDistance: nil, rate: Decimal(string: "0.500")!)]
+        )
+        // Electric first, exactly as the French pack orders them.
+        let rule = DeclarativeMileageRule(pack: pack(schemes: [electric, car]))
+
+        XCTAssertEqual(amount(rule, km: 100, vehicle: nil), Decimal(string: "50.00"))
+
+        let electricCar = Vehicle(name: "Tesla", vehicleType: .electricCar)
+        XCTAssertEqual(amount(rule, km: 100, vehicle: electricCar), Decimal(string: "60.00"))
+    }
+
+    /// A bicycle in France, a motorcycle in Germany: the published scale covers neither, and
+    /// charging them the car rate invents a figure and calls it official.
+    func testAVehicleNoSchemeCoversGetsNoOfficialAmount() {
+        let carOnly = RateScheme(
+            id: "car", vehicleTypes: [.car, .van],
+            bands: [RateBand(fromDistance: 0, toDistance: nil, rate: Decimal(string: "0.500")!)]
+        )
+        let rule = DeclarativeMileageRule(pack: pack(schemes: [carOnly]))
+        let bicycle = Vehicle(name: "Vélo", vehicleType: .bicycle)
+
+        let result = rule.calculate(distanceMeters: 100_000, vehicle: bicycle, date: day, yearlyDistanceMeters: 0)
+        XCTAssertEqual(result.amount, 0)
+        XCTAssertFalse(result.isOfficial, "an uncovered vehicle must not be reported as an official rate")
+    }
+
+    func testFuelConstraintsStillApplyToAKnownVehicle() {
+        let dieselOnly = RateScheme(
+            id: "diesel", vehicleTypes: [.car], fuelTypes: [.diesel],
+            bands: [RateBand(fromDistance: 0, toDistance: nil, rate: Decimal(string: "0.400")!)]
+        )
+        let anyFuel = RateScheme(
+            id: "any", vehicleTypes: [.car],
+            bands: [RateBand(fromDistance: 0, toDistance: nil, rate: Decimal(string: "0.500")!)]
+        )
+        let rule = DeclarativeMileageRule(pack: pack(schemes: [dieselOnly, anyFuel]))
+
+        let diesel = Vehicle(name: "D", vehicleType: .car)
+        diesel.fuelType = .diesel
+        XCTAssertEqual(amount(rule, km: 100, vehicle: diesel), Decimal(string: "40.00"))
+
+        let petrol = Vehicle(name: "P", vehicleType: .car)
+        petrol.fuelType = .petrol
+        XCTAssertEqual(amount(rule, km: 100, vehicle: petrol), Decimal(string: "50.00"))
+    }
+}
