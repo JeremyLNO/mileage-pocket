@@ -27,6 +27,31 @@ final class AppDependencies {
     /// figures — a value that changes is cheaper to watch than the whole store.
     private(set) var recorderRevision = 0
 
+    /// When the free period started, read once at launch from the keychain.
+    private(set) var freePeriod: FreeAccessPeriod = FreeAccessPeriod(startedAt: .now)
+
+    /// Whether `feature` is available right now.
+    ///
+    /// Three sources decide it: an active subscription, the free period every install gets,
+    /// and the feature itself — exporting is never free. Views ask this and nothing else, so
+    /// the rule lives in one place instead of being re-derived per screen.
+    func canAccess(_ feature: PremiumFeature, now: Date = .now) -> Bool {
+        if DemoMode.pretendsSubscribed { return true }
+        return AccessPolicy.allows(
+            feature,
+            entitlement: subscriptions.entitlement,
+            freePeriodActive: freePeriod.isActive(now: now)
+        )
+    }
+
+    var freeDaysRemaining: Int { freePeriod.daysRemaining() }
+
+    /// True once the free period is over and nothing has been purchased — the moment the
+    /// paywall starts standing in the way.
+    var needsSubscription: Bool {
+        !subscriptions.entitlement.isActive && !freePeriod.isActive()
+    }
+
     /// Tells the views something in the store changed under them. Named rather than letting
     /// callers poke the counter, so the reason for a redraw stays greppable.
     func invalidate() { recorderRevision += 1 }
@@ -68,6 +93,11 @@ final class AppDependencies {
     }
 
     func bootstrap() {
+        // Read (and, on a first launch, written) before anything can ask about access.
+        if DemoMode.resetsFreePeriod {
+            InstallDateStore.clear()
+        }
+        freePeriod = FreeAccessPeriod(startedAt: InstallDateStore.firstLaunchDate())
         recorder.onUpdate = { [weak self] in self?.syncRecorderState() }
         if DemoMode.seed(context: context, settings: settingsStore.settings) {
             // Seeded trips go through the same calculation path as recorded ones — a demo

@@ -12,6 +12,8 @@
 		653ABD036BCC19A5F090068E /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F426B9A4641BD87BFBC779 /* MainTabView.swift */; };
 		020ADF5043E5591121EA4BD5 /* MileagePocketApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35513ED3D57158239A87DAE /* MileagePocketApp.swift */; };
 		89747BD45088447E6FD467BE /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A01F56928DFCE630027E76A /* RootView.swift */; };
+		5C3DC335B9A9F6E534FAE8FE /* AccessPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3177FF925968B75A0261A88 /* AccessPolicy.swift */; };
+		16B6F9E629335424C93EE433 /* InstallDateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 680A7F8730B76831AE6DF07D /* InstallDateStore.swift */; };
 		E46D0B7516DC3E3796E7EC0B /* CountryCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3B54F4C9D267DE9456BEB5 /* CountryCatalog.swift */; };
 		47DC2F36564B3FF750CDF14B /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92914F57925F3DFE070C7DF2 /* DemoMode.swift */; };
 		1A0DBB9334581BB5FC6198D4 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C042AACAE1B575F399224 /* Components.swift */; };
@@ -75,6 +77,7 @@
 		BD1B87C04C8A0DCEAD2B7605 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE67A88587942CD6869C134A /* Enums.swift */; };
 		AF0E610812D4C691BD950FDB /* TripAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C20DA7A0342F6845231BEAC /* TripAttributes.swift */; };
 		5458DCE7E46C41FAAC383229 /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F084A37211B7023A9F906223 /* WidgetSnapshot.swift */; };
+		3FEE178C5A0526B3AF075A11 /* AccessPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC69304BE399BD369A7729E /* AccessPolicyTests.swift */; };
 		35F584CAFA7C92AB92FC187B /* EntitlementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFB0B89ACB1623A93C91C49 /* EntitlementTests.swift */; };
 		63FA1168F6F86336DE2D605A /* FormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D05E528024AA1A7F594A935 /* FormattingTests.swift */; };
 		B77BCC1AF35F759FDE1BCF97 /* FrequentLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC138E8272380521D281E57 /* FrequentLocationTests.swift */; };
@@ -94,6 +97,7 @@
 		D40B5893CDDDB9BB012E05AB /* PaywallUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F10061DFC9A55731D6762AC /* PaywallUITests.swift */; };
 		2B7B1371DC73B2FBA38EB4B1 /* RawKeyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772E7A8B996007A055835216 /* RawKeyUITests.swift */; };
 		D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */; };
+		CFE5743C0B854222020EBF4E /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670A6678249D2849C2BC6FA4 /* UITestSupport.swift */; };
 		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
 		CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */; };
 		F98F180A21F88E7E9433F27E /* TripLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E9038CCAF678F8ABC8DF7D /* TripLiveActivity.swift */; };
@@ -119,6 +123,8 @@
 		71F426B9A4641BD87BFBC779 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MainTabView.swift"; sourceTree = "<group>"; };
 		D35513ED3D57158239A87DAE /* MileagePocketApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileagePocketApp.swift"; sourceTree = "<group>"; };
 		6A01F56928DFCE630027E76A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RootView.swift"; sourceTree = "<group>"; };
+		D3177FF925968B75A0261A88 /* AccessPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessPolicy.swift"; sourceTree = "<group>"; };
+		680A7F8730B76831AE6DF07D /* InstallDateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InstallDateStore.swift"; sourceTree = "<group>"; };
 		8D3B54F4C9D267DE9456BEB5 /* CountryCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CountryCatalog.swift"; sourceTree = "<group>"; };
 		92914F57925F3DFE070C7DF2 /* DemoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DemoMode.swift"; sourceTree = "<group>"; };
 		9F2C042AACAE1B575F399224 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components.swift"; sourceTree = "<group>"; };
@@ -185,6 +191,7 @@
 		FE67A88587942CD6869C134A /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Enums.swift"; sourceTree = "<group>"; };
 		1C20DA7A0342F6845231BEAC /* TripAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripAttributes.swift"; sourceTree = "<group>"; };
 		F084A37211B7023A9F906223 /* WidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetSnapshot.swift"; sourceTree = "<group>"; };
+		0AC69304BE399BD369A7729E /* AccessPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessPolicyTests.swift"; sourceTree = "<group>"; };
 		BDFB0B89ACB1623A93C91C49 /* EntitlementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EntitlementTests.swift"; sourceTree = "<group>"; };
 		C5B87813E46E7FAA074042AE /* RouteFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RouteFixtures.swift"; sourceTree = "<group>"; };
 		7D05E528024AA1A7F594A935 /* FormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FormattingTests.swift"; sourceTree = "<group>"; };
@@ -204,6 +211,7 @@
 		6F10061DFC9A55731D6762AC /* PaywallUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PaywallUITests.swift"; sourceTree = "<group>"; };
 		772E7A8B996007A055835216 /* RawKeyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RawKeyUITests.swift"; sourceTree = "<group>"; };
 		8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripFlowUITests.swift"; sourceTree = "<group>"; };
+		670A6678249D2849C2BC6FA4 /* UITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITestSupport.swift"; sourceTree = "<group>"; };
 		8D7172619DB15AD08404D409 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4A32475C0821BB76773C2A37 /* MileageRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MileageRules; sourceTree = "<group>"; };
 		2E88A5130923D54E34C2E978 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -276,6 +284,15 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		869CC7A355DF00B5EB233277 /* Access */ = {
+			isa = PBXGroup;
+			children = (
+				D3177FF925968B75A0261A88 /* AccessPolicy.swift */,
+				680A7F8730B76831AE6DF07D /* InstallDateStore.swift */,
+			);
+			path = Access;
+			sourceTree = "<group>";
+		};
 		C123314F69260D6FD35AEEC5 /* Country */ = {
 			isa = PBXGroup;
 			children = (
@@ -333,6 +350,7 @@
 		35D315DEBBF45F223B169A61 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				869CC7A355DF00B5EB233277 /* Access */,
 				C123314F69260D6FD35AEEC5 /* Country */,
 				C976A5929DB90F8840BADC85 /* Debug */,
 				C8AE16C6559C217996DDF7A0 /* DesignSystem */,
@@ -562,6 +580,7 @@
 			isa = PBXGroup;
 			children = (
 				939F479E5251120C7CD6A9EF /* Fixtures */,
+				0AC69304BE399BD369A7729E /* AccessPolicyTests.swift */,
 				BDFB0B89ACB1623A93C91C49 /* EntitlementTests.swift */,
 				7D05E528024AA1A7F594A935 /* FormattingTests.swift */,
 				BFC138E8272380521D281E57 /* FrequentLocationTests.swift */,
@@ -587,6 +606,7 @@
 				6F10061DFC9A55731D6762AC /* PaywallUITests.swift */,
 				772E7A8B996007A055835216 /* RawKeyUITests.swift */,
 				8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */,
+				670A6678249D2849C2BC6FA4 /* UITestSupport.swift */,
 			);
 			path = UITests;
 			sourceTree = "<group>";
@@ -857,6 +877,8 @@
 				653ABD036BCC19A5F090068E /* MainTabView.swift in Sources */,
 				020ADF5043E5591121EA4BD5 /* MileagePocketApp.swift in Sources */,
 				89747BD45088447E6FD467BE /* RootView.swift in Sources */,
+				5C3DC335B9A9F6E534FAE8FE /* AccessPolicy.swift in Sources */,
+				16B6F9E629335424C93EE433 /* InstallDateStore.swift in Sources */,
 				E46D0B7516DC3E3796E7EC0B /* CountryCatalog.swift in Sources */,
 				47DC2F36564B3FF750CDF14B /* DemoMode.swift in Sources */,
 				1A0DBB9334581BB5FC6198D4 /* Components.swift in Sources */,
@@ -927,6 +949,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FEE178C5A0526B3AF075A11 /* AccessPolicyTests.swift in Sources */,
 				35F584CAFA7C92AB92FC187B /* EntitlementTests.swift in Sources */,
 				63FA1168F6F86336DE2D605A /* FormattingTests.swift in Sources */,
 				B77BCC1AF35F759FDE1BCF97 /* FrequentLocationTests.swift in Sources */,
@@ -953,6 +976,7 @@
 				D40B5893CDDDB9BB012E05AB /* PaywallUITests.swift in Sources */,
 				2B7B1371DC73B2FBA38EB4B1 /* RawKeyUITests.swift in Sources */,
 				D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */,
+				CFE5743C0B854222020EBF4E /* UITestSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -266,6 +266,8 @@ extension AppDependencies {
         for place in (try? context.fetch(FetchDescriptor<FrequentLocation>())) ?? [] { context.delete(place) }
         for state in (try? context.fetch(FetchDescriptor<ActiveTripState>())) ?? [] { context.delete(state) }
         try? context.save()
+        // The free period is deliberately NOT reset here: "delete my data" must not double
+        // as "give me another three days".
         refreshWidgetSnapshot()
         invalidate()
     }
@@ -294,6 +296,11 @@ extension AppDependencies {
     func subscriptionDescription() -> String {
         switch subscriptions.entitlement {
         case .none:
+            // Say how long is left rather than "no subscription": someone in their free days
+            // should not have to discover the deadline by hitting it.
+            if freePeriod.isActive() {
+                return L.plural("settings.plan.freedays", freeDaysRemaining)
+            }
             return String(localized: "settings.plan.free")
         case let .trial(productID, _):
             return String(localized: "settings.plan.trial") + " · " + planName(productID)

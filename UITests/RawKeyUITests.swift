@@ -32,10 +32,8 @@ final class RawKeyUITests: XCTestCase {
     }
 
     func testOnboardingShowsNoRawKeys() {
-        let app = XCUIApplication()
         // No `--demo`: onboarding is skipped in demo mode, and the vehicle picker lives here.
-        app.launchArguments = ["--reset-onboarding"]
-        app.launch()
+        let app = launchApp(["--reset-onboarding"])
 
         let welcome = app.staticTexts["Track every business mile."]
         XCTAssertTrue(welcome.waitForExistence(timeout: 15), "onboarding must be showing")
@@ -60,9 +58,7 @@ final class RawKeyUITests: XCTestCase {
     }
 
     func testMainTabsShowNoRawKeys() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--demo"]
-        app.launch()
+        let app = launchApp(["--demo"])
 
         XCTAssertTrue(app.buttons["Start trip"].waitForExistence(timeout: 15))
         assertNoRawKeys(in: app, screen: "home")

@@ -128,7 +128,7 @@ struct ReportsView: View {
     }
 
     private func export(_ format: ExportFormat) {
-        guard dependencies.subscriptions.canAccess(.exportReport) else {
+        guard dependencies.canAccess(.exportReport) else {
             showsPaywall = true
             return
         }

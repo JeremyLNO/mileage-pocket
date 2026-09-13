@@ -22,7 +22,7 @@ struct MileagePocketApp: App {
                 .onOpenURL { url in
                     // mileagepocket://start — the widget's Start Trip action.
                     guard url.host == "start" || url.path == "/start" else { return }
-                    if dependencies.subscriptions.canAccess(.startTrip), !dependencies.isRecording {
+                    if dependencies.canAccess(.startTrip), !dependencies.isRecording {
                         dependencies.startTrip()
                     }
                 }

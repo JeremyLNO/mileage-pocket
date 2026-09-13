@@ -154,7 +154,7 @@ struct HomeView: View {
     }
 
     private func startTrip() {
-        guard dependencies.subscriptions.canAccess(.startTrip) else {
+        guard dependencies.canAccess(.startTrip) else {
             showsPaywall = true
             return
         }

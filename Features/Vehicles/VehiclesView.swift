@@ -39,7 +39,7 @@ struct VehiclesView: View {
                 Button {
                     // The first vehicle is always free: a person with one car must be able
                     // to use the app they are evaluating.
-                    if vehicles.isEmpty || dependencies.subscriptions.canAccess(.multipleVehicles) {
+                    if vehicles.isEmpty || dependencies.canAccess(.multipleVehicles) {
                         editing = dependencies.makeVehicle()
                     } else {
                         showsPaywall = true

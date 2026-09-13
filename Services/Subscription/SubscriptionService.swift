@@ -215,8 +215,5 @@ final class SubscriptionService {
         return resolved
     }
 
-    func canAccess(_ feature: PremiumFeature) -> Bool {
-        // The demo switch exists only in DEBUG; see `DemoMode`.
-        entitlement.isActive || DemoMode.pretendsSubscribed
-    }
+
 }

@@ -69,7 +69,6 @@ final class SubscriptionTests: XCTestCase {
         let service = await makeService()
         XCTAssertEqual(service.entitlement, .none)
         XCTAssertFalse(service.entitlement.isActive)
-        XCTAssertFalse(service.canAccess(.exportReport))
     }
 
     func testPurchasingTheMonthlyPlanGrantsAccess() async throws {
@@ -80,8 +79,6 @@ final class SubscriptionTests: XCTestCase {
 
         XCTAssertTrue(service.entitlement.isActive)
         XCTAssertEqual(service.entitlement.productID, ProductIDs.monthly)
-        XCTAssertTrue(service.canAccess(.startTrip))
-        XCTAssertTrue(service.canAccess(.exportReport))
     }
 
     func testPurchasingTheAnnualPlanGrantsAccess() async throws {
@@ -140,8 +137,6 @@ final class SubscriptionTests: XCTestCase {
         await service.refreshEntitlement()
 
         XCTAssertFalse(service.entitlement.isActive)
-        XCTAssertFalse(service.canAccess(.exportReport))
-        XCTAssertFalse(service.canAccess(.startTrip))
     }
 
     /// Refund and expiry, tested on the guard itself.
@@ -180,12 +175,11 @@ final class SubscriptionTests: XCTestCase {
         XCTAssertEqual(reinstalled.entitlement.productID, ProductIDs.annual)
     }
 
-    /// Reading, exporting and deleting your own data never depends on payment. This is the
-    /// rule the whole gating design rests on, so it is asserted rather than assumed.
-    func testGatedFeaturesAreExactlyTheFourPremiumOnes() async throws {
+    /// What a purchase unlocks is `AccessPolicy`'s business, not StoreKit's — see
+    /// `AccessPolicyTests`. This suite stops at the entitlement.
+    func testNoEntitlementIsReportedWithoutAPurchase() async throws {
         let service = await makeService()
-        for feature in PremiumFeature.allCases {
-            XCTAssertFalse(service.canAccess(feature), "\(feature) must be gated without a subscription")
-        }
+        XCTAssertEqual(service.entitlement, .none)
     }
+
 }

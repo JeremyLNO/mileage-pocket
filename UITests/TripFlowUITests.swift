@@ -8,29 +8,14 @@ final class TripFlowUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    private func launchApp(_ extraArguments: [String] = []) -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments = ["--demo"] + extraArguments
-        app.launch()
-        discardAnyTripInProgress(app)
-        return app
-    }
-
-    /// A previous run that ended mid-trip leaves an active trip behind, and the app correctly
-    /// resumes it on the next launch — so the test starts by clearing one rather than
-    /// depending on a fresh install.
-    private func discardAnyTripInProgress(_ app: XCUIApplication) {
-        let stop = app.buttons["Stop trip"]
-        guard stop.waitForExistence(timeout: 3) else { return }
-        stop.tap()
-        let discard = app.buttons["Discard"]
-        if discard.waitForExistence(timeout: 15) { discard.tap() }
+    private func launchDemoApp(_ extraArguments: [String] = []) -> XCUIApplication {
+        launchApp(["--demo"] + extraArguments)
     }
 
     /// Drives the full loop. Location is fed from the outside by
     /// `xcrun simctl location … start`, which the runner script starts before this test.
     func testStartDriveStopClassifyAndSave() {
-        let app = launchApp()
+        let app = launchDemoApp()
 
         let start = app.buttons["Start trip"]
         XCTAssertTrue(start.waitForExistence(timeout: 10), "the START control must be on the first screen")
@@ -81,7 +66,7 @@ final class TripFlowUITests: XCTestCase {
     /// BUSINESS — Save is the fourth and the sheet is dismissible without it only by
     /// discarding, so four is the honest ceiling.
     func testTheDailyLoopStaysWithinItsTapBudget() {
-        let app = launchApp()
+        let app = launchDemoApp()
         var taps = 0
 
         let start = app.buttons["Start trip"]

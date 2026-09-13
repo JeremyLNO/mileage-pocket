@@ -66,7 +66,7 @@ struct TripsView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        if dependencies.subscriptions.canAccess(.manualTrip) {
+                        if dependencies.canAccess(.manualTrip) {
                             showsManualEntry = true
                         } else {
                             showsPaywall = true

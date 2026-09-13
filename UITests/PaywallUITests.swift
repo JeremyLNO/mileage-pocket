@@ -81,9 +81,7 @@ extension PaywallUITests {
     /// nothing to dismiss and the close button did nothing at all. Tapping it must land the
     /// user in the app.
     func testClosingTheOnboardingPaywallEntersTheApp() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--onboarding-step=5", "--fake-store"]
-        app.launch()
+        let app = launchApp(["--onboarding-step=5", "--fake-store"])
 
         XCTAssertTrue(
             app.staticTexts["Your mileage. Automatically documented."].waitForExistence(timeout: 15),
@@ -97,6 +95,51 @@ extension PaywallUITests {
         XCTAssertTrue(
             app.buttons["Start trip"].waitForExistence(timeout: 10),
             "closing the onboarding paywall must finish onboarding and open the app"
+        )
+    }
+}
+
+extension PaywallUITests {
+    /// A fresh install gets three days of normal use. Starting a trip must not raise the
+    /// paywall on day one — which is exactly what it did before the free period existed.
+    func testStartingATripDuringTheFreePeriodDoesNotShowThePaywall() {
+        // `--demo-data-only` seeds data and skips onboarding but leaves premium locked, so
+        // the only thing that can open the trip screen here is the free period.
+        let app = launchApp(["--demo-data-only", "--fake-store", "--reset-free-period"])
+
+        let start = app.buttons["Start trip"]
+        XCTAssertTrue(start.waitForExistence(timeout: 15))
+        start.tap()
+
+        XCTAssertTrue(
+            app.buttons["Stop trip"].waitForExistence(timeout: 10),
+            "a trip must start during the free period instead of raising the paywall"
+        )
+        XCTAssertFalse(
+            app.staticTexts["Your mileage. Automatically documented."].exists,
+            "the paywall must not appear during the free period"
+        )
+
+        // Stopped here, inline, rather than in a teardown block: the app resumes an
+        // unfinished trip on the next launch, so leaving one running breaks every test that
+        // runs after this one — which is how six of them failed at once.
+        discardTripInProgress(app)
+    }
+
+    /// Exporting is the one thing the free period does not open.
+    func testExportingDuringTheFreePeriodStillShowsThePaywall() {
+        let app = launchApp(["--demo-data-only", "--fake-store", "--reset-free-period"])
+
+        XCTAssertTrue(app.buttons["Start trip"].waitForExistence(timeout: 15))
+        app.tabBars.buttons["Reports"].tap()
+
+        let generate = app.buttons["GENERATE REPORT"]
+        XCTAssertTrue(generate.waitForExistence(timeout: 5))
+        generate.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["Your mileage. Automatically documented."].waitForExistence(timeout: 10),
+            "exporting must ask for a subscription even during the free period"
         )
     }
 }

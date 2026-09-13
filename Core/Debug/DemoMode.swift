@@ -37,6 +37,9 @@ enum DemoMode {
         CommandLine.arguments.contains("--reset-onboarding") || onboardingStep != nil
     }
 
+    /// `--reset-free-period` restarts the free days from now.
+    static var resetsFreePeriod: Bool { CommandLine.arguments.contains("--reset-free-period") }
+
     /// `--onboarding-step=3` opens the flow directly on one screen, so each can be captured
     /// without chaining timed taps through the ones before it.
     static var onboardingStep: Int? { value(forArgument: "--onboarding-step").flatMap(Int.init) }
@@ -49,6 +52,7 @@ enum DemoMode {
     static var usesBundledStoreConfiguration: Bool { false }
     static var resetsOnboarding: Bool { false }
     static var onboardingStep: Int? { nil }
+    static var resetsFreePeriod: Bool { false }
     #endif
 
     private static func value(forArgument name: String) -> String? {

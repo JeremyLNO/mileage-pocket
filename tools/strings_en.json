@@ -199,5 +199,6 @@
   "widget.month.total": "This month",
   "paywall.unavailable": "Plans are unavailable right now.",
   "paywall.retry": "Try again",
-  "settings.icloud.unavailable": "iCloud sync is not available in this build. Your trips are stored on this iPhone."
+  "settings.icloud.unavailable": "iCloud sync is not available in this build. Your trips are stored on this iPhone.",
+  "settings.plan.freedays": "%lld days of free access left"
 }
