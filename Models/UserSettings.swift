@@ -31,6 +31,16 @@ final class UserSettings {
     /// onboarding and never again: declining there meant no reminder was reachable from
     /// anywhere in the app, and accepting meant the monthly one could only be silenced by
     /// turning off every notification in iOS Settings.
+    /// Start recording by itself when the phone is plugged into CarPlay.
+    ///
+    /// Off by default: a trip that starts on its own is a trip the driver did not ask for,
+    /// and the first one has to be their decision.
+    var autoStartOnCarPlay: Bool = false
+    /// Stop when CarPlay goes away. Paired with the switch above and on by default, because
+    /// a trip that begins by itself has to be able to end by itself — otherwise the one thing
+    /// that ruins a month of records, a trip left running, is exactly what automation
+    /// produces.
+    var autoStopOnCarPlayDisconnect: Bool = true
     var tripReminderEnabled: Bool = true
     var monthlyReportReminderEnabled: Bool = true
 

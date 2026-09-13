@@ -23,6 +23,7 @@ struct SettingsView: View {
                 drivingSection
                 regionSection
                 calculationSection
+                carPlaySection
                 notificationsSection
                 dataSection
                 subscriptionSection
@@ -185,6 +186,29 @@ struct SettingsView: View {
                 // verified scale in the app, and the report will say so too.
                 Text("settings.no.official.rule")
             }
+        }
+    }
+
+    /// Starting by itself when the phone is plugged into a car.
+    ///
+    /// Two switches, not one: automatic starting without automatic stopping produces exactly
+    /// the failure this app exists to prevent — a trip left running, with a duration and an
+    /// end point that never happened.
+    private var carPlaySection: some View {
+        Section {
+            Toggle("settings.carplay.autostart", isOn: Binding(
+                get: { settings.autoStartOnCarPlay },
+                set: { settings.autoStartOnCarPlay = $0; dependencies.settingsStore.save() }
+            ))
+            Toggle("settings.carplay.autostop", isOn: Binding(
+                get: { settings.autoStopOnCarPlayDisconnect },
+                set: { settings.autoStopOnCarPlayDisconnect = $0; dependencies.settingsStore.save() }
+            ))
+            .disabled(!settings.autoStartOnCarPlay)
+        } header: {
+            Text("settings.carplay")
+        } footer: {
+            Text("settings.carplay.help")
         }
     }
 

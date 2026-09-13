@@ -37,6 +37,7 @@
 		1F7E764F9680DDE1EB6E4E71 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF49859969DDC0CEF7764AF9 /* UserSettings.swift */; };
 		FCB4E4D5DEA7BB01B1FFA1EF /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B818C09D146BCD5F0B7580A1 /* Vehicle.swift */; };
 		F5B3C6F99543D5667B701672 /* TripActivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B62112285A90F873BDF037 /* TripActivityController.swift */; };
+		F5EE5791B8102604EB998A52 /* CarConnectionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19CE3C7F2CDD43198256452A /* CarConnectionMonitor.swift */; };
 		C7E76DACAD793D46C87907B8 /* CoreLocationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5907EBEFF17B7566268C4E58 /* CoreLocationProvider.swift */; };
 		5D62252CAB003A97D406A640 /* FrequentLocationMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AE6359565F5CEF751E079F5 /* FrequentLocationMatcher.swift */; };
 		BED1DBF53392AF461AB11404 /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844A0EDD74B757B10C19582E /* GeocodingService.swift */; };
@@ -83,6 +84,7 @@
 		AF0E610812D4C691BD950FDB /* TripAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C20DA7A0342F6845231BEAC /* TripAttributes.swift */; };
 		5458DCE7E46C41FAAC383229 /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F084A37211B7023A9F906223 /* WidgetSnapshot.swift */; };
 		3FEE178C5A0526B3AF075A11 /* AccessPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC69304BE399BD369A7729E /* AccessPolicyTests.swift */; };
+		C70EB58EF292C09B456A08ED /* CarPlayAutoStartTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D0C5D24848D735C4293345 /* CarPlayAutoStartTests.swift */; };
 		499B77459AFD6C13E8B781DC /* ContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472A3B3825186444B07B5ED4 /* ContrastTests.swift */; };
 		FBEF8D99135EC76642BE559D /* CumulativeYearTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D6D8ABE5109A1FC1B2BACF /* CumulativeYearTests.swift */; };
 		5F95D0EB566F32B1E2D3B41D /* CurrencyAndUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C229FB705359905BD9890E0F /* CurrencyAndUnitTests.swift */; };
@@ -181,6 +183,7 @@
 		EF49859969DDC0CEF7764AF9 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettings.swift"; sourceTree = "<group>"; };
 		B818C09D146BCD5F0B7580A1 /* Vehicle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Vehicle.swift"; sourceTree = "<group>"; };
 		35B62112285A90F873BDF037 /* TripActivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripActivityController.swift"; sourceTree = "<group>"; };
+		19CE3C7F2CDD43198256452A /* CarConnectionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CarConnectionMonitor.swift"; sourceTree = "<group>"; };
 		5907EBEFF17B7566268C4E58 /* CoreLocationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreLocationProvider.swift"; sourceTree = "<group>"; };
 		6AE6359565F5CEF751E079F5 /* FrequentLocationMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FrequentLocationMatcher.swift"; sourceTree = "<group>"; };
 		844A0EDD74B757B10C19582E /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeocodingService.swift"; sourceTree = "<group>"; };
@@ -211,6 +214,7 @@
 		1C20DA7A0342F6845231BEAC /* TripAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripAttributes.swift"; sourceTree = "<group>"; };
 		F084A37211B7023A9F906223 /* WidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetSnapshot.swift"; sourceTree = "<group>"; };
 		0AC69304BE399BD369A7729E /* AccessPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessPolicyTests.swift"; sourceTree = "<group>"; };
+		A5D0C5D24848D735C4293345 /* CarPlayAutoStartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CarPlayAutoStartTests.swift"; sourceTree = "<group>"; };
 		472A3B3825186444B07B5ED4 /* ContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContrastTests.swift"; sourceTree = "<group>"; };
 		A5D6D8ABE5109A1FC1B2BACF /* CumulativeYearTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CumulativeYearTests.swift"; sourceTree = "<group>"; };
 		C229FB705359905BD9890E0F /* CurrencyAndUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CurrencyAndUnitTests.swift"; sourceTree = "<group>"; };
@@ -417,6 +421,7 @@
 		392F9C9696AF1E2273A73625 /* Location */ = {
 			isa = PBXGroup;
 			children = (
+				19CE3C7F2CDD43198256452A /* CarConnectionMonitor.swift */,
 				5907EBEFF17B7566268C4E58 /* CoreLocationProvider.swift */,
 				6AE6359565F5CEF751E079F5 /* FrequentLocationMatcher.swift */,
 				844A0EDD74B757B10C19582E /* GeocodingService.swift */,
@@ -622,6 +627,7 @@
 			children = (
 				939F479E5251120C7CD6A9EF /* Fixtures */,
 				0AC69304BE399BD369A7729E /* AccessPolicyTests.swift */,
+				A5D0C5D24848D735C4293345 /* CarPlayAutoStartTests.swift */,
 				472A3B3825186444B07B5ED4 /* ContrastTests.swift */,
 				A5D6D8ABE5109A1FC1B2BACF /* CumulativeYearTests.swift */,
 				C229FB705359905BD9890E0F /* CurrencyAndUnitTests.swift */,
@@ -953,6 +959,7 @@
 				1F7E764F9680DDE1EB6E4E71 /* UserSettings.swift in Sources */,
 				FCB4E4D5DEA7BB01B1FFA1EF /* Vehicle.swift in Sources */,
 				F5B3C6F99543D5667B701672 /* TripActivityController.swift in Sources */,
+				F5EE5791B8102604EB998A52 /* CarConnectionMonitor.swift in Sources */,
 				C7E76DACAD793D46C87907B8 /* CoreLocationProvider.swift in Sources */,
 				5D62252CAB003A97D406A640 /* FrequentLocationMatcher.swift in Sources */,
 				BED1DBF53392AF461AB11404 /* GeocodingService.swift in Sources */,
@@ -1006,6 +1013,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3FEE178C5A0526B3AF075A11 /* AccessPolicyTests.swift in Sources */,
+				C70EB58EF292C09B456A08ED /* CarPlayAutoStartTests.swift in Sources */,
 				499B77459AFD6C13E8B781DC /* ContrastTests.swift in Sources */,
 				FBEF8D99135EC76642BE559D /* CumulativeYearTests.swift in Sources */,
 				5F95D0EB566F32B1E2D3B41D /* CurrencyAndUnitTests.swift in Sources */,

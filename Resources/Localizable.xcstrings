@@ -7576,6 +7576,211 @@
         }
       }
     },
+    "settings.carplay": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay"
+          }
+        }
+      }
+    },
+    "settings.carplay.autostart": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fahrt automatisch starten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a trip automatically"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar un viaje automáticamente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarrer un trajet automatiquement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avviare un viaggio automaticamente"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar uma viagem automaticamente"
+          }
+        }
+      }
+    },
+    "settings.carplay.autostop": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beenden, wenn CarPlay getrennt wird"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop when CarPlay disconnects"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detener al desconectar CarPlay"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter à la déconnexion de CarPlay"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminare alla disconnessione di CarPlay"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar ao desligar o CarPlay"
+          }
+        }
+      }
+    },
+    "settings.carplay.connected": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay ist verbunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay is connected"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay está conectado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay est connecté"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CarPlay è connesso"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O CarPlay está ligado"
+          }
+        }
+      }
+    },
+    "settings.carplay.help": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Aufzeichnung startet, sobald dein iPhone mit CarPlay verbunden wird — vorausgesetzt, Mileage Pocket ist geöffnet oder läuft noch im Hintergrund; iOS startet für CarPlay keine geschlossene App. Lass den zweiten Schalter an: Was von selbst beginnt, muss auch von selbst enden können."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recording starts as soon as your iPhone connects to CarPlay, as long as Mileage Pocket is open or still running in the background — iOS does not launch a closed app for CarPlay. Leave the second switch on: a trip that starts by itself has to be able to end by itself."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La grabación empieza en cuanto tu iPhone se conecta a CarPlay, siempre que Mileage Pocket esté abierta o siga activa en segundo plano: iOS no abre una app cerrada por CarPlay. Deja activado el segundo interruptor: un viaje que empieza solo tiene que poder terminar solo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'enregistrement démarre dès que votre iPhone se connecte à CarPlay, à condition que Mileage Pocket soit ouverte ou encore active en arrière-plan — iOS ne lance pas une app fermée pour CarPlay. Laissez le second interrupteur activé : un trajet qui démarre seul doit pouvoir s'arrêter seul."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La registrazione parte appena il tuo iPhone si connette a CarPlay, purché Mileage Pocket sia aperta o ancora attiva in background: iOS non avvia un'app chiusa per CarPlay. Lascia attivo il secondo interruttore: un viaggio che parte da solo deve poter finire da solo."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A gravação começa assim que o seu iPhone se liga ao CarPlay, desde que o Mileage Pocket esteja aberto ou ainda ativo em segundo plano — o iOS não abre uma app fechada por causa do CarPlay. Deixe o segundo interruptor ligado: uma viagem que começa sozinha tem de poder terminar sozinha."
+          }
+        }
+      }
+    },
     "settings.clients": {
       "extractionState": "manual",
       "localizations": {

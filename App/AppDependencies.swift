@@ -21,6 +21,8 @@ final class AppDependencies {
     let recorder: any TripRecording
     let notifications: NotificationService
     let liveActivity: TripActivityController
+    /// Watches for the phone being plugged into a car.
+    let carConnection: any CarConnectionObserving
     let rulePackUpdater: RulePackUpdater?
 
     /// Bumped whenever a trip starts, stops or is saved. Views observe it to recompute their
@@ -84,7 +86,8 @@ final class AppDependencies {
     init(
         container: ModelContainer,
         storeHealth: StoreHealth = .healthy,
-        recorderFactory: ((ModelContext) -> any TripRecording)? = nil
+        recorderFactory: ((ModelContext) -> any TripRecording)? = nil,
+        carConnectionMonitor: (any CarConnectionObserving)? = nil
     ) {
         self.container = container
         self.storeHealth = storeHealth
@@ -109,6 +112,7 @@ final class AppDependencies {
 
         self.notifications = NotificationService()
         self.liveActivity = TripActivityController()
+        self.carConnection = carConnectionMonitor ?? CarConnectionMonitor()
         self.recorder = recorderFactory?(context) ?? TripRecorder(
             context: context,
             provider: CoreLocationProvider(),
@@ -151,11 +155,37 @@ final class AppDependencies {
         subscriptions.start()
         adoptTripInProgress()
         syncRecorderState()
+        startWatchingForCarPlay()
         exportDemoReportIfRequested()
         // Fire-and-forget: a rule pack refresh must never hold up a launch, and the endpoint
         // is not deployed yet, so failing is the expected path in V1.
         Task.detached(priority: .background) { [rulePackUpdater] in
             await rulePackUpdater?.refresh()
+        }
+    }
+
+    /// Plugging into CarPlay is the one moment the app can know a drive is beginning without
+    /// being asked. Watching costs nothing — the route is already being tracked by the
+    /// system — so the observer runs whatever the setting says; only the *action* is gated,
+    /// which is what lets the switch take effect without a relaunch.
+    private func startWatchingForCarPlay() {
+        carConnection.onChange = { [weak self] connected in
+            self?.carPlayConnectionChanged(connected)
+        }
+        carConnection.start()
+        // A launch that happens *because* the phone was plugged in arrives with the route
+        // already established, so there is no change to wait for.
+        if carConnection.isConnected { carPlayConnectionChanged(true) }
+    }
+
+    func carPlayConnectionChanged(_ connected: Bool) {
+        let settings = settingsStore.settings
+        if connected {
+            guard settings.autoStartOnCarPlay, !isRecording, canAccess(.startTrip) else { return }
+            startTrip()
+        } else {
+            guard settings.autoStartOnCarPlay, settings.autoStopOnCarPlayDisconnect, isRecording else { return }
+            stopTrip()
         }
     }
 
