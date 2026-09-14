@@ -12,8 +12,14 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<!--
+	  The product name has no space in it — it is a target name, not a brand. CFBundleName is
+	  what the system falls back to wherever CFBundleDisplayName is not consulted, so leaving
+	  it as $(PRODUCT_NAME) showed "MileagePocket" in those places while every other surface
+	  said "Mileage Pocket".
+	-->
 	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>$(APP_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

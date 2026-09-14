@@ -185,3 +185,24 @@ final class RuntimeLocalizationKeyTests: XCTestCase {
         }
     }
 }
+
+/// The app's name, everywhere the system can read it.
+///
+/// `CFBundleName` defaulted to `$(PRODUCT_NAME)` — a *target* name, with no space in it —
+/// and it is what iOS falls back to wherever `CFBundleDisplayName` is not consulted. So the
+/// home screen said "Mileage Pocket" while those places said "MileagePocket".
+final class BundleNameTests: XCTestCase {
+    func testEveryNameTheSystemReadsCarriesTheSpace() throws {
+        let info = try XCTUnwrap(Bundle.main.infoDictionary)
+        for key in ["CFBundleDisplayName", "CFBundleName"] {
+            let value = try XCTUnwrap(info[key] as? String, "\(key) is missing")
+            XCTAssertEqual(value, "Mileage Pocket", "\(key) is the brand, not the target name")
+        }
+    }
+
+    /// Apple truncates a `CFBundleName` past 15 characters.
+    func testTheNameFitsWhatTheSystemWillShow() throws {
+        let name = try XCTUnwrap(Bundle.main.infoDictionary?["CFBundleName"] as? String)
+        XCTAssertLessThanOrEqual(name.count, 15, "\(name.count) characters — iOS will cut it")
+    }
+}
