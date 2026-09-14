@@ -22,8 +22,13 @@ TEST_SOURCE_DIR = "Tests"
 UITEST_SOURCE_DIR = "UITests"
 RESOURCES_DIR = "Resources"
 
-# No third-party dependencies: Apple frameworks only, per the spec.
-SPM_PACKAGES = []
+# OneSignal is the one third-party dependency: Crazy Bee Labs announcements and
+# app-update notices. Pinned to an exact version on the Stable track — a range
+# resolves to OneSignal's "Current" track instead. Only the `OneSignalFramework`
+# product is linked (no InAppMessages / Location).
+SPM_PACKAGES = [
+    ("OneSignal-XCFramework", "https://github.com/OneSignal/OneSignal-XCFramework", "5.5.1", ["OneSignalFramework"]),
+]
 
 # One extension: widget + Live Activity live in the same WidgetBundle, which is how
 # WidgetKit expects them (a Live Activity is a widget configuration, not its own target).

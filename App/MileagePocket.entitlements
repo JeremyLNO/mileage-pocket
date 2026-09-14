@@ -3,6 +3,12 @@
 <plist version="1.0">
 <dict>
 	<!--
+	  Push (OneSignal). Enabled on the App ID, so the profile carries it. Xcode rewrites
+	  this to `production` when archiving with a distribution profile.
+	-->
+	<key>aps-environment</key>
+	<string>development</string>
+	<!--
 	  CarPlay Driving Task. Granted by Apple on 2026-09-14 and enabled on the App ID, so the
 	  provisioning profile carries it; see docs/CARPLAY-ENTITLEMENT.md.
 	-->

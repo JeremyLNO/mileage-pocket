@@ -60,6 +60,7 @@
 		6C973F6160A4D035A9B6DA58 /* RulePackUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F4A997852A3A4F8E3F22D9 /* RulePackUpdater.swift */; };
 		C2405DA2B5F1637ED93AEE9F /* RulePackVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCF59D7BFD64758C1DC6802 /* RulePackVerifier.swift */; };
 		AA45950A8F00ABB3FA128D62 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C641978A3177839EA9B97D /* NotificationService.swift */; };
+		B713F4C87EED2E1D9687162D /* OneSignalPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = D52B4C7EEA8734AC01909390 /* OneSignalPush.swift */; };
 		F28A1586F4CDBF9DDC997DB0 /* CSVExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA974A265355559AF24D166 /* CSVExporter.swift */; };
 		4FDC36D64E9CD5121991C621 /* PDFReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B3AB234FAF4698131894ED /* PDFReportRenderer.swift */; };
 		7024A5520B33DA37799F5802 /* PeriodClosing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A789AA3F2D19DD2241F63C /* PeriodClosing.swift */; };
@@ -143,6 +144,7 @@
 		D882B008C8E1D607AFA93F38 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4F3133CB82A42C2405ECFE76 /* Localizable.xcstrings */; };
 		37AD15CBB45A7E1CED670B94 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7B6FF51FE076902715B4B924 /* InfoPlist.xcstrings */; };
 		4B527C71D042567659B47598 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4F3133CB82A42C2405ECFE76 /* Localizable.xcstrings */; };
+		ADC2456E1605FD79E7C4B520 /* OneSignalFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 441CA140E443CD314CCCE1F6 /* OneSignalFramework */; };
 		53F85E2D092373A8A32EB350 /* MileageWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0FD7488223EA0E20BD335592 /* MileageWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -226,6 +228,7 @@
 		C8F4A997852A3A4F8E3F22D9 /* RulePackUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RulePackUpdater.swift"; sourceTree = "<group>"; };
 		9FCF59D7BFD64758C1DC6802 /* RulePackVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RulePackVerifier.swift"; sourceTree = "<group>"; };
 		B2C641978A3177839EA9B97D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationService.swift"; sourceTree = "<group>"; };
+		D52B4C7EEA8734AC01909390 /* OneSignalPush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalPush.swift"; sourceTree = "<group>"; };
 		1EA974A265355559AF24D166 /* CSVExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CSVExporter.swift"; sourceTree = "<group>"; };
 		A9B3AB234FAF4698131894ED /* PDFReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PDFReportRenderer.swift"; sourceTree = "<group>"; };
 		61A789AA3F2D19DD2241F63C /* PeriodClosing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeriodClosing.swift"; sourceTree = "<group>"; };
@@ -296,6 +299,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADC2456E1605FD79E7C4B520 /* OneSignalFramework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -491,6 +495,7 @@
 			isa = PBXGroup;
 			children = (
 				B2C641978A3177839EA9B97D /* NotificationService.swift */,
+				D52B4C7EEA8734AC01909390 /* OneSignalPush.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -814,6 +819,7 @@
 			);
 			name = MileagePocket;
 			packageProductDependencies = (
+				441CA140E443CD314CCCE1F6 /* OneSignalFramework */,
 			);
 			productName = MileagePocket;
 			productReference = 996AD237BC284D463E664FFE /* MileagePocket.app */;
@@ -910,6 +916,7 @@
 			);
 			mainGroup = 71DC27D9F8E3B109C877BFC4;
 			packageReferences = (
+				0E8E104B07AD9D6F5559615B /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */,
 			);
 			productRefGroup = 72A79544FC4DD10045022645 /* Products */;
 			projectDirPath = "";
@@ -964,6 +971,25 @@
 			targetProxy = BC6137B680EE998CED07CAC9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0E8E104B07AD9D6F5559615B /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/OneSignal/OneSignal-XCFramework";
+			requirement = {
+				kind = exactVersion;
+				version = 5.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		441CA140E443CD314CCCE1F6 /* OneSignalFramework */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0E8E104B07AD9D6F5559615B /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */;
+			productName = OneSignalFramework;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
 		8A6A452CEE30B0908A47D41D /* Resources */ = {
@@ -1047,6 +1073,7 @@
 				6C973F6160A4D035A9B6DA58 /* RulePackUpdater.swift in Sources */,
 				C2405DA2B5F1637ED93AEE9F /* RulePackVerifier.swift in Sources */,
 				AA45950A8F00ABB3FA128D62 /* NotificationService.swift in Sources */,
+				B713F4C87EED2E1D9687162D /* OneSignalPush.swift in Sources */,
 				F28A1586F4CDBF9DDC997DB0 /* CSVExporter.swift in Sources */,
 				4FDC36D64E9CD5121991C621 /* PDFReportRenderer.swift in Sources */,
 				7024A5520B33DA37799F5802 /* PeriodClosing.swift in Sources */,

@@ -18,6 +18,9 @@ struct MileagePocketApp: App {
         // no-op the second time.
         dependencies.bootstrap()
         _dependencies = State(initialValue: dependencies)
+        // Crazy Bee Labs announcements; inert until an App ID is configured. Trip
+        // reminders stay local and never go through OneSignal.
+        OneSignalPush.start()
     }
 
     var body: some Scene {
