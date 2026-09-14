@@ -22,6 +22,8 @@ final class TripRecorderTests: XCTestCase {
         func startUpdates() { startCount += 1 }
         func stopUpdates() { stopCount += 1 }
         func requestAlways() { requestAlwaysCount += 1 }
+        private(set) var watchStates: [Bool] = []
+        func setSignificantChangeWatch(_ enabled: Bool) { watchStates.append(enabled) }
         func emit(_ sample: LocationSample) { onSample?(sample) }
 
         /// Answers the permission prompt, the way iOS does after `startUpdates()` has

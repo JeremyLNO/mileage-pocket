@@ -15,6 +15,9 @@ protocol LocationProviding: AnyObject {
     func stopUpdates()
     var authorization: CLAuthorizationStatus { get }
     func requestAlways()
+    /// Keeps significant-change monitoring armed **between** trips, so iOS relaunches the
+    /// app when the phone starts moving and the CarPlay route can be looked at.
+    func setSignificantChangeWatch(_ enabled: Bool)
 }
 
 /// The only type in the app that touches `CLLocationManager`.
@@ -37,6 +40,9 @@ final class CoreLocationProvider: NSObject, LocationProviding {
 
     private let manager: CLLocationManager
     private var isUpdating = false
+    /// Whether a standing watch was asked for. Held separately from `isUpdating` because the
+    /// end of a trip must not take it down: that is the whole point of a *standing* watch.
+    private var wantsSignificantChangeWatch = false
 
     init(manager: CLLocationManager = CLLocationManager()) {
         self.manager = manager
@@ -80,12 +86,22 @@ final class CoreLocationProvider: NSObject, LocationProviding {
     /// recorder picks the trip back up where it stopped. Without it the drive simply ends
     /// wherever the app was killed, and the user finds out at the next launch.
     ///
-    /// It is deliberately only armed while a trip is running: monitoring it permanently is
-    /// how an app ends up in the battery report for doing nothing.
+    /// Armed during every trip, and — when the driver has asked for automatic starting —
+    /// kept armed between them as well, which is what lets iOS relaunch a closed app at the
+    /// start of a drive. See `BackgroundWatch` for who decides and what it costs.
     private func applySignificantChangeMonitoring() {
         guard manager.authorizationStatus == .authorizedAlways,
               CLLocationManager.significantLocationChangeMonitoringAvailable() else { return }
         manager.startMonitoringSignificantLocationChanges()
+    }
+
+    func setSignificantChangeWatch(_ enabled: Bool) {
+        wantsSignificantChangeWatch = enabled
+        if enabled {
+            applySignificantChangeMonitoring()
+        } else if !isUpdating {
+            manager.stopMonitoringSignificantLocationChanges()
+        }
     }
 
     /// Background delivery works under **When In Use** as well as Always.
@@ -113,7 +129,11 @@ final class CoreLocationProvider: NSObject, LocationProviding {
         guard isUpdating else { return }
         isUpdating = false
         manager.stopUpdatingLocation()
-        manager.stopMonitoringSignificantLocationChanges()
+        // Only if nobody is standing watch. Taking it down here unconditionally would undo,
+        // at the end of every trip, the very thing that lets the next one start by itself.
+        if !wantsSignificantChangeWatch {
+            manager.stopMonitoringSignificantLocationChanges()
+        }
         // Leaving this on keeps the app eligible to wake for location forever, which shows
         // up as battery drain attributed to an app that is doing nothing.
         manager.allowsBackgroundLocationUpdates = false
@@ -135,6 +155,9 @@ final class CoreLocationProvider: NSObject, LocationProviding {
             // Always may have just been granted, mid-trip.
             applySignificantChangeMonitoring()
         }
+        // …or granted while no trip is running, which is when the standing watch becomes
+        // possible at all: it is delivered under Always and under nothing else.
+        if wantsSignificantChangeWatch { applySignificantChangeMonitoring() }
         onAuthorizationChange?(status)
     }
 

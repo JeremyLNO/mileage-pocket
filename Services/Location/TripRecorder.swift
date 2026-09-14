@@ -59,6 +59,9 @@ protocol TripRecording: AnyObject {
     /// Asks for the location permission. The screen that asks does not need to know a
     /// `LocationProviding` exists.
     func requestPermission()
+    /// Arms or disarms the standing watch that lets iOS relaunch the app at the start of a
+    /// drive. Forwarded to the provider; the recorder itself has no opinion about it.
+    func setBackgroundWatch(_ enabled: Bool)
 }
 
 /// What `resumeIfNeeded()` found.
@@ -250,6 +253,10 @@ final class TripRecorder: TripRecording {
 
     func requestPermission() {
         provider.requestAlways()
+    }
+
+    func setBackgroundWatch(_ enabled: Bool) {
+        provider.setSignificantChangeWatch(enabled)
     }
 
     /// How long an in-flight row stays resumable. Past this, the app was not merely

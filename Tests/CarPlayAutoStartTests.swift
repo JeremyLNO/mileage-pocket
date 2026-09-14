@@ -67,6 +67,7 @@ final class CarPlayAutoStartTests: XCTestCase {
         func resumeIfNeeded() throws -> ResumeOutcome { .none }
         func attachPlaces(to trip: Trip) async {}
         func requestPermission() {}
+        func setBackgroundWatch(_ enabled: Bool) {}
     }
 
     private struct Rig {

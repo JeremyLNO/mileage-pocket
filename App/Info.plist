@@ -36,7 +36,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Mileage Pocket uses your location while driving to calculate the distance of your trips, including when the app is in the background.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Mileage Pocket uses your location while driving to calculate the distance of your trips, including when the app is in the background.</string>
+	<string>Allow Always so Mileage Pocket can start a trip on its own when you set off, and keep recording if iOS closes the app mid-drive. Your location is never sent anywhere.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>

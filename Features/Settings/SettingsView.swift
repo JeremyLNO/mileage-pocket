@@ -198,7 +198,9 @@ struct SettingsView: View {
         Section {
             Toggle("settings.carplay.autostart", isOn: Binding(
                 get: { settings.autoStartOnCarPlay },
-                set: { settings.autoStartOnCarPlay = $0; dependencies.settingsStore.save() }
+                // Not a plain write: switching this on is what asks for "Always" and arms the
+                // watch that lets iOS relaunch the app at the start of a drive.
+                set: { dependencies.setAutoStartOnCarPlay($0) }
             ))
             Toggle("settings.carplay.autostop", isOn: Binding(
                 get: { settings.autoStopOnCarPlayDisconnect },

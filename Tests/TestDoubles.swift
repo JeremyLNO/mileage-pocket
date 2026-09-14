@@ -23,4 +23,5 @@ final class InertRecorder: TripRecording {
     func resumeIfNeeded() throws -> ResumeOutcome { .none }
     func attachPlaces(to trip: Trip) async {}
     func requestPermission() {}
+    func setBackgroundWatch(_ enabled: Bool) {}
 }

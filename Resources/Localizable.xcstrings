@@ -7787,37 +7787,37 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Aufzeichnung startet, sobald sich Ihr iPhone mit CarPlay verbindet – sofern Mileage Pocket geöffnet oder noch im Hintergrund aktiv ist; iOS startet keine geschlossene App für CarPlay. Trennt sich das Auto, bekommt die Fahrt anderthalb Minuten, bevor sie endet: ein Anruf, Siri oder eine stockende Funkverbindung sind nicht das Ende einer Fahrt. Lassen Sie den zweiten Schalter an – eine Fahrt, die von selbst beginnt, muss von selbst enden können."
+            "value": "Mit dem Ortungszugriff „Immer“ weckt iOS Mileage Pocket, sobald Sie losfahren, und die Fahrt beginnt von selbst, sobald CarPlay verbunden ist – auch wenn die App geschlossen war. Ohne diesen Zugriff funktioniert das nur, solange die App geöffnet oder noch im Hintergrund aktiv ist. Trennt sich das Auto, bekommt die Fahrt anderthalb Minuten, bevor sie endet: ein Anruf, Siri oder eine stockende Funkverbindung sind nicht das Ende einer Fahrt. Lassen Sie den zweiten Schalter an – eine Fahrt, die von selbst beginnt, muss von selbst enden können."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recording starts as soon as your iPhone connects to CarPlay, as long as Mileage Pocket is open or still running in the background — iOS does not launch a closed app for CarPlay. When the car disconnects, the trip is given a minute and a half before it ends: a call, Siri or a wireless link that stutters is not the end of a drive. Leave the second switch on — a trip that starts by itself has to be able to end by itself."
+            "value": "With “Always” location access, iOS wakes Mileage Pocket when you start driving and the trip begins on its own as soon as CarPlay connects — even if the app was closed. Without it, this only works while the app is open or still running in the background. When the car disconnects, the trip is given a minute and a half before it ends: a call, Siri or a wireless link that stutters is not the end of a drive. Leave the second switch on — a trip that starts by itself has to be able to end by itself."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La grabación empieza en cuanto tu iPhone se conecta a CarPlay, siempre que Mileage Pocket esté abierta o siga activa en segundo plano: iOS no abre una app cerrada por CarPlay. Al desconectarse el coche, el viaje dispone de un minuto y medio antes de terminar: una llamada, Siri o un enlace inalámbrico inestable no son el final de un trayecto. Deja activado el segundo interruptor: un viaje que empieza solo tiene que poder terminar solo."
+            "value": "Con el acceso a la ubicación «Siempre», iOS despierta a Mileage Pocket cuando empiezas a conducir y el viaje arranca solo en cuanto se conecta CarPlay, aunque la app estuviera cerrada. Sin ese acceso, solo funciona mientras la app esté abierta o siga activa en segundo plano. Al desconectarse el coche, el viaje dispone de un minuto y medio antes de terminar: una llamada, Siri o un enlace inalámbrico inestable no son el final de un trayecto. Deja activado el segundo interruptor: un viaje que empieza solo tiene que poder terminar solo."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'enregistrement démarre dès que votre iPhone se connecte à CarPlay, à condition que Mileage Pocket soit ouverte ou encore active en arrière-plan — iOS ne lance pas une app fermée pour CarPlay. À la déconnexion, le trajet dispose d'une minute et demie avant de s'arrêter : un appel, Siri ou une liaison sans fil qui décroche ne sont pas la fin d'un trajet. Laissez le second interrupteur activé : un trajet qui démarre seul doit pouvoir s'arrêter seul."
+            "value": "Avec l'accès à la position « Toujours », iOS réveille Mileage Pocket quand vous prenez la route et le trajet démarre seul dès que CarPlay se connecte — même si l'app était fermée. Sans cet accès, cela ne fonctionne que si l'app est ouverte ou encore active en arrière-plan. À la déconnexion, le trajet dispose d'une minute et demie avant de s'arrêter : un appel, Siri ou une liaison sans fil qui décroche ne sont pas la fin d'un trajet. Laissez le second interrupteur activé : un trajet qui démarre seul doit pouvoir s'arrêter seul."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "La registrazione parte appena l'iPhone si collega a CarPlay, purché Mileage Pocket sia aperta o ancora attiva in background: iOS non avvia un'app chiusa per CarPlay. Alla disconnessione, il viaggio ha un minuto e mezzo prima di chiudersi: una chiamata, Siri o un collegamento wireless instabile non sono la fine di un viaggio. Lascia attivo il secondo interruttore: un viaggio che parte da solo deve poter finire da solo."
+            "value": "Con l'accesso alla posizione «Sempre», iOS riattiva Mileage Pocket quando ti metti in viaggio e il viaggio parte da solo appena CarPlay si collega, anche se l'app era chiusa. Senza quell'accesso funziona solo se l'app è aperta o ancora attiva in background. Alla disconnessione, il viaggio ha un minuto e mezzo prima di chiudersi: una chiamata, Siri o un collegamento wireless instabile non sono la fine di un viaggio. Lascia attivo il secondo interruttore: un viaggio che parte da solo deve poter finire da solo."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "A gravação começa assim que o iPhone se liga ao CarPlay, desde que a Mileage Pocket esteja aberta ou ainda ativa em segundo plano — o iOS não abre uma app fechada para o CarPlay. Quando o carro se desliga, a viagem tem um minuto e meio antes de terminar: uma chamada, a Siri ou uma ligação sem fios instável não são o fim de uma viagem. Deixe o segundo interruptor ligado: uma viagem que começa sozinha tem de poder terminar sozinha."
+            "value": "Com o acesso à localização «Sempre», o iOS acorda a Mileage Pocket quando começa a conduzir e a viagem arranca sozinha assim que o CarPlay se liga — mesmo que a app estivesse fechada. Sem esse acesso, só funciona enquanto a app estiver aberta ou ainda ativa em segundo plano. Quando o carro se desliga, a viagem tem um minuto e meio antes de terminar: uma chamada, a Siri ou uma ligação sem fios instável não são o fim de uma viagem. Deixe o segundo interruptor ligado: uma viagem que começa sozinha tem de poder terminar sozinha."
           }
         }
       }

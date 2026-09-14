@@ -155,6 +155,10 @@ final class AppDependencies {
         recorder.onAuthorizationChange = { [weak self] status in
             guard let self else { return }
             locationRefused = (status == .denied || status == .restricted) && isRecording
+            // Always may have just been granted — or withdrawn in Settings. The standing
+            // watch exists only under Always, so it is re-decided here rather than assumed
+            // from what was true at launch.
+            applyBackgroundWatch()
             syncRecorderState()
         }
         if DemoMode.seed(context: context, settings: settingsStore.settings) {
@@ -170,6 +174,7 @@ final class AppDependencies {
         adoptTripInProgress()
         syncRecorderState()
         startWatchingForCarPlay()
+        applyBackgroundWatch()
         exportDemoReportIfRequested()
         // Fire-and-forget: a rule pack refresh must never hold up a launch, and the endpoint
         // is not deployed yet, so failing is the expected path in V1.
@@ -395,7 +400,40 @@ final class AppDependencies {
             locale: localization.locale
         )
         notifications.cancelTripReminders()
+        // The trip's own use of the receiver has just been torn down; the standing watch is
+        // a separate promise and has to survive it.
+        applyBackgroundWatch()
         syncRecorderState()
+    }
+
+    /// Arms or disarms the watch that lets iOS relaunch the app at the start of a drive.
+    ///
+    /// Idempotent and called from everywhere the answer can change: launch, a permission
+    /// granted or withdrawn, the switch being flipped, the end of a trip. Cheaper to re-apply
+    /// than to reason about which of those actually moved it.
+    func applyBackgroundWatch() {
+        recorder.setBackgroundWatch(
+            BackgroundWatch.shouldWatch(
+                autoStartEnabled: settingsStore.settings.autoStartOnCarPlay,
+                authorization: recorder.authorizationStatus
+            )
+        )
+    }
+
+    /// The CarPlay automatic-start switch, with everything that hangs off it.
+    ///
+    /// Turning it on asks for **Always** when the app does not have it yet: without that
+    /// authorisation the switch keeps a promise it cannot keep — automatic starting would go
+    /// on working only while the app happened to be alive, which is exactly the complaint it
+    /// is meant to answer. The prompt is raised here, on an explicit gesture, and never at
+    /// launch.
+    func setAutoStartOnCarPlay(_ enabled: Bool) {
+        settingsStore.settings.autoStartOnCarPlay = enabled
+        settingsStore.save()
+        if enabled, recorder.authorizationStatus != .authorizedAlways {
+            recorder.requestPermission()
+        }
+        applyBackgroundWatch()
     }
 
     /// The last trip that can still be picked up where it left off, if there is one.
