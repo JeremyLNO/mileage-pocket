@@ -15,7 +15,12 @@ import OneSignalFramework
 /// own integration guidance.
 enum OneSignalPush {
     /// OneSignal App ID — onesignal.com ▸ Settings ▸ Keys & IDs. Empty = push disabled.
-    static let appID = ""
+    ///
+    /// The Crazy Bee Labs app for Mileage Pocket, whose APNs platform is active with a .p8
+    /// auth key against bundle `Mileage.lno.company`. Setting this is not only a build
+    /// change: the App Store privacy answers stop being "Data Not Collected" the moment a
+    /// push provider is live, because OneSignal holds a device token and its own identifier.
+    static let appID = "fa7b63de-cff1-4a80-9a37-c9c3a59debe7"
 
     static var isConfigured: Bool { !appID.isEmpty }
 

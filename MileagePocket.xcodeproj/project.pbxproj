@@ -111,6 +111,7 @@
 		504EA073300EB6D94E80C926 /* MileageCalculationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C9D22F98FBAA9A7C7EF9230 /* MileageCalculationTests.swift */; };
 		145EC27889B7E30012061E8D /* PeriodClosingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C6217B15913F05B13B01FC /* PeriodClosingTests.swift */; };
 		29F01CF783864F75F09713A8 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */; };
+		5661FA611A462AA277E6124B /* PushConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3AD700BC0F7109BF77C582 /* PushConfigurationTests.swift */; };
 		8A2BC6ABEBE4EC7E5ADBDC08 /* QualificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9693B15251860C95AF10C6EC /* QualificationTests.swift */; };
 		8CE47921986DAC1F3107C529 /* ReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399A886023A07C16F0DE0D2A /* ReportTests.swift */; };
 		0E860F49CCD87C75481C71AA /* RouteCompactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */; };
@@ -261,6 +262,7 @@
 		7C9D22F98FBAA9A7C7EF9230 /* MileageCalculationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileageCalculationTests.swift"; sourceTree = "<group>"; };
 		16C6217B15913F05B13B01FC /* PeriodClosingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeriodClosingTests.swift"; sourceTree = "<group>"; };
 		3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceTests.swift"; sourceTree = "<group>"; };
+		FE3AD700BC0F7109BF77C582 /* PushConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PushConfigurationTests.swift"; sourceTree = "<group>"; };
 		9693B15251860C95AF10C6EC /* QualificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QualificationTests.swift"; sourceTree = "<group>"; };
 		399A886023A07C16F0DE0D2A /* ReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReportTests.swift"; sourceTree = "<group>"; };
 		B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RouteCompactorTests.swift"; sourceTree = "<group>"; };
@@ -707,6 +709,7 @@
 				7C9D22F98FBAA9A7C7EF9230 /* MileageCalculationTests.swift */,
 				16C6217B15913F05B13B01FC /* PeriodClosingTests.swift */,
 				3DFE40D78BA8B97F13C3C19B /* PersistenceTests.swift */,
+				FE3AD700BC0F7109BF77C582 /* PushConfigurationTests.swift */,
 				9693B15251860C95AF10C6EC /* QualificationTests.swift */,
 				399A886023A07C16F0DE0D2A /* ReportTests.swift */,
 				B0880E6C365BCC9F1C45D57B /* RouteCompactorTests.swift */,
@@ -1131,6 +1134,7 @@
 				504EA073300EB6D94E80C926 /* MileageCalculationTests.swift in Sources */,
 				145EC27889B7E30012061E8D /* PeriodClosingTests.swift in Sources */,
 				29F01CF783864F75F09713A8 /* PersistenceTests.swift in Sources */,
+				5661FA611A462AA277E6124B /* PushConfigurationTests.swift in Sources */,
 				8A2BC6ABEBE4EC7E5ADBDC08 /* QualificationTests.swift in Sources */,
 				8CE47921986DAC1F3107C529 /* ReportTests.swift in Sources */,
 				0E860F49CCD87C75481C71AA /* RouteCompactorTests.swift in Sources */,

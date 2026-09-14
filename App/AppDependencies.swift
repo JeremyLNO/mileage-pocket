@@ -808,6 +808,10 @@ final class AppDependencies {
         if !(settings.notificationsEnabled && settings.tripReminderEnabled) {
             notifications.cancelTripReminders()
         }
+        // The same switch drives the remote ones. Without this, turning notifications off
+        // silenced the app's own reminders while Crazy Bee Labs announcements kept arriving
+        // — the setting would have been telling the truth about half of itself.
+        OneSignalPush.setOptedIn(settings.notificationsEnabled)
         settingsStore.save()
     }
 
