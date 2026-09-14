@@ -18,7 +18,29 @@ python3 gen_pbxproj.py
 
 xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
 xcrun simctl bootstatus "$DEVICE_ID" -b >/dev/null 2>&1 || true
+
+# The grant only sticks to an app that is *installed*. Granting first and installing second —
+# which is what this script used to do — silently does nothing on a freshly erased simulator,
+# and every UI test then meets the real system prompt instead. That failure looks nothing like
+# its cause: tests fail at unrelated interactions, in a different set each run, while the app
+# launches perfectly. It cost hours to find. So: build, install, grant, *then* test.
+if ! xcrun simctl get_app_container "$DEVICE_ID" "$BUNDLE_ID" >/dev/null 2>&1; then
+  echo "▶︎ App not installed on the simulator — building and installing it before granting."
+  xcodebuild build-for-testing \
+    -project MileagePocket.xcodeproj \
+    -scheme MileagePocket \
+    -destination "id=$DEVICE_ID" \
+    -derivedDataPath build/dd \
+    SYMROOT="$(pwd)/build/sym" >/dev/null
+  APP_PATH=$(find "$(pwd)/build/sym" -name "MileagePocket.app" -path "*-iphonesimulator*" | head -1)
+  [ -n "$APP_PATH" ] || { echo "no MileagePocket.app built — cannot grant location"; exit 1; }
+  xcrun simctl install "$DEVICE_ID" "$APP_PATH"
+fi
+
 xcrun simctl privacy "$DEVICE_ID" grant location-always "$BUNDLE_ID" 2>/dev/null || true
+# Verified rather than assumed: a grant that did not land is the whole trap above.
+xcrun simctl get_app_container "$DEVICE_ID" "$BUNDLE_ID" >/dev/null 2>&1 \
+  || echo "⚠︎ App still not installed — location permission was NOT granted; UI tests will meet the prompt."
 
 # Paris → the A6, fed for long enough to outlast the whole UI suite. Killed on exit so a
 # stale simulation cannot leak into the next run.
