@@ -359,6 +359,9 @@ final class TripRecorder: TripRecording {
             )
         }
         trip.updatedAt = endedAt
+        // Written, not qualified. What it was for is a question only the driver can answer,
+        // and a trip that never gets asked is a trip that defaults its way onto a claim.
+        trip.isReviewed = false
         if trip.modelContext == nil { context.insert(trip) }
 
         // The fixes were only ever a crash-recovery buffer; the polyline replaces them.

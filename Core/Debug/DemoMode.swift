@@ -148,6 +148,10 @@ enum DemoMode {
             trip.clientID = route.5
             trip.vehicleID = vehicle.id
             trip.countryCode = "FR"
+            // The two most recent drives arrive unqualified, the way real ones do: the demo
+            // has to show the queue that the app now opens with, not a library that has
+            // never had a trip waiting in it.
+            trip.isReviewed = index >= 2
             if let from = places[route.0], let to = places[route.1] {
                 trip.startLatitude = from.0
                 trip.startLongitude = from.1

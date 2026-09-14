@@ -33,6 +33,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMotionUsageDescription</key>
+	<string>Mileage Pocket reads the motion your iPhone already records, to notice when you start driving and open a trip on its own. It is read on the device and never sent anywhere.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Mileage Pocket uses your location while driving to calculate the distance of your trips, including when the app is in the background.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

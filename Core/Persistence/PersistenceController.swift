@@ -37,6 +37,7 @@ enum PersistenceController {
         FrequentLocation.self,
         UserSettings.self,
         ActiveTripState.self,
+        ClosedPeriod.self,
     ])
 
     /// Where SwiftData puts the default store, plus the two sidecar files SQLite keeps

@@ -60,6 +60,19 @@ final class Trip: Identifiable {
     var isManuallyEdited: Bool = false
     var isManualEntry: Bool = false
 
+    /// Whether a person has looked at this trip and said what it was.
+    ///
+    /// A trip is only worth what its classification is worth: `tripTypeRaw` has a default,
+    /// so an unqualified trip is indistinguishable from a business one on a claim. This is
+    /// what separates them.
+    ///
+    /// **The default is `true`, and deliberately.** Every row written before this property
+    /// existed decodes with it, and those trips were qualified by the only means there was
+    /// at the time — a queue that opened on day one with three years of history in it would
+    /// be abandoned in the first second. The recorder sets it to `false` explicitly for what
+    /// it writes from now on.
+    var isReviewed: Bool = true
+
     /// Simplified polyline, produced by `RouteCompactor` when the trip ends. The raw
     /// `LocationPoint` rows are deleted at that moment — keeping them would put hundreds of
     /// thousands of records into the user's CloudKit database for no readable benefit.

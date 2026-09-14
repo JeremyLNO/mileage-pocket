@@ -23,6 +23,8 @@ final class AppDependencies {
     let liveActivity: TripActivityController
     /// Watches for the phone being plugged into a car.
     let carConnection: any CarConnectionObserving
+    /// Watches for the phone's owner driving, plugged in or not.
+    let driveDetector: any DriveDetecting
     let rulePackUpdater: RulePackUpdater?
 
     /// Bumped whenever a trip starts, stops or is saved. Views observe it to recompute their
@@ -100,6 +102,7 @@ final class AppDependencies {
         storeHealth: StoreHealth = .healthy,
         recorderFactory: ((ModelContext) -> any TripRecording)? = nil,
         carConnectionMonitor: (any CarConnectionObserving)? = nil,
+        driveDetector: (any DriveDetecting)? = nil,
         now: @escaping () -> Date = { Date() }
     ) {
         self.container = container
@@ -127,6 +130,7 @@ final class AppDependencies {
         self.notifications = NotificationService()
         self.liveActivity = TripActivityController()
         self.carConnection = carConnectionMonitor ?? CarConnectionMonitor()
+        self.driveDetector = driveDetector ?? DriveDetector()
         self.recorder = recorderFactory?(context) ?? TripRecorder(
             context: context,
             provider: CoreLocationProvider(),
@@ -175,6 +179,7 @@ final class AppDependencies {
         syncRecorderState()
         startWatchingForCarPlay()
         applyBackgroundWatch()
+        applyDriveDetection()
         exportDemoReportIfRequested()
         // Fire-and-forget: a rule pack refresh must never hold up a launch, and the endpoint
         // is not deployed yet, so failing is the expected path in V1.
@@ -197,20 +202,23 @@ final class AppDependencies {
         if carConnection.isConnected { carPlayConnectionChanged(true) }
     }
 
-    /// How long the car has to stay gone before the trip it started is ended.
+    /// How long the signal has to stay gone before the trip it started is ended.
     ///
-    /// The audio route is not a seatbelt sensor. It drops for a phone call, for Siri, when
-    /// the head unit switches to radio, when a wireless link stutters at a junction — and
-    /// every one of those used to end the drive on the spot, silently, mid-motorway. Ninety
-    /// seconds covers all of them and still ends the trip while the driver is walking away
-    /// from the car.
-    static let carPlayDisconnectGrace: TimeInterval = 90
+    /// Neither signal is a seatbelt sensor. The audio route drops for a phone call, for Siri,
+    /// when the head unit switches to radio, when a wireless link stutters at a junction; the
+    /// motion classifier hesitates at every long red light. Every one of those used to end
+    /// the drive on the spot, silently, mid-motorway. Ninety seconds covers all of them and
+    /// still ends the trip while the driver is walking away from the car.
+    static let autoStopGrace: TimeInterval = 90
     /// Metres of progress during the grace period that prove the car is still driving. A
     /// stationary phone drifts by a few metres; fifty is movement.
-    static let carPlayStillDrivingMeters: Double = 50
+    static let stillDrivingMeters: Double = 50
 
-    /// Set while a disconnect is waiting to be confirmed.
-    private var pendingCarPlayStop: Task<Void, Never>?
+    /// Set while the end of a drive is waiting to be confirmed.
+    private var pendingAutoStop: Task<Void, Never>?
+    /// What the motion classifier last said, so the confirmation can ask both signals rather
+    /// than only the one that went quiet.
+    private(set) var isDrivingDetected = false
     /// Distance at the moment the car disappeared, to tell "parked" from "still driving".
     private var distanceAtDisconnect: Double = 0
     /// Whether the trip in progress was started by the car rather than by the driver.
@@ -224,52 +232,105 @@ final class AppDependencies {
         if connected {
             // Back before the grace ran out: whatever the drop was, it was not the end of the
             // drive.
-            cancelPendingCarPlayStop()
+            cancelPendingAutoStop()
             guard settings.autoStartOnCarPlay, !isRecording, canAccess(.startTrip) else { return }
             startTrip()
             // Only if it actually started: a refused permission leaves nothing running, and
             // marking it automatic would arm a stop for a trip that does not exist.
             tripWasAutoStarted = isRecording
         } else {
-            guard settings.autoStartOnCarPlay, settings.autoStopOnCarPlayDisconnect,
-                  isRecording, tripWasAutoStarted, pendingCarPlayStop == nil
-            else { return }
-            distanceAtDisconnect = recorder.currentDistanceMeters
-            pendingCarPlayStop = Task { [weak self] in
-                try? await Task.sleep(for: .seconds(Self.carPlayDisconnectGrace))
-                guard !Task.isCancelled else { return }
-                self?.confirmCarPlayStop()
-            }
+            guard settings.autoStartOnCarPlay, settings.autoStopOnCarPlayDisconnect else { return }
+            armAutoStop()
         }
     }
 
-    /// Decides, once the grace has run out, whether the car really is gone.
+    /// The motion classifier changed its mind about what its owner is doing.
+    func drivingStateChanged(_ state: DriveSignal.State) {
+        isDrivingDetected = (state == .driving)
+        guard settingsStore.settings.autoStartOnDriving else { return }
+        switch state {
+        case .driving:
+            cancelPendingAutoStop()
+            guard !isRecording, canAccess(.startTrip) else { return }
+            startTrip()
+            tripWasAutoStarted = isRecording
+        case .notDriving:
+            // Same confirmation as a head unit going quiet, and for the same reason: the
+            // classifier hesitates at long red lights, and a drive must not end at one.
+            armAutoStop()
+        case .unknown:
+            break
+        }
+    }
+
+    /// Opens the window at the end of which a self-started trip is ended, unless something
+    /// says the drive is still going.
+    private func armAutoStop() {
+        guard isRecording, tripWasAutoStarted, pendingAutoStop == nil else { return }
+        distanceAtDisconnect = recorder.currentDistanceMeters
+        pendingAutoStop = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(Self.autoStopGrace))
+            guard !Task.isCancelled else { return }
+            self?.confirmAutoStop()
+        }
+    }
+
+    /// Decides, once the grace has run out, whether the drive really is over.
     ///
     /// Internal rather than private: this is the half of the rule worth testing, and waiting
     /// ninety real seconds in a test is not a test.
-    func confirmCarPlayStop() {
-        pendingCarPlayStop = nil
-        guard isRecording, tripWasAutoStarted, !carConnection.isConnected,
-              settingsStore.settings.autoStopOnCarPlayDisconnect
-        else { return }
+    func confirmAutoStop() {
+        pendingAutoStop = nil
+        guard isRecording, tripWasAutoStarted else { return }
+        // Either signal is enough to keep the trip alive. They answer different questions —
+        // "is this phone in that car" and "is this person driving" — and a drive is over only
+        // when neither of them says otherwise.
+        guard !carConnection.isConnected, !isDrivingDetected else { return }
+        guard settingsStore.settings.autoStopOnCarPlayDisconnect else { return }
 
-        // Still covering ground with no head unit: a dropped link, not a parked car. Give it
-        // another window rather than cutting a drive in half.
-        if recorder.currentDistanceMeters - distanceAtDisconnect >= Self.carPlayStillDrivingMeters {
+        // Still covering ground with both signals quiet: a dropped link and a hesitant
+        // classifier, not a parked car. Give it another window rather than cutting a drive
+        // in half.
+        if recorder.currentDistanceMeters - distanceAtDisconnect >= Self.stillDrivingMeters {
             distanceAtDisconnect = recorder.currentDistanceMeters
-            pendingCarPlayStop = Task { [weak self] in
-                try? await Task.sleep(for: .seconds(Self.carPlayDisconnectGrace))
+            pendingAutoStop = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(Self.autoStopGrace))
                 guard !Task.isCancelled else { return }
-                self?.confirmCarPlayStop()
+                self?.confirmAutoStop()
             }
             return
         }
         stopTrip()
     }
 
-    private func cancelPendingCarPlayStop() {
-        pendingCarPlayStop?.cancel()
-        pendingCarPlayStop = nil
+    private func cancelPendingAutoStop() {
+        pendingAutoStop?.cancel()
+        pendingAutoStop = nil
+    }
+
+    /// Starts or stops watching the motion classifier, according to the switch and to what
+    /// the hardware offers. Idempotent, like the background watch.
+    func applyDriveDetection() {
+        guard settingsStore.settings.autoStartOnDriving, driveDetector.isAvailable else {
+            driveDetector.stop()
+            return
+        }
+        driveDetector.onChange = { [weak self] state in self?.drivingStateChanged(state) }
+        driveDetector.start()
+    }
+
+    /// The switch that lets a trip begin in any car, not only one with CarPlay.
+    func setAutoStartOnDriving(_ enabled: Bool) {
+        settingsStore.settings.autoStartOnDriving = enabled
+        settingsStore.save()
+        if enabled, recorder.authorizationStatus != .authorizedAlways {
+            // Same reason as the CarPlay switch: without Always the app is not woken at the
+            // start of a drive, and the detector only ever sees the drives it was already
+            // awake for.
+            recorder.requestPermission()
+        }
+        applyBackgroundWatch()
+        applyDriveDetection()
     }
 
     /// Picks up whatever the last run left behind.
@@ -364,7 +425,7 @@ final class AppDependencies {
     func stopTrip() {
         let startedAt = recorder.startedAt ?? now()
         let unit = settingsStore.settings.distanceUnit
-        cancelPendingCarPlayStop()
+        cancelPendingAutoStop()
         tripWasAutoStarted = false
 
         do {
@@ -412,9 +473,12 @@ final class AppDependencies {
     /// granted or withdrawn, the switch being flipped, the end of a trip. Cheaper to re-apply
     /// than to reason about which of those actually moved it.
     func applyBackgroundWatch() {
+        let settings = settingsStore.settings
         recorder.setBackgroundWatch(
             BackgroundWatch.shouldWatch(
-                autoStartEnabled: settingsStore.settings.autoStartOnCarPlay,
+                // Either switch needs it: the watch is what wakes a closed app at the start
+                // of a drive, and both signals are read only once the app is awake.
+                autoStartEnabled: settings.autoStartOnCarPlay || settings.autoStartOnDriving,
                 authorization: recorder.authorizationStatus
             )
         )
@@ -507,6 +571,8 @@ final class AppDependencies {
     func finishTrip(_ trip: Trip) {
         applyCalculation(to: trip)
         learnDestination(from: trip)
+        // Someone has now said what this was: it leaves the queue.
+        trip.isReviewed = true
         trip.updatedAt = .now
         try? context.save()
         recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)

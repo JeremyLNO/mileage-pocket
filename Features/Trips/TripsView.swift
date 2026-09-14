@@ -25,6 +25,42 @@ struct TripsView: View {
             }
     }
 
+    /// Trips recorded and never qualified. Derived from the live query so a trip that
+    /// leaves the queue makes the banner shrink under the thumb that emptied it.
+    private var awaitingReview: [Trip] {
+        trips.filter { !$0.isReviewed && $0.endedAt != nil }
+    }
+
+    /// One line at the top of the list, and only when there is something in it. It is an
+    /// entrance, not a copy: showing the trips here as well as in their own date section
+    /// would make one drive look like two.
+    @ViewBuilder
+    private var reviewBanner: some View {
+        if !awaitingReview.isEmpty {
+            Button {
+                path.append(ReviewQueueRoute())
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "questionmark.circle.fill")
+                        .foregroundStyle(Theme.signal)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(verbatim: L.format("trips.review.count", awaitingReview.count))
+                            .scaledFont(16, relativeTo: .body, weight: .semibold)
+                            .foregroundStyle(Theme.textPrimary)
+                        Text("trips.review.subtitle")
+                            .scaledFont(13, relativeTo: .footnote)
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(Theme.textSecondary)
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("reviewQueueBanner")
+        }
+    }
+
     var body: some View {
         NavigationStack(path: $path) {
             Group {
@@ -37,6 +73,7 @@ struct TripsView: View {
                     .frame(maxHeight: .infinity)
                 } else {
                     List {
+                        reviewBanner
                         ForEach(TripGrouping.group(filtered), id: \.0) { section, sectionTrips in
                             Section(LocalizedStringKey(section.titleKey)) {
                                 ForEach(sectionTrips) { trip in
@@ -50,6 +87,7 @@ struct TripsView: View {
                     .listStyle(.insetGrouped)
                 }
             }
+            .navigationDestination(for: ReviewQueueRoute.self) { _ in ReviewQueueView() }
             .navigationDestination(for: Trip.ID.self) { id in
                 if let trip = filtered.first(where: { $0.id == id }) {
                     TripDetailView(trip: trip)
@@ -93,6 +131,10 @@ struct TripsView: View {
         }
     }
 }
+
+/// Route marker for the qualification queue. A type of its own rather than a boolean, so
+/// the navigation stack keeps one meaning per value.
+private struct ReviewQueueRoute: Hashable {}
 
 private struct TripRow: View {
     let trip: Trip

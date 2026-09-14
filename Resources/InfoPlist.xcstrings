@@ -2,6 +2,47 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
+    "NSLocationAlwaysAndWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaube „Immer“, damit Mileage Pocket eine Fahrt von selbst starten kann, wenn du losfährst, und weiter aufzeichnet, falls iOS die App unterwegs beendet. Dein Standort wird nirgendwohin gesendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Always so Mileage Pocket can start a trip on its own when you set off, and keep recording if iOS closes the app mid-drive. Your location is never sent anywhere."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite «Siempre» para que Mileage Pocket pueda iniciar un viaje por sí sola cuando te pones en marcha y siga registrando si iOS cierra la app durante el trayecto. Tu ubicación nunca se envía a ningún sitio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisez « Toujours » pour que Mileage Pocket puisse démarrer un trajet seule quand vous prenez la route, et continuer d'enregistrer si iOS ferme l'app en cours de route. Votre position n'est jamais transmise."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti «Sempre» così Mileage Pocket può avviare un viaggio da sola quando parti e continuare a registrare se iOS chiude l'app durante il tragitto. La tua posizione non viene mai inviata da nessuna parte."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permita «Sempre» para que o Mileage Pocket possa iniciar uma viagem sozinho quando se puser a caminho e continuar a registar se o iOS fechar a app a meio do percurso. A sua localização nunca é enviada para lado nenhum."
+          }
+        }
+      }
+    },
     "NSLocationWhenInUseUsageDescription": {
       "extractionState": "manual",
       "localizations": {
@@ -43,43 +84,43 @@
         }
       }
     },
-    "NSLocationAlwaysAndWhenInUseUsageDescription": {
+    "NSMotionUsageDescription": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erlaube „Immer“, damit Mileage Pocket eine Fahrt von selbst starten kann, wenn du losfährst, und weiter aufzeichnet, falls iOS die App unterwegs beendet. Dein Standort wird nirgendwohin gesendet."
+            "value": "Mileage Pocket liest die Bewegungsdaten, die dein iPhone ohnehin erfasst, um zu bemerken, dass du losfährst, und eine Fahrt von selbst zu starten. Sie werden auf dem Gerät gelesen und nirgendwohin gesendet."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allow Always so Mileage Pocket can start a trip on its own when you set off, and keep recording if iOS closes the app mid-drive. Your location is never sent anywhere."
+            "value": "Mileage Pocket reads the motion your iPhone already records, to notice when you start driving and open a trip on its own. It is read on the device and never sent anywhere."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Permite «Siempre» para que Mileage Pocket pueda iniciar un viaje por sí sola cuando te pones en marcha y siga registrando si iOS cierra la app durante el trayecto. Tu ubicación nunca se envía a ningún sitio."
+            "value": "Mileage Pocket lee el movimiento que tu iPhone ya registra para darse cuenta de que empiezas a conducir y abrir un viaje por sí sola. Se lee en el dispositivo y nunca se envía a ningún sitio."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Autorisez « Toujours » pour que Mileage Pocket puisse démarrer un trajet seule quand vous prenez la route, et continuer d'enregistrer si iOS ferme l'app en cours de route. Votre position n'est jamais transmise."
+            "value": "Mileage Pocket lit les mouvements que votre iPhone enregistre déjà, pour remarquer que vous prenez la route et ouvrir un trajet toute seule. C'est lu sur l'appareil et jamais transmis."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Consenti «Sempre» così Mileage Pocket può avviare un viaggio da sola quando parti e continuare a registrare se iOS chiude l'app durante il tragitto. La tua posizione non viene mai inviata da nessuna parte."
+            "value": "Mileage Pocket legge il movimento che il tuo iPhone registra già, per accorgersi che ti stai mettendo in viaggio e aprire un viaggio da sola. Viene letto sul dispositivo e non viene mai inviato altrove."
           }
         },
         "pt": {
           "stringUnit": {
             "state": "translated",
-            "value": "Permita «Sempre» para que o Mileage Pocket possa iniciar uma viagem sozinho quando se puser a caminho e continuar a registar se o iOS fechar a app a meio do percurso. A sua localização nunca é enviada para lado nenhum."
+            "value": "O Mileage Pocket lê o movimento que o seu iPhone já regista, para notar que se pôs a caminho e abrir uma viagem sozinho. É lido no dispositivo e nunca é enviado para lado nenhum."
           }
         }
       }

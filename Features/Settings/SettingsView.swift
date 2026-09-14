@@ -206,7 +206,15 @@ struct SettingsView: View {
                 get: { settings.autoStopOnCarPlayDisconnect },
                 set: { settings.autoStopOnCarPlayDisconnect = $0; dependencies.settingsStore.save() }
             ))
-            .disabled(!settings.autoStartOnCarPlay)
+            .disabled(!settings.autoStartOnCarPlay && !settings.autoStartOnDriving)
+            // Offered only where the coprocessor exists to answer it. A switch that can do
+            // nothing is worse than no switch.
+            if dependencies.driveDetector.isAvailable {
+                Toggle("settings.driving.autostart", isOn: Binding(
+                    get: { settings.autoStartOnDriving },
+                    set: { dependencies.setAutoStartOnDriving($0) }
+                ))
+            }
         } header: {
             Text("settings.carplay")
         } footer: {

@@ -6838,6 +6838,252 @@
         }
       }
     },
+    "reports.close.action": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Zeitraum abschließen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close this period"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar este periodo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clôturer cette période"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiudi questo periodo"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fechar este período"
+          }
+        }
+      }
+    },
+    "reports.close.blocked": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d Fahrten sind noch einzuordnen. Eine damit eingereichte Abrechnung trüge den Standardwert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d trips still to qualify. A claim filed with them would carry whatever the default was."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quedan %d viajes por clasificar. Una nota presentada con ellos llevaría el valor por defecto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d trajets encore à qualifier. Une note déposée avec eux porterait la valeur par défaut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restano %d viaggi da classificare. Una nota presentata con essi porterebbe il valore predefinito."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faltam classificar %d viagens. Uma nota entregue com elas levaria o valor predefinido."
+          }
+        }
+      }
+    },
+    "reports.close.changed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seit dem Abschluss um %@ verändert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changed by %@ since it was filed."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ha cambiado %@ desde el cierre."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifiée de %@ depuis la clôture."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variato di %@ dalla chiusura."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterado em %@ desde o fecho."
+          }
+        }
+      }
+    },
+    "reports.close.closed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abgeschlossen am %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filed on %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrado el %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clôturée le %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiuso il %@"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fechado a %@"
+          }
+        }
+      }
+    },
+    "reports.close.reopen": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitraum wieder öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Re-open the period"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabrir el periodo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rouvrir la période"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riapri il periodo"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reabrir o período"
+          }
+        }
+      }
+    },
+    "reports.close.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abschluss"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closing"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cierre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clôture"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiusura"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fecho"
+          }
+        }
+      }
+    },
     "reports.csv": {
       "extractionState": "manual",
       "localizations": {
@@ -7449,6 +7695,170 @@
           "stringUnit": {
             "state": "translated",
             "value": "Viagens de trabalho"
+          }
+        }
+      }
+    },
+    "review.empty.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jede aufgezeichnete Fahrt wurde als geschäftlich oder privat eingeordnet. Es wartet nichts."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every recorded trip has been said to be business or personal. Nothing is waiting."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada viaje registrado se ha declarado profesional o personal. No queda nada pendiente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque trajet enregistré a été déclaré professionnel ou personnel. Rien n'attend."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni viaggio registrato è stato dichiarato di lavoro o personale. Non c'è nulla in attesa."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada viagem registada foi declarada profissional ou pessoal. Não há nada à espera."
+          }
+        }
+      }
+    },
+    "review.empty.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles ist eingeordnet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything is qualified"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo está clasificado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout est qualifié"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "È tutto classificato"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Está tudo classificado"
+          }
+        }
+      }
+    },
+    "review.hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Fahrt, die niemand einordnet, landet trotzdem in der Abrechnung – mit dem Standardwert, welcher auch immer das war. Tippe die Fahrt an, um Kunde oder Zweck zu ergänzen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A trip nobody qualifies still goes onto the claim — as whatever the default happened to be. Tap the trip itself to add a client or a purpose."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un viaje que nadie clasifica acaba igualmente en la nota de gastos, con el valor por defecto que hubiera. Toca el viaje para añadir un cliente o un motivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un trajet que personne ne qualifie part quand même sur la note de frais — avec la valeur par défaut, quelle qu'elle soit. Touchez le trajet pour ajouter un client ou un motif."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un viaggio che nessuno classifica finisce comunque nella nota spese, con il valore predefinito qualunque esso sia. Tocca il viaggio per aggiungere un cliente o un motivo."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma viagem que ninguém classifica vai à mesma para a nota de despesas — com o valor predefinido, seja ele qual for. Toque na viagem para juntar um cliente ou um motivo."
+          }
+        }
+      }
+    },
+    "review.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einzuordnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To qualify"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por clasificar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À qualifier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da classificare"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por classificar"
           }
         }
       }
@@ -8269,6 +8679,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "Condução"
+          }
+        }
+      }
+    },
+    "settings.driving.autostart": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starten, wenn ich fahre"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start when I'm driving"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar cuando conduzco"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarrer quand je conduis"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avvia quando guido"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar quando estou a conduzir"
           }
         }
       }
@@ -10149,6 +10600,47 @@
         }
       }
     },
+    "summary.pattern": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorausgefüllt anhand Ihrer letzten Fahrt auf dieser Strecke."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pre-filled from the last time you drove this route."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rellenado a partir de la última vez que hiciste este trayecto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pré-rempli d'après la dernière fois que vous avez fait ce trajet."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Precompilato in base all'ultima volta che hai fatto questo percorso."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preenchido a partir da última vez que fez este percurso."
+          }
+        }
+      }
+    },
     "summary.project": {
       "extractionState": "manual",
       "localizations": {
@@ -10965,6 +11457,88 @@
           "stringUnit": {
             "state": "translated",
             "value": "Todas as viagens"
+          }
+        }
+      }
+    },
+    "trips.review.count": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d Fahrten einzuordnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d trips to qualify"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d viajes por clasificar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d trajets à qualifier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d viaggi da classificare"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d viagens por classificar"
+          }
+        }
+      }
+    },
+    "trips.review.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geschäftlich oder privat – je zwei Tipps"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Business or personal — two taps each"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profesional o personal: dos toques cada uno"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Professionnel ou personnel — deux appuis chacun"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lavoro o personale: due tocchi ciascuno"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profissional ou pessoal — dois toques cada"
           }
         }
       }

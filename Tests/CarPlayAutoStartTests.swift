@@ -122,7 +122,7 @@ final class CarPlayAutoStartTests: XCTestCase {
         XCTAssertEqual(rig.recorder.stopCount, 0, "a dropped link is not a parked car")
         XCTAssertTrue(rig.dependencies.isRecording)
 
-        rig.dependencies.confirmCarPlayStop()
+        rig.dependencies.confirmAutoStop()
 
         XCTAssertEqual(rig.recorder.stopCount, 1, "a trip that starts by itself has to end by itself")
         XCTAssertFalse(rig.dependencies.isRecording)
@@ -136,7 +136,7 @@ final class CarPlayAutoStartTests: XCTestCase {
         rig.car.unplug()
         rig.car.plugIn()
 
-        rig.dependencies.confirmCarPlayStop()
+        rig.dependencies.confirmAutoStop()
 
         XCTAssertEqual(rig.recorder.stopCount, 0, "the car is right there")
         XCTAssertTrue(rig.dependencies.isRecording)
@@ -152,13 +152,13 @@ final class CarPlayAutoStartTests: XCTestCase {
         rig.car.unplug()
         rig.recorder.drive(400)
 
-        rig.dependencies.confirmCarPlayStop()
+        rig.dependencies.confirmAutoStop()
 
         XCTAssertEqual(rig.recorder.stopCount, 0, "the car is still driving")
         XCTAssertTrue(rig.dependencies.isRecording)
 
         // Parked at last: nothing moves during the next window, and the trip ends.
-        rig.dependencies.confirmCarPlayStop()
+        rig.dependencies.confirmAutoStop()
         XCTAssertEqual(rig.recorder.stopCount, 1)
     }
 
@@ -168,7 +168,7 @@ final class CarPlayAutoStartTests: XCTestCase {
         let rig = try makeRig(autoStart: true)
         rig.dependencies.startTrip()
         rig.car.unplug()
-        rig.dependencies.confirmCarPlayStop()
+        rig.dependencies.confirmAutoStop()
 
         XCTAssertEqual(rig.recorder.stopCount, 0)
         XCTAssertTrue(rig.dependencies.isRecording)
@@ -178,7 +178,7 @@ final class CarPlayAutoStartTests: XCTestCase {
         let rig = try makeRig(autoStart: true, autoStop: false)
         rig.car.plugIn()
         rig.car.unplug()
-        rig.dependencies.confirmCarPlayStop()
+        rig.dependencies.confirmAutoStop()
 
         XCTAssertEqual(rig.recorder.stopCount, 0)
         XCTAssertTrue(rig.dependencies.isRecording)
@@ -192,7 +192,7 @@ final class CarPlayAutoStartTests: XCTestCase {
         XCTAssertEqual(rig.recorder.startCount, 1)
 
         rig.car.unplug()
-        rig.dependencies.confirmCarPlayStop()
+        rig.dependencies.confirmAutoStop()
 
         XCTAssertEqual(rig.recorder.stopCount, 0, "automatic stopping belongs to automatic starting")
         XCTAssertTrue(rig.dependencies.isRecording)

@@ -41,6 +41,12 @@ final class UserSettings {
     /// that ruins a month of records, a trip left running, is exactly what automation
     /// produces.
     var autoStopOnCarPlayDisconnect: Bool = true
+    /// Start a trip when the phone decides its owner is driving, head unit or not.
+    ///
+    /// Off by default, and that is not timidity: it is the one setting that can open a trip
+    /// with nobody having touched anything, in a car the app has never seen. It has to be
+    /// asked for.
+    var autoStartOnDriving: Bool = false
     var tripReminderEnabled: Bool = true
     var monthlyReportReminderEnabled: Bool = true
 

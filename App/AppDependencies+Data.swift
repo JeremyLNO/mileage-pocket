@@ -198,12 +198,102 @@ extension AppDependencies {
         return L.string("onboarding.country.custom")
     }
 
+    // MARK: - Closing a period
+
+    /// The closing record for a period, if it has one.
+    func closedPeriod(for range: Range<Date>) -> ClosedPeriod? {
+        let periods = (try? context.fetch(FetchDescriptor<ClosedPeriod>())) ?? []
+        return periods.first { $0.covers(range) }
+    }
+
+    func closingStatus(for range: Range<Date>) -> PeriodClosing.Status {
+        let trips = (try? context.fetch(FetchDescriptor<Trip>())) ?? []
+        return PeriodClosing.status(trips: trips, range: range, closed: closedPeriod(for: range))
+    }
+
+    /// Files the period: what it was worth, at this moment, in one row.
+    ///
+    /// Refuses while trips in it are unqualified — a claim containing drives nobody has
+    /// answered for is the thing the queue exists to prevent, and letting the closing screen
+    /// walk past it would make both features pointless.
+    @discardableResult
+    func closePeriod(_ range: Range<Date>) -> Bool {
+        let status = closingStatus(for: range)
+        guard status.canClose else { return false }
+
+        let trips = ((try? context.fetch(FetchDescriptor<Trip>())) ?? [])
+            .filter { $0.endedAt != nil && range.contains($0.startedAt) }
+        let amount = trips.compactMap(\.calculatedAmount).reduce(Decimal(0), +)
+        context.insert(ClosedPeriod(
+            startedAt: range.lowerBound,
+            endedAt: range.upperBound,
+            closedAt: .now,
+            distanceMeters: trips.reduce(0) { $0 + $1.distanceMeters },
+            amount: amount,
+            currencyCode: trips.compactMap(\.currencyCode).first ?? settingsStore.settings.currencyCode,
+            tripCount: trips.count
+        ))
+        try? context.save()
+        invalidate()
+        return true
+    }
+
+    /// Re-opens a filed period. The record is removed rather than kept as history: a period
+    /// that is closed twice would otherwise leave two witnesses disagreeing about what was
+    /// filed, and the one that matters is the last.
+    func reopenPeriod(_ range: Range<Date>) {
+        guard let period = closedPeriod(for: range) else { return }
+        context.delete(period)
+        try? context.save()
+        invalidate()
+    }
+
     // MARK: - Smart destinations
 
     func suggestedDestination(for trip: Trip) -> FrequentLocation? {
         guard let latitude = trip.endLatitude, let longitude = trip.endLongitude else { return nil }
         let known = (try? context.fetch(FetchDescriptor<FrequentLocation>())) ?? []
         return FrequentLocationMatcher.match(latitude: latitude, longitude: longitude, in: known)
+    }
+
+    /// What the last identical journey was, for a trip that has just ended.
+    ///
+    /// Reads the history rather than a learned table: a pattern that cannot drift from the
+    /// trips it summarises is one nobody has to maintain.
+    func pattern(for trip: Trip) -> TripPatternMatcher.Pattern? {
+        guard let startLatitude = trip.startLatitude, let startLongitude = trip.startLongitude,
+              let endLatitude = trip.endLatitude, let endLongitude = trip.endLongitude
+        else { return nil }
+        let trips = (try? context.fetch(FetchDescriptor<Trip>())) ?? []
+        return TripPatternMatcher.match(
+            start: (startLatitude, startLongitude),
+            end: (endLatitude, endLongitude),
+            excluding: trip.id,
+            in: trips
+        )
+    }
+
+    /// Trips that have been recorded and never qualified, newest first.
+    var tripsAwaitingReview: [Trip] {
+        let descriptor = FetchDescriptor<Trip>(sortBy: [SortDescriptor(\.startedAt, order: .reverse)])
+        return ((try? context.fetch(descriptor)) ?? []).filter { !$0.isReviewed && $0.endedAt != nil }
+    }
+
+    /// Qualifies a trip from the queue, in one gesture.
+    ///
+    /// Everything the summary sheet does on Save, minus the sheet: the type decides what the
+    /// trip is worth, a tiered scale makes that ripple through the rest of the year, and the
+    /// destination is learned from a trip whose classification is now a real answer.
+    func reviewTrip(_ trip: Trip, as type: TripType) {
+        trip.tripType = type
+        trip.isReviewed = true
+        trip.updatedAt = .now
+        applyCalculation(to: trip)
+        learnDestination(from: trip)
+        try? context.save()
+        recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)
+        refreshWidgetSnapshot()
+        invalidate()
     }
 
     func learnDestination(from trip: Trip) {

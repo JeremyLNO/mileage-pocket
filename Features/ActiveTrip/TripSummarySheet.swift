@@ -22,6 +22,10 @@ struct TripSummarySheet: View {
     @State private var clientName: String = ""
     @State private var projectName: String = ""
     @State private var suggestion: FrequentLocation?
+    /// The last identical journey, when there was one. Kept so the sheet can say where its
+    /// pre-filled answers come from: a suggestion that names its source is one the driver
+    /// can judge in a second, and overrule.
+    @State private var pattern: TripPatternMatcher.Pattern?
     @State private var showsDiscardConfirmation = false
 
     @Query(sort: \Client.lastUsedAt, order: .reverse) private var clients: [Client]
@@ -35,6 +39,7 @@ struct TripSummarySheet: View {
                 VStack(spacing: 22) {
                     routeMap
                     figures
+                    patternBanner
                     classification
                     if tripType == .business {
                         suggestionBanner
@@ -188,6 +193,21 @@ struct TripSummarySheet: View {
     }
 
     @ViewBuilder
+    private var patternBanner: some View {
+        if let pattern {
+            HStack(spacing: 10) {
+                Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90")
+                Text(verbatim: L.format("summary.pattern", pattern.occurrences))
+                    .scaledFont(14, relativeTo: .footnote, weight: .medium)
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(Theme.textSecondary)
+            .padding(.horizontal, 2)
+            .accessibilityIdentifier("patternBanner")
+        }
+    }
+
+    @ViewBuilder
     private var suggestionBanner: some View {
         if let suggestion, let name = suggestionLabel(suggestion) {
             Button {
@@ -293,6 +313,28 @@ struct TripSummarySheet: View {
         suggestion = dependencies.suggestedDestination(for: trip)
         if let suggestion {
             purpose = suggestion.purpose ?? ""
+        }
+        applyPattern()
+    }
+
+    /// Fills the sheet from the last identical journey, when there was one.
+    ///
+    /// It pre-fills; it does not decide. Everything stays editable and the driver still
+    /// presses Save — a line on a document sent to a tax authority is a statement someone
+    /// makes, not one an app makes on their behalf. What it removes is the retyping, which
+    /// is the whole reason trips end up unqualified.
+    private func applyPattern() {
+        guard let pattern = dependencies.pattern(for: trip) else { return }
+        self.pattern = pattern
+        tripType = pattern.tripType
+        if let purpose = pattern.purpose, self.purpose.isEmpty { self.purpose = purpose }
+        if let clientID = pattern.clientID, clientName.isEmpty,
+           let client = clients.first(where: { $0.id == clientID }) {
+            clientName = client.name
+        }
+        if let projectID = pattern.projectID, projectName.isEmpty,
+           let project = projects.first(where: { $0.id == projectID }) {
+            projectName = project.name
         }
     }
 

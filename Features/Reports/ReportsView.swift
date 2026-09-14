@@ -69,6 +69,7 @@ struct ReportsView: View {
                 VStack(spacing: 20) {
                     periodPicker
                     summary
+                    closingCard
                     exportButtons
                 }
                 .padding(20)
@@ -83,6 +84,74 @@ struct ReportsView: View {
                 Button("common.ok", role: .cancel) {}
             } message: {
                 Text("export.failed.message")
+            }
+        }
+    }
+
+    /// Closing the period: the one gesture that turns a list of drives into a claim someone
+    /// has filed.
+    ///
+    /// It refuses while trips in the period are unqualified — and says how many, with the way
+    /// to go and answer them. Afterwards it keeps showing what the period was worth when it
+    /// was filed, so a later correction is visible rather than silent.
+    @ViewBuilder
+    private var closingCard: some View {
+        let status = dependencies.closingStatus(for: period.range())
+        if status.tripCount > 0 || status.isClosed {
+            Card {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("reports.close.title").eyebrowStyle()
+
+                    if let closedAt = status.closedAt {
+                        Label {
+                            Text(verbatim: L.format(
+                                "reports.close.closed",
+                                closedAt.formatted(date: .abbreviated, time: .shortened)
+                            ))
+                        } icon: {
+                            Image(systemName: "checkmark.seal.fill").foregroundStyle(Theme.business)
+                        }
+                        .scaledFont(15, relativeTo: .subheadline, weight: .medium)
+
+                        if let drift = status.drift {
+                            Label {
+                                Text(verbatim: L.format(
+                                    "reports.close.changed",
+                                    Fmt.distance(meters: abs(drift), unit: settings.distanceUnit, locale: locale)
+                                ))
+                            } icon: {
+                                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Theme.signal)
+                            }
+                            .scaledFont(14, relativeTo: .footnote)
+                            .foregroundStyle(Theme.textSecondary)
+                        }
+
+                        Button("reports.close.reopen") { dependencies.reopenPeriod(period.range()) }
+                            .scaledFont(15, relativeTo: .subheadline, weight: .semibold)
+                            .foregroundStyle(Theme.signal)
+                    } else if status.unqualifiedCount > 0 {
+                        Label {
+                            Text(verbatim: L.format("reports.close.blocked", status.unqualifiedCount))
+                        } icon: {
+                            Image(systemName: "questionmark.circle.fill").foregroundStyle(Theme.signal)
+                        }
+                        .scaledFont(15, relativeTo: .subheadline, weight: .medium)
+                        .foregroundStyle(Theme.textSecondary)
+                    } else {
+                        Button {
+                            dependencies.closePeriod(period.range())
+                        } label: {
+                            Label("reports.close.action", systemImage: "checkmark.seal")
+                                .scaledFont(16, relativeTo: .body, weight: .semibold)
+                                .foregroundStyle(Theme.business)
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .background(Theme.business.opacity(0.14), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("closePeriod")
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
