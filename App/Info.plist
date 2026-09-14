@@ -45,8 +45,27 @@
 	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
+		<!--
+		  Multiple scenes has to be true for CarPlay: the car's screen is a second scene
+		  alongside the phone's. Only the CarPlay role is declared — SwiftUI still builds
+		  the window scene from `WindowGroup` on its own.
+		-->
 		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
+		<true/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>CPTemplateApplicationSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>CPTemplateApplicationScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>MileagePocketCarPlay</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).CarPlaySceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
 	</dict>
 	<key>UIBackgroundModes</key>
 	<array>

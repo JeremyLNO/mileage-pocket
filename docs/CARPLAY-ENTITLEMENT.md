@@ -1,11 +1,27 @@
 # CarPlay Driving Task — demande d'entitlement
 
-Apple accorde `com.apple.developer.carplay-driving-task` **par app**, à la main, via
+Apple accorde `com.apple.developer.carplay-driving-task` **au compte**, à la main, via
 <https://developer.apple.com/contact/carplay/>. Il n'y a pas d'API : le formulaire est
 derrière une authentification Apple Developer et doit être soumis par le titulaire du compte.
 
-**Demandée le 2026-09-14** — réponse d'Apple : « Thank you for your submission. We'll review
-your request and contact you soon with a status update. » En attente.
+> Le dossier Dashcam disait « par app ». C'est faux : le mail d'Apple dit *« assigned to your
+> account, and you can now configure this capability for eligible apps »*, et la capability
+> apparaît ensuite sur tous les App ID du compte, à cocher un par un.
+
+**Demandée et accordée le 2026-09-14**, une vingtaine de minutes plus tard. Activée dans la
+foulée sur `Mileage.lno.company`.
+
+## Activer sur un App ID
+
+CarPlay est une **managed capability** : absente de l'énumération acceptée par
+`POST /v1/bundleIdCapabilities`, elle ne s'active que dans le portail — Identifiers → l'App
+ID → *CarPlay Driving Task App* → Save → Confirm. L'API la **lit** ensuite très bien
+(`CARPLAY_DRIVING_TASK`), ce qui est ce que vérifie le guetteur.
+
+⚠️ Cocher une capability **invalide les profils de provisionnement** qui portent cet App ID ;
+ils doivent être régénérés. La Release étant signée en manuel
+(`PROVISIONING_PROFILE_SPECIFIER = "MileagePocket AppStore"`), c'est `-allowProvisioningUpdates`
+au moment de l'archive qui retélécharge le profil à jour.
 
 ⚠️ **Le volet Driving Task ne demande aucune description, ni même le nom de l'app.** Les
 champs « Tell us about your app » et « What specific CarPlay features do you plan to
@@ -51,17 +67,15 @@ si Apple demande des précisions par mail.
 > The entitlement is what makes it reliable — and what lets a driver who prefers to decide
 > for themselves press one button on the car's screen instead of picking up their phone.
 
-## Guetteur
-
-Un droit accordé apparaît comme capacité sur l'App ID :
+## Garde-fou
 
 ```bash
 python3 tools/check-carplay-entitlement.py
 ```
 
-⚠️ **Il ne peut annoncer qu'un oui, jamais un non.** Un refus ne laisse aucune trace dans
-l'API et arrive uniquement par mail à jeremy@k-b.so. Ne jamais lire « pas de capacité
-CarPlay » comme un refus.
+Sort en 0 tant que `CARPLAY_DRIVING_TASK` est sur l'App ID, en 1 sinon. L'entitlement est
+déclaré dans `App/MileagePocket.entitlements` : si la capability disparaît, ce n'est pas la
+compilation qui casse, c'est la **signature** — et le message d'Xcode ne nomme pas la cause.
 
 Référence au 2026-09-14 : `Mileage.lno.company` porte `APP_GROUPS`, `ICLOUD`,
 `IN_APP_PURCHASE`, `PUSH_NOTIFICATIONS`. Aucune capacité CarPlay, ni ici ni sur

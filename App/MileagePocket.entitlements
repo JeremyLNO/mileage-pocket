@@ -3,6 +3,12 @@
 <plist version="1.0">
 <dict>
 	<!--
+	  CarPlay Driving Task. Granted by Apple on 2026-09-14 and enabled on the App ID, so the
+	  provisioning profile carries it; see docs/CARPLAY-ENTITLEMENT.md.
+	-->
+	<key>com.apple.developer.carplay-driving-task</key>
+	<true/>
+	<!--
 	  iCloud (com.apple.developer.icloud-*) and the App Group are intentionally absent from
 	  this build.
 

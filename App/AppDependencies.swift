@@ -97,6 +97,15 @@ final class AppDependencies {
     /// tested without waiting them out in real seconds.
     private let now: () -> Date
 
+    /// The one live instance, for the scene delegates UIKit builds by itself.
+    ///
+    /// The whole app is otherwise wired by injection — views never reach for a shared
+    /// anything, which is what lets every service be swapped in tests. `CPTemplateApplicationScene`
+    /// breaks that: UIKit instantiates the delegate from the Info.plist and there is no seam
+    /// to pass anything through. This is the escape hatch for that single case, and
+    /// `CarPlaySceneDelegate` is its only reader.
+    private(set) static weak var current: AppDependencies?
+
     init(
         container: ModelContainer,
         storeHealth: StoreHealth = .healthy,
@@ -136,6 +145,9 @@ final class AppDependencies {
             provider: CoreLocationProvider(),
             geocoder: GeocodingService()
         )
+
+        // Last: `self` is not usable until every stored property is initialised.
+        Self.current = self
     }
 
     /// Guards against a second pass. `bootstrap()` is called from the app's `init` — so that

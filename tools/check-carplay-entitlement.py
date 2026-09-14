@@ -25,6 +25,9 @@ BUNDLE_ID = "Mileage.lno.company"
 # assumed: the first attempt at this passed a `limit` the relationship refuses, the call
 # failed, and an empty list read exactly like "no capabilities at all".
 BASELINE = {"APP_GROUPS", "ICLOUD", "IN_APP_PURCHASE", "PUSH_NOTIFICATIONS"}
+# Granted 2026-09-14 and enabled on the App ID the same evening. Kept as a guard: removing
+# the capability (or a profile regenerated without it) fails code signing, not the build.
+EXPECTED_CARPLAY = "CARPLAY_DRIVING_TASK"
 
 
 def token():
@@ -52,14 +55,14 @@ def main():
     current = {c["attributes"]["capabilityType"] for c in capabilities["data"]}
     new = sorted(current - BASELINE)
 
-    if any("CARPLAY" in capability for capability in current):
-        print("CarPlay entitlement GRANTED:", sorted(c for c in current if "CARPLAY" in c))
+    if EXPECTED_CARPLAY in current:
+        print(f"{EXPECTED_CARPLAY} is enabled on {BUNDLE_ID}.")
         return 0
     if new:
-        print("capabilities changed since the request:", new)
-        return 0
-    print("no change — still waiting. This is not a refusal: a refusal arrives by email only.")
-    return 0
+        print("capabilities changed, but not the CarPlay one:", new)
+        return 1
+    print(f"{EXPECTED_CARPLAY} is NOT on {BUNDLE_ID} — the entitlement in the app will fail to sign.")
+    return 1
 
 
 if __name__ == "__main__":
