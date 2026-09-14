@@ -13,8 +13,17 @@ struct TripAttributes: ActivityAttributes {
         /// Raw value of `DistanceUnit` — the widget formats with the user's unit without
         /// having to reach into the app's settings store.
         var unitRaw: String
+        /// The language the user chose *in the app*, which is not necessarily the system's.
+        /// Without it the lock screen wrote `1.6 km` where the driving screen wrote `1,6 km`
+        /// — one measurement, two spellings, and a driver comparing the two screens
+        /// concluding that one of them is lying.
+        ///
+        /// Optional so an activity started by an older build still decodes: a payload that
+        /// fails to decode is a Live Activity that silently stops updating.
+        var localeIdentifier: String?
 
         var unit: DistanceUnit { DistanceUnit(rawValue: unitRaw) ?? .kilometers }
+        var locale: Locale { localeIdentifier.map(Locale.init(identifier:)) ?? .current }
     }
 
     var vehicleName: String

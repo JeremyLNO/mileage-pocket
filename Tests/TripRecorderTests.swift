@@ -449,4 +449,158 @@ extension TripRecorderTests {
 
         XCTAssertEqual(reported, [.authorizedWhenInUse], "the answer must reach the app mid-trip")
     }
+
+    // MARK: - Continuing a trip that ended on its own
+
+    /// The repair for the drive that stops when nobody asked it to.
+    ///
+    /// The wrong fix is a second trip beside the first: two lines on a claim for one journey,
+    /// which the driver then has to merge by hand on a document that has to add up. So the
+    /// same row is re-opened and goes on being written.
+    func testContinuingAddsToTheSameTripRatherThanOpeningASecond() throws {
+        let rig = try makeRig()
+        try rig.recorder.start(vehicleID: nil)
+        emit(RouteFixtures.straightLine(), into: rig)
+        let first = try rig.recorder.stop()
+        let id = first.id
+        let firstDistance = first.rawDistanceMeters
+
+        rig.clock.now = rig.clock.now.addingTimeInterval(120)
+        try rig.recorder.resume(first)
+        emit(RouteFixtures.straightLine(startingAt: rig.clock.now.addingTimeInterval(1)), into: rig)
+        let second = try rig.recorder.stop()
+
+        XCTAssertEqual(second.id, id, "it is the same drive")
+        XCTAssertEqual(
+            try rig.context.fetch(FetchDescriptor<Trip>()).count, 1,
+            "one journey, one row — a duplicate would be claimed twice"
+        )
+        XCTAssertEqual(second.rawDistanceMeters, firstDistance + 1_000, accuracy: 40)
+    }
+
+    /// The first leg's fixes were deleted when the trip was first written; only the polyline
+    /// survives. Reading the stored rows at the second stop would have drawn away the half of
+    /// the drive that was already recorded.
+    func testContinuingKeepsTheRouteOfTheFirstLeg() throws {
+        let rig = try makeRig()
+        try rig.recorder.start(vehicleID: nil)
+        emit(RouteFixtures.straightLine(), into: rig)
+        let first = try rig.recorder.stop()
+        let firstStart = try XCTUnwrap(RouteCompactor.decode(first.encodedRoute ?? Data()).first)
+
+        rig.clock.now = rig.clock.now.addingTimeInterval(60)
+        try rig.recorder.resume(first)
+        // Two kilometres east of where the first leg began, so the two legs cannot be
+        // confused: if the first one were dropped, the route would start here instead.
+        emit(secondLeg(from: rig.clock.now.addingTimeInterval(1)), into: rig)
+        let second = try rig.recorder.stop()
+
+        let route = RouteCompactor.decode(second.encodedRoute ?? Data())
+        let start = try XCTUnwrap(route.first)
+        XCTAssertEqual(start.latitude, firstStart.latitude, accuracy: 0.0005, "the drive still begins where it began")
+        XCTAssertEqual(start.longitude, firstStart.longitude, accuracy: 0.0005)
+        let end = try XCTUnwrap(route.last)
+        XCTAssertGreaterThan(
+            Geodesy.distance(from: start, to: end), 1_500,
+            "and it still reaches the far end — one polyline over both legs"
+        )
+    }
+
+    /// A leg that starts well away from the origin, so a route missing its first half is
+    /// visibly missing it rather than coincidentally identical.
+    private func secondLeg(from start: Date) -> [LocationSample] {
+        (0..<11).map { index in
+            let point = RouteFixtures.offset(
+                latitude: RouteFixtures.originLatitude,
+                longitude: RouteFixtures.originLongitude,
+                eastMeters: 2_000 + Double(index) * 10,
+                northMeters: 0
+            )
+            return LocationSample(
+                latitude: point.latitude, longitude: point.longitude,
+                horizontalAccuracy: 5, altitude: 35, speed: 10,
+                timestamp: start.addingTimeInterval(Double(index))
+            )
+        }
+    }
+
+    /// The minutes between the two halves are not driving anyone can account for. No straight
+    /// line is drawn across them — that would invent kilometres on a tax document — and the
+    /// silence is banked so the trip can say why it is short.
+    func testContinuingCountsNoDistanceAcrossTheGapButRemembersIt() throws {
+        let rig = try makeRig()
+        try rig.recorder.start(vehicleID: nil)
+        emit(RouteFixtures.straightLine(), into: rig)
+        let first = try rig.recorder.stop()
+
+        rig.clock.now = rig.clock.now.addingTimeInterval(600)
+        try rig.recorder.resume(first)
+        // Re-opened ten minutes later and twenty kilometres away: the jump must not be
+        // counted as driving.
+        let far = RouteFixtures.offset(
+            latitude: RouteFixtures.originLatitude, longitude: RouteFixtures.originLongitude,
+            eastMeters: 20_000, northMeters: 0
+        )
+        emit([LocationSample(
+            latitude: far.latitude, longitude: far.longitude,
+            horizontalAccuracy: 5, altitude: 35, speed: 10,
+            timestamp: rig.clock.now.addingTimeInterval(1)
+        )], into: rig)
+        let second = try rig.recorder.stop()
+
+        XCTAssertEqual(second.rawDistanceMeters, first.rawDistanceMeters, accuracy: 40,
+                       "the gap is not a drive")
+        XCTAssertGreaterThanOrEqual(second.unbridgedGapSeconds, 600, "and the silence is on the record")
+    }
+
+    /// A distance the driver corrected by hand is the distance of record. Continuing from the
+    /// uncorrected figure would throw their correction away without a word.
+    func testContinuingStartsFromACorrectedDistanceAndClearsTheCorrection() throws {
+        let rig = try makeRig()
+        try rig.recorder.start(vehicleID: nil)
+        emit(RouteFixtures.straightLine(), into: rig)
+        let first = try rig.recorder.stop()
+        first.correctedDistanceMeters = 5_000
+        first.isManuallyEdited = true
+
+        rig.clock.now = rig.clock.now.addingTimeInterval(60)
+        try rig.recorder.resume(first)
+        emit(RouteFixtures.straightLine(startingAt: rig.clock.now.addingTimeInterval(1)), into: rig)
+        let second = try rig.recorder.stop()
+
+        XCTAssertNil(second.correctedDistanceMeters, "folded into the base; applied twice otherwise")
+        XCTAssertEqual(second.rawDistanceMeters, 6_000, accuracy: 40)
+    }
+
+    /// Past six hours what is being driven is a different drive, and bolting it onto the
+    /// morning's would put two journeys on one line.
+    func testATripThatEndedLongAgoCannotBeContinued() throws {
+        let rig = try makeRig()
+        try rig.recorder.start(vehicleID: nil)
+        emit(RouteFixtures.straightLine(), into: rig)
+        let first = try rig.recorder.stop()
+
+        rig.clock.now = rig.clock.now.addingTimeInterval(7 * 3_600)
+
+        XCTAssertFalse(TripRecorder.canResume(first, now: rig.clock.now))
+        XCTAssertThrowsError(try rig.recorder.resume(first)) { error in
+            XCTAssertEqual(error as? RecorderError, .tripTooOldToResume)
+        }
+    }
+
+    /// A re-opened trip is a trip in progress: it must not still carry the end time of the
+    /// stop it is undoing, or a crash before the next stop leaves a drive that ended before
+    /// it finished.
+    func testAContinuedTripHasNoEndTimeWhileItRuns() throws {
+        let rig = try makeRig()
+        try rig.recorder.start(vehicleID: nil)
+        emit(RouteFixtures.straightLine(), into: rig)
+        let first = try rig.recorder.stop()
+
+        rig.clock.now = rig.clock.now.addingTimeInterval(30)
+        try rig.recorder.resume(first)
+
+        XCTAssertNil(first.endedAt)
+        XCTAssertFalse(TripRecorder.canResume(first, now: rig.clock.now), "and it is not offered a second time")
+    }
 }

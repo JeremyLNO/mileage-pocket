@@ -18,6 +18,7 @@ final class InertRecorder: TripRecording {
     var routeSamples: [LocationSample] = []
 
     func start(vehicleID: UUID?) throws {}
+    func resume(_ trip: Trip) throws {}
     func stop() throws -> Trip { throw RecorderError.notRecording }
     func resumeIfNeeded() throws -> ResumeOutcome { .none }
     func attachPlaces(to trip: Trip) async {}

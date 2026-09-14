@@ -47,9 +47,24 @@ struct TripSummarySheet: View {
             }
             .background(Theme.background)
             .safeAreaInset(edge: .bottom) {
-                PrimaryButton(title: "common.save") { save() }
-                    .padding(20)
-                    .background(.bar)
+                VStack(spacing: 12) {
+                    PrimaryButton(title: "common.save") { save() }
+                    // The repair for a trip that ended when nobody asked it to. Offered here
+                    // because this sheet is where the driver finds out — a CarPlay link that
+                    // dropped at a junction opens it mid-drive — and the alternative is a
+                    // second trip beside the first, added up by hand later.
+                    if dependencies.resumableTrip?.id == trip.id {
+                        Button { resume() } label: {
+                            Label("summary.continue", systemImage: "arrow.trianglehead.clockwise")
+                                .scaledFont(16, relativeTo: .callout, weight: .semibold)
+                                .foregroundStyle(Theme.signal)
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .accessibilityIdentifier("continueTrip")
+                    }
+                }
+                .padding(20)
+                .background(.bar)
             }
             .navigationTitle("summary.title")
             .navigationBarTitleDisplayMode(.inline)
@@ -287,6 +302,22 @@ struct TripSummarySheet: View {
             return client.name
         }
         return location.label
+    }
+
+    /// Keeps what has been typed so far, then re-opens the drive. The classification and the
+    /// notes are written to the trip first: it is the same trip that comes back, and losing a
+    /// purpose already entered would be a second small theft after the first.
+    private func resume() {
+        trip.tripType = tripType ?? settings.defaultTripType
+        trip.purpose = purpose.isEmpty ? nil : purpose
+        if !clientName.isEmpty {
+            trip.clientID = dependencies.client(named: clientName).id
+        }
+        if !projectName.isEmpty {
+            trip.projectID = dependencies.project(named: projectName, clientID: trip.clientID).id
+        }
+        dependencies.resumeTrip(trip)
+        dismiss()
     }
 
     private func save() {

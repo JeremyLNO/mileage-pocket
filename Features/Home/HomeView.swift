@@ -98,6 +98,17 @@ struct HomeView: View {
             }
             .accessibilityLabel(Text("home.start.accessibility"))
 
+            // A drive that ended on its own is usually noticed later, from this screen. START
+            // would open a second trip beside the first; this one goes on writing into it.
+            if let resumable = dependencies.resumableTrip {
+                Button { resumeTrip(resumable) } label: {
+                    Label("home.continue", systemImage: "arrow.trianglehead.clockwise")
+                        .scaledFont(15, relativeTo: .subheadline, weight: .semibold)
+                        .foregroundStyle(Theme.signal)
+                }
+                .accessibilityIdentifier("continueLastTrip")
+            }
+
             Button {
                 showsVehiclePicker = true
             } label: {
@@ -170,6 +181,14 @@ struct HomeView: View {
         return vehicles.first(where: \.isDefault)?.name
             ?? vehicles.first?.name
             ?? L.string("home.no.vehicle")
+    }
+
+    private func resumeTrip(_ trip: Trip) {
+        guard dependencies.canAccess(.startTrip) else {
+            showsPaywall = true
+            return
+        }
+        dependencies.resumeTrip(trip)
     }
 
     private func startTrip() {

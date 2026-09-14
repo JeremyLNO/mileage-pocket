@@ -39,6 +39,7 @@
 		F5B3C6F99543D5667B701672 /* TripActivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B62112285A90F873BDF037 /* TripActivityController.swift */; };
 		F5EE5791B8102604EB998A52 /* CarConnectionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19CE3C7F2CDD43198256452A /* CarConnectionMonitor.swift */; };
 		C7E76DACAD793D46C87907B8 /* CoreLocationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5907EBEFF17B7566268C4E58 /* CoreLocationProvider.swift */; };
+		06778F83B61A93F14256B0D8 /* DistanceBroadcast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9029844DCEB59C531A5E8618 /* DistanceBroadcast.swift */; };
 		5D62252CAB003A97D406A640 /* FrequentLocationMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AE6359565F5CEF751E079F5 /* FrequentLocationMatcher.swift */; };
 		BED1DBF53392AF461AB11404 /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844A0EDD74B757B10C19582E /* GeocodingService.swift */; };
 		B83F5708A27BBF1D027AF3C5 /* Geodesy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B4A428271981E2AAF2C41C4 /* Geodesy.swift */; };
@@ -80,6 +81,7 @@
 		E73BDFE18FFD115BB3CD8BF4 /* TripGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAE44DA5F6E161CF6F83365 /* TripGrouping.swift */; };
 		4815DD6C39AC4294786A6F06 /* TripsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B64FB112C588BD1FE22B8D17 /* TripsView.swift */; };
 		4729C85245778FE6CB6FB03B /* VehiclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115CF5DF4B729AEBE4111D18 /* VehiclesView.swift */; };
+		1BFB40805AF64504BB58D9E9 /* DistanceDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7E0B96AA11DAB7A40DC68D /* DistanceDisplay.swift */; };
 		BD1B87C04C8A0DCEAD2B7605 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE67A88587942CD6869C134A /* Enums.swift */; };
 		AF0E610812D4C691BD950FDB /* TripAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C20DA7A0342F6845231BEAC /* TripAttributes.swift */; };
 		5458DCE7E46C41FAAC383229 /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F084A37211B7023A9F906223 /* WidgetSnapshot.swift */; };
@@ -88,6 +90,7 @@
 		499B77459AFD6C13E8B781DC /* ContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472A3B3825186444B07B5ED4 /* ContrastTests.swift */; };
 		FBEF8D99135EC76642BE559D /* CumulativeYearTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D6D8ABE5109A1FC1B2BACF /* CumulativeYearTests.swift */; };
 		5F95D0EB566F32B1E2D3B41D /* CurrencyAndUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C229FB705359905BD9890E0F /* CurrencyAndUnitTests.swift */; };
+		41421040079068B19548FB2B /* DistanceBroadcastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29013D41ADB40ED3FD63F2C7 /* DistanceBroadcastTests.swift */; };
 		35F584CAFA7C92AB92FC187B /* EntitlementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFB0B89ACB1623A93C91C49 /* EntitlementTests.swift */; };
 		63FA1168F6F86336DE2D605A /* FormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D05E528024AA1A7F594A935 /* FormattingTests.swift */; };
 		B77BCC1AF35F759FDE1BCF97 /* FrequentLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC138E8272380521D281E57 /* FrequentLocationTests.swift */; };
@@ -116,6 +119,7 @@
 		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
 		CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */; };
 		F98F180A21F88E7E9433F27E /* TripLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E9038CCAF678F8ABC8DF7D /* TripLiveActivity.swift */; };
+		11447D84E3979883412DE9BD /* DistanceDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7E0B96AA11DAB7A40DC68D /* DistanceDisplay.swift */; };
 		797A21C09AFA98EFD138FE24 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE67A88587942CD6869C134A /* Enums.swift */; };
 		8131563D57E013CEA28FA5E6 /* TripAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C20DA7A0342F6845231BEAC /* TripAttributes.swift */; };
 		4922DC7AE90B54D2AA40B76F /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F084A37211B7023A9F906223 /* WidgetSnapshot.swift */; };
@@ -185,6 +189,7 @@
 		35B62112285A90F873BDF037 /* TripActivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripActivityController.swift"; sourceTree = "<group>"; };
 		19CE3C7F2CDD43198256452A /* CarConnectionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CarConnectionMonitor.swift"; sourceTree = "<group>"; };
 		5907EBEFF17B7566268C4E58 /* CoreLocationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreLocationProvider.swift"; sourceTree = "<group>"; };
+		9029844DCEB59C531A5E8618 /* DistanceBroadcast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DistanceBroadcast.swift"; sourceTree = "<group>"; };
 		6AE6359565F5CEF751E079F5 /* FrequentLocationMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FrequentLocationMatcher.swift"; sourceTree = "<group>"; };
 		844A0EDD74B757B10C19582E /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeocodingService.swift"; sourceTree = "<group>"; };
 		8B4A428271981E2AAF2C41C4 /* Geodesy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Geodesy.swift"; sourceTree = "<group>"; };
@@ -210,6 +215,7 @@
 		F2E1B1061E6DF52F45C05A92 /* Entitlement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Entitlement.swift"; sourceTree = "<group>"; };
 		CE96EEFDEFA77B5F6CC3666E /* ProductIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProductIDs.swift"; sourceTree = "<group>"; };
 		4C59B96AAD2A61186FFDE7C8 /* SubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionService.swift"; sourceTree = "<group>"; };
+		7B7E0B96AA11DAB7A40DC68D /* DistanceDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DistanceDisplay.swift"; sourceTree = "<group>"; };
 		FE67A88587942CD6869C134A /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Enums.swift"; sourceTree = "<group>"; };
 		1C20DA7A0342F6845231BEAC /* TripAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripAttributes.swift"; sourceTree = "<group>"; };
 		F084A37211B7023A9F906223 /* WidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetSnapshot.swift"; sourceTree = "<group>"; };
@@ -218,6 +224,7 @@
 		472A3B3825186444B07B5ED4 /* ContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContrastTests.swift"; sourceTree = "<group>"; };
 		A5D6D8ABE5109A1FC1B2BACF /* CumulativeYearTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CumulativeYearTests.swift"; sourceTree = "<group>"; };
 		C229FB705359905BD9890E0F /* CurrencyAndUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CurrencyAndUnitTests.swift"; sourceTree = "<group>"; };
+		29013D41ADB40ED3FD63F2C7 /* DistanceBroadcastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DistanceBroadcastTests.swift"; sourceTree = "<group>"; };
 		BDFB0B89ACB1623A93C91C49 /* EntitlementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EntitlementTests.swift"; sourceTree = "<group>"; };
 		C5B87813E46E7FAA074042AE /* RouteFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RouteFixtures.swift"; sourceTree = "<group>"; };
 		7D05E528024AA1A7F594A935 /* FormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FormattingTests.swift"; sourceTree = "<group>"; };
@@ -423,6 +430,7 @@
 			children = (
 				19CE3C7F2CDD43198256452A /* CarConnectionMonitor.swift */,
 				5907EBEFF17B7566268C4E58 /* CoreLocationProvider.swift */,
+				9029844DCEB59C531A5E8618 /* DistanceBroadcast.swift */,
 				6AE6359565F5CEF751E079F5 /* FrequentLocationMatcher.swift */,
 				844A0EDD74B757B10C19582E /* GeocodingService.swift */,
 				8B4A428271981E2AAF2C41C4 /* Geodesy.swift */,
@@ -607,6 +615,7 @@
 		B46A6AFB1DC88CE23F6E63F1 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				7B7E0B96AA11DAB7A40DC68D /* DistanceDisplay.swift */,
 				FE67A88587942CD6869C134A /* Enums.swift */,
 				1C20DA7A0342F6845231BEAC /* TripAttributes.swift */,
 				F084A37211B7023A9F906223 /* WidgetSnapshot.swift */,
@@ -631,6 +640,7 @@
 				472A3B3825186444B07B5ED4 /* ContrastTests.swift */,
 				A5D6D8ABE5109A1FC1B2BACF /* CumulativeYearTests.swift */,
 				C229FB705359905BD9890E0F /* CurrencyAndUnitTests.swift */,
+				29013D41ADB40ED3FD63F2C7 /* DistanceBroadcastTests.swift */,
 				BDFB0B89ACB1623A93C91C49 /* EntitlementTests.swift */,
 				7D05E528024AA1A7F594A935 /* FormattingTests.swift */,
 				BFC138E8272380521D281E57 /* FrequentLocationTests.swift */,
@@ -961,6 +971,7 @@
 				F5B3C6F99543D5667B701672 /* TripActivityController.swift in Sources */,
 				F5EE5791B8102604EB998A52 /* CarConnectionMonitor.swift in Sources */,
 				C7E76DACAD793D46C87907B8 /* CoreLocationProvider.swift in Sources */,
+				06778F83B61A93F14256B0D8 /* DistanceBroadcast.swift in Sources */,
 				5D62252CAB003A97D406A640 /* FrequentLocationMatcher.swift in Sources */,
 				BED1DBF53392AF461AB11404 /* GeocodingService.swift in Sources */,
 				B83F5708A27BBF1D027AF3C5 /* Geodesy.swift in Sources */,
@@ -1002,6 +1013,7 @@
 				E73BDFE18FFD115BB3CD8BF4 /* TripGrouping.swift in Sources */,
 				4815DD6C39AC4294786A6F06 /* TripsView.swift in Sources */,
 				4729C85245778FE6CB6FB03B /* VehiclesView.swift in Sources */,
+				1BFB40805AF64504BB58D9E9 /* DistanceDisplay.swift in Sources */,
 				BD1B87C04C8A0DCEAD2B7605 /* Enums.swift in Sources */,
 				AF0E610812D4C691BD950FDB /* TripAttributes.swift in Sources */,
 				5458DCE7E46C41FAAC383229 /* WidgetSnapshot.swift in Sources */,
@@ -1017,6 +1029,7 @@
 				499B77459AFD6C13E8B781DC /* ContrastTests.swift in Sources */,
 				FBEF8D99135EC76642BE559D /* CumulativeYearTests.swift in Sources */,
 				5F95D0EB566F32B1E2D3B41D /* CurrencyAndUnitTests.swift in Sources */,
+				41421040079068B19548FB2B /* DistanceBroadcastTests.swift in Sources */,
 				35F584CAFA7C92AB92FC187B /* EntitlementTests.swift in Sources */,
 				63FA1168F6F86336DE2D605A /* FormattingTests.swift in Sources */,
 				B77BCC1AF35F759FDE1BCF97 /* FrequentLocationTests.swift in Sources */,
@@ -1059,6 +1072,7 @@
 				B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */,
 				CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */,
 				F98F180A21F88E7E9433F27E /* TripLiveActivity.swift in Sources */,
+				11447D84E3979883412DE9BD /* DistanceDisplay.swift in Sources */,
 				797A21C09AFA98EFD138FE24 /* Enums.swift in Sources */,
 				8131563D57E013CEA28FA5E6 /* TripAttributes.swift in Sources */,
 				4922DC7AE90B54D2AA40B76F /* WidgetSnapshot.swift in Sources */,

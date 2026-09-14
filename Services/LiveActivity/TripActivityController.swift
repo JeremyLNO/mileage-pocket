@@ -3,9 +3,14 @@ import Foundation
 
 /// Drives the Live Activity for the trip in progress.
 ///
-/// Updates are throttled: ActivityKit rate-limits an app that pushes too often, and past a
-/// point it simply stops applying them — so the lock screen would freeze mid-drive, which
-/// looks exactly like the tracking having died.
+/// It no longer decides *when* to push. It used to, on a throttle of its own, while the
+/// driving screen redrew on every fix — so the phone and the CarPlay dashboard showed the
+/// same drive at two different distances. The schedule now lives in `DistanceBroadcast`,
+/// above both, and this type pushes exactly what it is handed.
+///
+/// The 5 s floor that schedule enforces is also what keeps ActivityKit from rate-limiting
+/// the app: past a certain rate it stops applying updates altogether, and a lock screen
+/// frozen mid-drive looks exactly like tracking that has died.
 ///
 /// Every `Activity` call happens on the main actor. `Activity` is not `Sendable`, so handing
 /// one to a detached task is a data race Swift 6 refuses outright.
@@ -15,14 +20,6 @@ final class TripActivityController {
     /// looked up again *inside* the task that awaits it — a value that originates there is
     /// never sent across an isolation boundary, which is what Swift 6 objects to.
     private var activityID: String?
-    private var lastUpdate = Date.distantPast
-    private var lastDistance: Double = 0
-
-    // The lock screen and CarPlay showed 0.0 km while the app itself had 0.2: at 30 s / 500 m
-    // the first push of a trip lands long after the driver has already looked. The Info.plist
-    // declares NSSupportsLiveActivitiesFrequentUpdates, which is what buys this budget.
-    private let minimumInterval: TimeInterval = 5
-    private let minimumDistanceDelta: Double = 100
 
     var isRunning: Bool { activityID != nil }
 
@@ -44,11 +41,6 @@ final class TripActivityController {
         let strayIDs = existing.map(\.id).filter { $0 != keptID }
 
         activityID = keptID
-        if keptID != nil {
-            // The throttle must not hold back the first push of the resumed trip.
-            lastUpdate = .distantPast
-            lastDistance = 0
-        }
         guard !strayIDs.isEmpty else { return }
         Task {
             for activity in Activity<TripAttributes>.activities where strayIDs.contains(activity.id) {
@@ -57,30 +49,27 @@ final class TripActivityController {
         }
     }
 
-    func start(vehicleName: String, unit: DistanceUnit, startedAt: Date) {
+    func start(vehicleName: String, unit: DistanceUnit, startedAt: Date, locale: Locale = .current) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled, activityID == nil else { return }
         let attributes = TripAttributes(vehicleName: vehicleName)
-        let state = TripAttributes.ContentState(distanceMeters: 0, startedAt: startedAt, unitRaw: unit.rawValue)
+        let state = TripAttributes.ContentState(
+            distanceMeters: 0, startedAt: startedAt, unitRaw: unit.rawValue, localeIdentifier: locale.identifier
+        )
         activityID = try? Activity.request(
             attributes: attributes,
             content: ActivityContent(state: state, staleDate: nil),
             pushType: nil
         ).id
-        // Distant past, not now: otherwise the very first distance update is held back by the
-        // throttle and the lock screen sits at 0.0 km for the opening seconds of every trip.
-        lastUpdate = .distantPast
-        lastDistance = 0
     }
 
-    func update(distanceMeters: Double, startedAt: Date, unit: DistanceUnit) {
+    /// Pushes a figure that has already been through the schedule. No decision is taken here
+    /// — a second opinion about when to publish is what produced two different distances.
+    func update(distanceMeters: Double, startedAt: Date, unit: DistanceUnit, locale: Locale = .current) {
         guard let activityID else { return }
-        let elapsed = Date.now.timeIntervalSince(lastUpdate)
-        let moved = abs(distanceMeters - lastDistance)
-        guard elapsed >= minimumInterval || moved >= minimumDistanceDelta else { return }
-
-        lastUpdate = .now
-        lastDistance = distanceMeters
-        let state = TripAttributes.ContentState(distanceMeters: distanceMeters, startedAt: startedAt, unitRaw: unit.rawValue)
+        let state = TripAttributes.ContentState(
+            distanceMeters: distanceMeters, startedAt: startedAt, unitRaw: unit.rawValue,
+            localeIdentifier: locale.identifier
+        )
         Task {
             for activity in Activity<TripAttributes>.activities where activity.id == activityID {
                 await activity.update(ActivityContent(state: state, staleDate: nil))
@@ -88,9 +77,12 @@ final class TripActivityController {
         }
     }
 
-    func end(distanceMeters: Double, startedAt: Date, unit: DistanceUnit) {
+    func end(distanceMeters: Double, startedAt: Date, unit: DistanceUnit, locale: Locale = .current) {
         guard let activityID else { return }
-        let state = TripAttributes.ContentState(distanceMeters: distanceMeters, startedAt: startedAt, unitRaw: unit.rawValue)
+        let state = TripAttributes.ContentState(
+            distanceMeters: distanceMeters, startedAt: startedAt, unitRaw: unit.rawValue,
+            localeIdentifier: locale.identifier
+        )
         Task {
             for activity in Activity<TripAttributes>.activities where activity.id == activityID {
                 await activity.end(ActivityContent(state: state, staleDate: nil), dismissalPolicy: .immediate)

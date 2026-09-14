@@ -65,9 +65,10 @@ struct TripLiveActivity: Widget {
         .padding(16)
     }
 
+    /// The same call the app makes, from the same file. Writing this a second time here —
+    /// `String(format: "%.1f")`, which always uses a dot and rounds by its own rules — is how
+    /// the lock screen and the driving screen came to disagree about one drive.
     private func distanceText(_ state: TripAttributes.ContentState) -> String {
-        let value = state.unit.value(fromMeters: state.distanceMeters)
-        let unit = state.unit == .kilometers ? "km" : "mi"
-        return String(format: "%.1f %@", value, unit)
+        DistanceDisplay.text(meters: state.distanceMeters, unit: state.unit, locale: state.locale)
     }
 }

@@ -4,6 +4,13 @@
 Build Resources/Localizable.xcstrings from tools/strings_en.json + the
 translation table below.
 
+⚠️ **STALE — do not run without reconciling first.** The catalogue is now the source of
+truth: strings have been added straight to `Resources/Localizable.xcstrings` and this
+generator has not followed. It knows 214 keys; the catalogue carries 290. Since it rewrites
+from scratch, running it as it stands deletes 76 translated keys — and a deleted key does
+not fail a build, it renders as `settings.carplay.help` on screen, in six languages.
+`python3 tools/check_xcstrings.py` prints the difference.
+
 Re-runnable: it always rewrites the catalogue from scratch.
 To add a language: append its code to LANGUAGES and add one entry per key
 in TRANSLATIONS (and in PLURALS for the plural-governed keys).

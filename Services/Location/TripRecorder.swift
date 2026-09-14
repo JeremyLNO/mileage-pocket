@@ -40,6 +40,12 @@ protocol TripRecording: AnyObject {
     /// Accepted fixes so far, for drawing the live route.
     var routeSamples: [LocationSample] { get }
     func start(vehicleID: UUID?) throws
+    /// Re-opens a trip that has already been written and goes on recording into it.
+    ///
+    /// For the drive that ended when nobody asked it to — a dropped CarPlay link, a STOP
+    /// pressed by mistake, an app iOS killed. The alternative is a second trip beside the
+    /// first, which the driver then has to merge by hand on a document that has to add up.
+    func resume(_ trip: Trip) throws
     /// Ends the trip and writes it. Synchronous, and that is the point: the write must not
     /// sit behind a network call. Addresses arrive afterwards, through `attachPlaces`.
     func stop() throws -> Trip
@@ -70,6 +76,8 @@ enum ResumeOutcome: Equatable {
 enum RecorderError: Error, Equatable {
     case alreadyRecording
     case notRecording
+    /// The trip being re-opened ended too long ago to still be the drive under way.
+    case tripTooOldToResume
     /// Location is off or refused. Recording anyway produced the worst outcome there is: a
     /// running timer, a driving screen, and a trip saved at 0 m with nothing said.
     case locationUnavailable(CLAuthorizationStatus)
@@ -170,6 +178,74 @@ final class TripRecorder: TripRecording {
         listen()
     }
 
+    /// How long a finished trip stays re-openable. The same six hours a trip in flight gets:
+    /// past that, what is being driven is a different drive, and bolting it onto yesterday's
+    /// would put two journeys on one line of an expense claim.
+    static let maximumContinuationAge: TimeInterval = 6 * 3600
+
+    /// Whether a trip can still be picked up where it left off.
+    static func canResume(_ trip: Trip, now: Date) -> Bool {
+        guard !trip.isManualEntry, let endedAt = trip.endedAt else { return false }
+        let age = now.timeIntervalSince(endedAt)
+        return age >= 0 && age <= maximumContinuationAge
+    }
+
+    func resume(_ trip: Trip) throws {
+        guard state == .idle else { throw RecorderError.alreadyRecording }
+        switch provider.authorization {
+        case .denied, .restricted:
+            throw RecorderError.locationUnavailable(provider.authorization)
+        default:
+            break
+        }
+        guard Self.canResume(trip, now: now()) else { throw RecorderError.tripTooOldToResume }
+
+        try discardActiveState()
+
+        let endedAt = trip.endedAt ?? now()
+        let active = ActiveTripState(
+            tripID: trip.id, startedAt: trip.startedAt, vehicleID: trip.vehicleID,
+            deviceID: DeviceIdentity.current
+        )
+        // The effective distance, not the raw one: a distance the driver corrected by hand is
+        // the distance of record, and continuing from the uncorrected figure would quietly
+        // throw their correction away.
+        active.distanceMeters = trip.distanceMeters
+        active.startLatitude = trip.startLatitude
+        active.startLongitude = trip.startLongitude
+        active.lastLatitude = trip.endLatitude
+        active.lastLongitude = trip.endLongitude
+        active.lastUpdatedAt = now()
+        // The time between the two halves is not driving anyone can account for, and no
+        // straight line is drawn across it. It is banked as silence so the trip can say why
+        // its distance is short of the odometer.
+        active.unbridgedGapSeconds = trip.unbridgedGapSeconds + max(0, now().timeIntervalSince(endedAt))
+        context.insert(active)
+
+        // The correction, if there was one, has been folded into the base above; leaving it
+        // behind would apply it twice at the next stop.
+        trip.correctedDistanceMeters = nil
+        trip.isManuallyEdited = false
+        // Re-opened, so it is no longer a finished trip: its end is whatever the next stop
+        // decides. Left as it was, a crash before that stop would leave yesterday's end time
+        // on a trip still being driven.
+        trip.endedAt = nil
+        try context.save()
+
+        adopt(active)
+        // The fixes were deleted when the trip was first written; the polyline is what is
+        // left of the first leg, and the live map has to show the whole drive, not the part
+        // recorded since the driver pressed Continue.
+        routeSamples = RouteCompactor.decode(trip.encodedRoute ?? Data())
+        state = .recording(
+            startedAt: trip.startedAt,
+            distanceMeters: active.distanceMeters,
+            duration: now().timeIntervalSince(trip.startedAt)
+        )
+
+        listen()
+    }
+
     var authorizationStatus: CLAuthorizationStatus { provider.authorization }
 
     func requestPermission() {
@@ -253,9 +329,15 @@ final class TripRecorder: TripRecording {
         provider.onSample = nil
 
         let points = (try? storedPoints(for: tripID)) ?? []
-        let samples = points.map(Self.sample(from:))
+        // The live route, not the stored fixes: on a trip that was re-opened, the first leg
+        // exists only as the polyline decoded into `routeSamples` — its fixes were deleted
+        // when the trip was first written. Reading the rows here would have saved the second
+        // half of the drive and drawn away the first.
+        let samples = routeSamples.isEmpty ? points.map(Self.sample(from:)) : routeSamples
 
-        let trip = Trip(id: tripID, startedAt: startedAt)
+        // A re-opened trip keeps its own row: writing a second `Trip` with the same id would
+        // put the same drive on the claim twice.
+        let trip = existingTrip(id: tripID) ?? Trip(id: tripID, startedAt: startedAt)
         trip.endedAt = endedAt
         trip.rawDistanceMeters = filter.totalDistanceMeters
         trip.unbridgedGapSeconds = filter.unbridgedGapSeconds
@@ -270,7 +352,7 @@ final class TripRecorder: TripRecording {
             )
         }
         trip.updatedAt = endedAt
-        context.insert(trip)
+        if trip.modelContext == nil { context.insert(trip) }
 
         // The fixes were only ever a crash-recovery buffer; the polyline replaces them.
         // Leaving them would push hundreds of thousands of rows into the user's iCloud.
@@ -394,6 +476,13 @@ final class TripRecorder: TripRecording {
     }
 
     // MARK: - Store
+
+    /// The trip row for an id, when there is one — which there is exactly when the drive was
+    /// re-opened with `resume(_:)`.
+    private func existingTrip(id: UUID) -> Trip? {
+        let descriptor = FetchDescriptor<Trip>(predicate: #Predicate { $0.id == id })
+        return (try? context.fetch(descriptor))?.first
+    }
 
     private func storedPoints(for tripID: UUID) throws -> [LocationPoint] {
         let descriptor = FetchDescriptor<LocationPoint>(

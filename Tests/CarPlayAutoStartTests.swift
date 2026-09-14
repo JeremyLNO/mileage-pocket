@@ -17,9 +17,11 @@ final class CarPlayAutoStartTests: XCTestCase {
         var isConnected = false
         var onChange: ((Bool) -> Void)?
         private(set) var started = false
+        private(set) var refreshCount = 0
 
         func start() { started = true }
         func stop() { started = false }
+        func refresh() { refreshCount += 1 }
 
         func plugIn() { isConnected = true; onChange?(true) }
         func unplug() { isConnected = false; onChange?(false) }
@@ -42,6 +44,16 @@ final class CarPlayAutoStartTests: XCTestCase {
             startedAt = Date(timeIntervalSince1970: 1_700_000_000)
             state = .recording(startedAt: startedAt!, distanceMeters: 0, duration: 0)
         }
+
+        func resume(_ trip: Trip) throws {
+            startCount += 1
+            startedAt = trip.startedAt
+            currentDistanceMeters = trip.distanceMeters
+            state = .recording(startedAt: trip.startedAt, distanceMeters: currentDistanceMeters, duration: 0)
+        }
+
+        /// Moves the car, for the rule that refuses to end a trip that is still under way.
+        func drive(_ meters: Double) { currentDistanceMeters += meters }
 
         func stop() throws -> Trip {
             stopCount += 1
@@ -95,20 +107,77 @@ final class CarPlayAutoStartTests: XCTestCase {
         XCTAssertFalse(rig.dependencies.isRecording)
     }
 
-    /// The half that keeps the record honest.
-    func testUnpluggingStopsTheTripItStarted() throws {
+    /// The half that keeps the record honest — but not instantly.
+    ///
+    /// The audio route is not a seatbelt sensor: it drops for a phone call, for Siri, when
+    /// the head unit switches to radio, when a wireless link stutters at a junction. Ending
+    /// the drive on the spot is what Jeremy saw as "the trip stops for no reason", mid-drive,
+    /// with nothing said.
+    func testUnpluggingDoesNotEndTheTripUntilTheCarHasStayedGone() throws {
         let rig = try makeRig(autoStart: true)
         rig.car.plugIn()
         rig.car.unplug()
 
+        XCTAssertEqual(rig.recorder.stopCount, 0, "a dropped link is not a parked car")
+        XCTAssertTrue(rig.dependencies.isRecording)
+
+        rig.dependencies.confirmCarPlayStop()
+
         XCTAssertEqual(rig.recorder.stopCount, 1, "a trip that starts by itself has to end by itself")
         XCTAssertFalse(rig.dependencies.isRecording)
+    }
+
+    /// The link comes back before the window is up: whatever that was, it was not the end of
+    /// the drive, and the confirmation that was armed must find nothing to do.
+    func testPluggingBackInDuringTheGraceCancelsTheStop() throws {
+        let rig = try makeRig(autoStart: true)
+        rig.car.plugIn()
+        rig.car.unplug()
+        rig.car.plugIn()
+
+        rig.dependencies.confirmCarPlayStop()
+
+        XCTAssertEqual(rig.recorder.stopCount, 0, "the car is right there")
+        XCTAssertTrue(rig.dependencies.isRecording)
+        XCTAssertEqual(rig.recorder.startCount, 1, "and no second trip was opened either")
+    }
+
+    /// Still covering ground with no head unit: a dropped link, not a parked car. Cutting the
+    /// drive in half here is the expensive half of the mistake — the rest of the journey is
+    /// never recorded at all.
+    func testATripStillCoveringGroundIsNotEnded() throws {
+        let rig = try makeRig(autoStart: true)
+        rig.car.plugIn()
+        rig.car.unplug()
+        rig.recorder.drive(400)
+
+        rig.dependencies.confirmCarPlayStop()
+
+        XCTAssertEqual(rig.recorder.stopCount, 0, "the car is still driving")
+        XCTAssertTrue(rig.dependencies.isRecording)
+
+        // Parked at last: nothing moves during the next window, and the trip ends.
+        rig.dependencies.confirmCarPlayStop()
+        XCTAssertEqual(rig.recorder.stopCount, 1)
+    }
+
+    /// Automatic stopping belongs to automatic starting, even when the setting is on: a drive
+    /// the driver began by hand is theirs to end.
+    func testAHandStartedTripIsNeverEndedByTheCar() throws {
+        let rig = try makeRig(autoStart: true)
+        rig.dependencies.startTrip()
+        rig.car.unplug()
+        rig.dependencies.confirmCarPlayStop()
+
+        XCTAssertEqual(rig.recorder.stopCount, 0)
+        XCTAssertTrue(rig.dependencies.isRecording)
     }
 
     func testUnpluggingLeavesTheTripRunningWhenAutomaticStoppingIsOff() throws {
         let rig = try makeRig(autoStart: true, autoStop: false)
         rig.car.plugIn()
         rig.car.unplug()
+        rig.dependencies.confirmCarPlayStop()
 
         XCTAssertEqual(rig.recorder.stopCount, 0)
         XCTAssertTrue(rig.dependencies.isRecording)
@@ -122,6 +191,7 @@ final class CarPlayAutoStartTests: XCTestCase {
         XCTAssertEqual(rig.recorder.startCount, 1)
 
         rig.car.unplug()
+        rig.dependencies.confirmCarPlayStop()
 
         XCTAssertEqual(rig.recorder.stopCount, 0, "automatic stopping belongs to automatic starting")
         XCTAssertTrue(rig.dependencies.isRecording)

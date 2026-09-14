@@ -25,23 +25,21 @@ enum Fmt {
 
     /// The bare number, for the oversized hero figure on Home where the unit is a separate,
     /// smaller label.
+    ///
+    /// Delegates to `DistanceDisplay`, which lives in `Shared/` and is therefore the same
+    /// code in the widget extension. Two implementations of "a distance as text" is how the
+    /// driving screen and the lock screen came to disagree about the same drive.
     static func distanceValue(
         meters: Double,
         unit: DistanceUnit,
         locale: Locale,
         fractionDigits: Int = 1
     ) -> String {
-        let value = unit.value(fromMeters: meters)
-        return value.formatted(.number.precision(.fractionLength(fractionDigits)).locale(locale))
+        DistanceDisplay.value(meters: meters, unit: unit, locale: locale, fractionDigits: fractionDigits)
     }
 
     static func unitAbbreviation(_ unit: DistanceUnit, locale: Locale) -> String {
-        let measurement = Measurement(value: 1, unit: unit == .kilometers ? UnitLength.kilometers : UnitLength.miles)
-        let formatted = measurement.formatted(
-            .measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0)))
-                .locale(locale)
-        )
-        return formatted.replacingOccurrences(of: "1", with: "").trimmingCharacters(in: .whitespaces)
+        DistanceDisplay.unitAbbreviation(unit, locale: locale)
     }
 
     static func money(_ amount: Decimal, currencyCode: String, locale: Locale) -> String {
