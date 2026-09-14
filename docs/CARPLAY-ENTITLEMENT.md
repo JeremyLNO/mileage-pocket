@@ -18,10 +18,26 @@ CarPlay est une **managed capability** : absente de l'énumération acceptée pa
 ID → *CarPlay Driving Task App* → Save → Confirm. L'API la **lit** ensuite très bien
 (`CARPLAY_DRIVING_TASK`), ce qui est ce que vérifie le guetteur.
 
-⚠️ Cocher une capability **invalide les profils de provisionnement** qui portent cet App ID ;
-ils doivent être régénérés. La Release étant signée en manuel
-(`PROVISIONING_PROFILE_SPECIFIER = "MileagePocket AppStore"`), c'est `-allowProvisioningUpdates`
-au moment de l'archive qui retélécharge le profil à jour.
+⚠️ Cocher une capability **invalide les profils de provisionnement** qui portent cet App ID.
+Et `-allowProvisioningUpdates` **ne sauve pas** un profil nommé par
+`PROVISIONING_PROFILE_SPECIFIER` en signature manuelle : xcodebuild lit le profil périmé et
+échoue avec
+
+> Provisioning profile "MileagePocket AppStore" doesn't include the CarPlay Driving Task App
+> capability. […] needs to be assigned to your team and bundle identifier by Apple
+
+ce qui se lit comme « l'entitlement n'a pas été accordé » alors qu'il l'est. L'API ne sait pas
+*mettre à jour* un profil : il faut le supprimer et le recréer sous le même nom.
+
+```bash
+python3 tools/regenerate_profile.py "MileagePocket AppStore"
+```
+
+L'outil réutilise le même App ID et le même certificat, réinstalle le `.mobileprovision` dans
+les deux dossiers que lit la chaîne, et **relit** le contenu du profil pour confirmer qu'il
+porte `carplay-driving-task` — un POST qui répond 201 ne prouve pas ce qu'il y a dedans.
+
+À refaire à chaque fois qu'une capability change sur `Mileage.lno.company`.
 
 ⚠️ **Le volet Driving Task ne demande aucune description, ni même le nom de l'app.** Les
 champs « Tell us about your app » et « What specific CarPlay features do you plan to
