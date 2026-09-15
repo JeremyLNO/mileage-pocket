@@ -418,45 +418,61 @@ extension AppDependencies {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
 
+        // Découpé en sous-expressions typées explicitement : en un seul littéral
+        // `[String: Any]`, avec des dictionnaires hétérogènes imbriqués et trois
+        // `map` à inférer, le vérificateur de types abandonne — « unable to
+        // type-check this expression in reasonable time », archive en échec.
+        // Xcode 27 y arrivait, Xcode 26.3 non : la fragilité est ici, pas dans le
+        // compilateur, et rien n'avertit tant qu'on ne change pas de toolchain.
+        let settingsPayload: [String: Any] = [
+            "country": settings.countryCode,
+            "currency": settings.currencyCode,
+            "distanceUnit": settings.distanceUnitRaw,
+        ]
+
+        let vehiclesPayload: [[String: Any]] = vehicles.map { vehicle -> [String: Any] in
+            [
+                "id": vehicle.id.uuidString,
+                "name": vehicle.name,
+                "type": vehicle.vehicleTypeRaw,
+                "registration": vehicle.registration ?? "",
+            ]
+        }
+
+        let clientsPayload: [[String: Any]] = clients.map { client -> [String: Any] in
+            ["id": client.id.uuidString, "name": client.name]
+        }
+
+        let tripsPayload: [[String: Any]] = trips.map { trip -> [String: Any] in
+            [
+                "id": trip.id.uuidString,
+                "startedAt": formatter.string(from: trip.startedAt),
+                "endedAt": trip.endedAt.map { formatter.string(from: $0) } ?? "",
+                "distanceMeters": trip.distanceMeters,
+                "type": trip.tripTypeRaw,
+                "purpose": trip.purpose ?? "",
+                "from": trip.startAddress ?? "",
+                "fromStreet": trip.startStreet ?? "",
+                "to": trip.endAddress ?? "",
+                "toStreet": trip.endStreet ?? "",
+                "country": trip.countryCode,
+                "rate": trip.mileageRate.map { "\($0)" } ?? "",
+                "amount": trip.calculatedAmount.map { "\($0)" } ?? "",
+                "currency": trip.currencyCode ?? "",
+                "unit": trip.mileageUnitRaw ?? "",
+                "ruleVersion": trip.mileageRuleVersion ?? "",
+                "vehicleId": trip.vehicleID?.uuidString ?? "",
+                "manuallyEdited": trip.isManuallyEdited,
+            ]
+        }
+
         let payload: [String: Any] = [
             "exportedAt": formatter.string(from: .now),
             "app": "Mileage Pocket",
-            "settings": [
-                "country": settings.countryCode,
-                "currency": settings.currencyCode,
-                "distanceUnit": settings.distanceUnitRaw,
-            ],
-            "vehicles": vehicles.map { vehicle in
-                [
-                    "id": vehicle.id.uuidString,
-                    "name": vehicle.name,
-                    "type": vehicle.vehicleTypeRaw,
-                    "registration": vehicle.registration ?? "",
-                ]
-            },
-            "clients": clients.map { ["id": $0.id.uuidString, "name": $0.name] },
-            "trips": trips.map { trip in
-                [
-                    "id": trip.id.uuidString,
-                    "startedAt": formatter.string(from: trip.startedAt),
-                    "endedAt": trip.endedAt.map { formatter.string(from: $0) } ?? "",
-                    "distanceMeters": trip.distanceMeters,
-                    "type": trip.tripTypeRaw,
-                    "purpose": trip.purpose ?? "",
-                    "from": trip.startAddress ?? "",
-                    "fromStreet": trip.startStreet ?? "",
-                    "to": trip.endAddress ?? "",
-                    "toStreet": trip.endStreet ?? "",
-                    "country": trip.countryCode,
-                    "rate": trip.mileageRate.map { "\($0)" } ?? "",
-                    "amount": trip.calculatedAmount.map { "\($0)" } ?? "",
-                    "currency": trip.currencyCode ?? "",
-                    "unit": trip.mileageUnitRaw ?? "",
-                    "ruleVersion": trip.mileageRuleVersion ?? "",
-                    "vehicleId": trip.vehicleID?.uuidString ?? "",
-                    "manuallyEdited": trip.isManuallyEdited,
-                ]
-            },
+            "settings": settingsPayload,
+            "vehicles": vehiclesPayload,
+            "clients": clientsPayload,
+            "trips": tripsPayload,
         ]
 
         guard let data = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]) else {
