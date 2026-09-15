@@ -42,8 +42,10 @@ extension XCTestCase {
     func discardTripInProgress(_ app: XCUIApplication) {
         let stop = app.buttons["Stop trip"]
         guard stop.waitForExistence(timeout: 3) else { return }
+        // Stopping now saves outright — there is no sheet, and nothing to discard. The trip
+        // it leaves behind is a few metres of simulated driving in the review queue, which no
+        // test asserts on.
         stop.tap()
-        let discard = app.buttons["Discard"]
-        if discard.waitForExistence(timeout: 15) { discard.tap() }
+        _ = app.buttons["Start trip"].waitForExistence(timeout: 15)
     }
 }

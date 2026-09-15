@@ -14,7 +14,7 @@ final class TripFlowUITests: XCTestCase {
 
     /// Drives the full loop. Location is fed from the outside by
     /// `xcrun simctl location … start`, which the runner script starts before this test.
-    func testStartDriveStopClassifyAndSave() {
+    func testStartDriveAndStopSavesTheTripWithoutAskingAnything() {
         let app = launchDemoApp()
 
         let start = app.buttons["Start trip"]
@@ -31,16 +31,17 @@ final class TripFlowUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 18)
         stop.tap()
 
-        let business = app.buttons["Business"]
-        XCTAssertTrue(business.waitForExistence(timeout: 15), "the summary sheet must offer Business/Personal")
-        business.tap()
-
-        let save = app.buttons["Save"]
-        XCTAssertTrue(save.waitForExistence(timeout: 5))
-        save.tap()
-
-        // Back on Home, and the trip we just recorded is the last one.
-        XCTAssertTrue(app.buttons["Start trip"].waitForExistence(timeout: 10), "the app must return to Home after saving")
+        // Nothing is asked. Stopping used to open a summary sheet that had to be filled in
+        // before the trip counted; a drive that is over is a drive that is recorded, and the
+        // classification is asked for later, from the review queue.
+        XCTAssertTrue(
+            app.buttons["Start trip"].waitForExistence(timeout: 15),
+            "stopping must land straight back on Home, with the trip already saved"
+        )
+        XCTAssertFalse(
+            app.buttons["Business"].exists,
+            "stopping must not put a form between the driver and a saved trip"
+        )
 
         // A saved trip has to carry a real distance. An 18-second drive at 25 m/s covers a
         // few hundred metres, so a "0.0 km" card here would mean the fixes never landed —
@@ -71,10 +72,12 @@ final class TripFlowUITests: XCTestCase {
     /// This used to count a variable the test incremented itself and assert it was at most
     /// four, which is true by construction: no change to the app could make it fail. What
     /// actually has to be proved is that nothing is *interposed* — a paywall on START (which
-    /// shipped, and which the free period now prevents), a confirmation on STOP, a required
-    /// field on the summary — so each step asserts that the next control is already there and
-    /// that no sheet or alert arrived in between.
-    func testTheDailyLoopIsNotInterrupted() {
+    /// shipped, and which the free period now prevents), a confirmation on STOP, a form
+    /// standing between a finished drive and a saved one.
+    ///
+    /// The loop is now **two** taps: START, STOP. It used to be four, because stopping
+    /// opened a summary that had to be filled in before the trip counted.
+    func testTheDailyLoopIsTwoTapsAndNothingElse() {
         let app = launchDemoApp()
 
         let start = app.buttons["Start trip"]
@@ -93,22 +96,17 @@ final class TripFlowUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 6)
         stop.tap()
 
-        // Tap 2 must open the summary directly — no "are you sure", no wait on the network.
-        XCTAssertEqual(app.alerts.count, 0, "stopping must not ask anything")
-        let business = app.buttons["Business"]
-        XCTAssertTrue(business.waitForExistence(timeout: 15), "STOP alone has to reach the summary")
-
-        business.tap()
-
-        // Tap 3 classifies; Save must already be available, with nothing else required.
-        let save = app.buttons["Save"]
-        XCTAssertTrue(save.isHittable, "classifying must not unlock further required fields")
-        save.tap()
-
-        // Tap 4 lands back on Home, trip recorded.
+        // Tap 2 ends it. Nothing asks anything, and the app is ready for the next drive.
         XCTAssertTrue(
-            app.buttons["Start trip"].waitForExistence(timeout: 10),
-            "saving has to return to Home, ready for the next drive"
+            app.buttons["Start trip"].waitForExistence(timeout: 15),
+            "STOP alone has to save the trip and return to Home"
         )
+        XCTAssertEqual(app.alerts.count, 0, "stopping must not ask anything")
+        XCTAssertEqual(app.sheets.count, 0, "nor put a sheet in the way")
+        XCTAssertFalse(app.buttons["Save"].exists, "nor a form to fill in")
+
+        // And the drive really was recorded — the whole point of not asking.
+        let lastTrip = app.staticTexts["lastTripDistance"]
+        XCTAssertTrue(lastTrip.waitForExistence(timeout: 10), "the trip must be on Home already")
     }
 }

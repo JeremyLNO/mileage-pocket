@@ -72,7 +72,6 @@
 		A22366A75AF0479BBABE11C8 /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C59B96AAD2A61186FFDE7C8 /* SubscriptionService.swift */; };
 		C755B200E58C06E0751003E0 /* TripPatternMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A44AC26404B222C6226D04B /* TripPatternMatcher.swift */; };
 		F17E1FF21AEFD508D98FE243 /* ActiveTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1A1EE92FA5C88E1AF4EBE9 /* ActiveTripView.swift */; };
-		0FFD5CFDE3DC661BF646AD57 /* TripSummarySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AAB81593C0EB576E03D7EF /* TripSummarySheet.swift */; };
 		60164EEFC7EB3FE6229C7D7D /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB12C36AC9A8FCD96BA161A /* CarPlaySceneDelegate.swift */; };
 		59E26094F8D6FD38BB69EF90 /* CarPlayTripScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE90D19D81EB7391E687FC3 /* CarPlayTripScreen.swift */; };
 		89793DCF92787AC9AC14FBF7 /* ClientsProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5EB183984EF454E83611EF /* ClientsProjectsView.swift */; };
@@ -176,7 +175,6 @@
 		059EB25E2825B69058176ABB /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceController.swift"; sourceTree = "<group>"; };
 		C62834E0A49F6222939B0126 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore.swift"; sourceTree = "<group>"; };
 		2E1A1EE92FA5C88E1AF4EBE9 /* ActiveTripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActiveTripView.swift"; sourceTree = "<group>"; };
-		B2AAB81593C0EB576E03D7EF /* TripSummarySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripSummarySheet.swift"; sourceTree = "<group>"; };
 		AFB12C36AC9A8FCD96BA161A /* CarPlaySceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CarPlaySceneDelegate.swift"; sourceTree = "<group>"; };
 		BBE90D19D81EB7391E687FC3 /* CarPlayTripScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CarPlayTripScreen.swift"; sourceTree = "<group>"; };
 		DD5EB183984EF454E83611EF /* ClientsProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClientsProjectsView.swift"; sourceTree = "<group>"; };
@@ -551,7 +549,6 @@
 			isa = PBXGroup;
 			children = (
 				2E1A1EE92FA5C88E1AF4EBE9 /* ActiveTripView.swift */,
-				B2AAB81593C0EB576E03D7EF /* TripSummarySheet.swift */,
 			);
 			path = ActiveTrip;
 			sourceTree = "<group>";
@@ -1088,7 +1085,6 @@
 				A22366A75AF0479BBABE11C8 /* SubscriptionService.swift in Sources */,
 				C755B200E58C06E0751003E0 /* TripPatternMatcher.swift in Sources */,
 				F17E1FF21AEFD508D98FE243 /* ActiveTripView.swift in Sources */,
-				0FFD5CFDE3DC661BF646AD57 /* TripSummarySheet.swift in Sources */,
 				60164EEFC7EB3FE6229C7D7D /* CarPlaySceneDelegate.swift in Sources */,
 				59E26094F8D6FD38BB69EF90 /* CarPlayTripScreen.swift in Sources */,
 				89793DCF92787AC9AC14FBF7 /* ClientsProjectsView.swift in Sources */,

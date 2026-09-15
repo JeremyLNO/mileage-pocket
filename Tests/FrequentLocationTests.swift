@@ -92,7 +92,7 @@ final class FrequentLocationTests: XCTestCase {
             trip.endLongitude = baseLongitude
             trip.endAddress = "Client ABC"
             dependencies.context.insert(trip)
-            dependencies.finishTrip(trip)
+            dependencies.reviewTrip(trip, as: .business)
         }
 
         let learned = try dependencies.context.fetch(FetchDescriptor<FrequentLocation>())
@@ -112,7 +112,7 @@ final class FrequentLocationTests: XCTestCase {
             trip.endLatitude = latitude
             trip.endLongitude = baseLongitude
             dependencies.context.insert(trip)
-            dependencies.finishTrip(trip)
+            dependencies.reviewTrip(trip, as: .business)
         }
 
         XCTAssertEqual(try dependencies.context.fetch(FetchDescriptor<FrequentLocation>()).count, 2)

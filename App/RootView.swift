@@ -21,9 +21,6 @@ struct RootView: View {
         // Language is applied here, once: every view below reads `\.locale`, so switching in
         // Settings re-renders the app without a relaunch.
         .environment(\.locale, dependencies.localization.locale)
-        .sheet(item: $dependencies.finishedTrip) { trip in
-            TripSummarySheet(trip: trip)
-        }
         .sheet(isPresented: $showsForcedScreen) {
             PaywallView()
         }

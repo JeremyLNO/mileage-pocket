@@ -78,8 +78,6 @@ final class AppDependencies {
     /// Set when a trip could not start because location is off or refused. The view shows it;
     /// before, the app opened its driving screen and recorded nothing, saying nothing.
     var locationRefused = false
-    /// Set the moment a trip stops, cleared when the summary sheet is done with it.
-    var finishedTrip: Trip?
     /// Set when `stop()` could not write the trip. The recorder has put itself back to
     /// recording, so the drive continues; this is what tells the driver to try again.
     var stopFailed = false
@@ -447,9 +445,15 @@ final class AppDependencies {
             // five seconds short of the figure in the log.
             broadcast.settle(on: trip.distanceMeters, now: now())
             activeDistanceMeters = broadcast.publishedMeters
+            // Saved outright. Stopping used to open a summary sheet that had to be filled in
+            // before the trip counted — four taps for a drive, and, stopped from CarPlay, a
+            // modal left waiting on a phone in a pocket. The trip is written with the
+            // default classification and enters the review queue, where the tab badge asks
+            // for the one answer that matters, when the driver is no longer driving.
             applyCalculation(to: trip)
             try? context.save()
-            finishedTrip = trip
+            recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)
+            refreshWidgetSnapshot()
             // The addresses are fetched after the trip is on screen. Reverse-geocoding is two
             // network calls with no deadline of their own; making STOP wait for them meant a
             // driver pressing Stop and watching a frozen screen for several seconds.
@@ -553,7 +557,6 @@ final class AppDependencies {
             if settingsStore.settings.notificationsEnabled, settingsStore.settings.tripReminderEnabled {
                 notifications.scheduleTripStillRunningReminder()
             }
-            finishedTrip = nil
             syncRecorderState()
         } catch RecorderError.locationUnavailable {
             locationRefused = true
@@ -578,26 +581,6 @@ final class AppDependencies {
         invalidate()
     }
 
-    /// Called when the summary sheet's Save is pressed: the classification is already on the
-    /// trip, so this is where the amount is fixed and the learned places are updated.
-    func finishTrip(_ trip: Trip) {
-        applyCalculation(to: trip)
-        learnDestination(from: trip)
-        // Someone has now said what this was: it leaves the queue.
-        trip.isReviewed = true
-        trip.updatedAt = .now
-        try? context.save()
-        recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)
-        finishedTrip = nil
-        refreshWidgetSnapshot()
-        recorderRevision += 1
-    }
-
-    func clearFinishedTrip() {
-        finishedTrip = nil
-        refreshWidgetSnapshot()
-        recorderRevision += 1
-    }
 
     func syncRecorderState() {
         switch recorder.state {
