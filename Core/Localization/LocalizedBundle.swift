@@ -50,4 +50,10 @@ struct LocalizedStrings: Sendable {
     func format(_ key: String, _ arguments: CVarArg...) -> String {
         String(format: self(key), locale: Locale(identifier: languageCode), arguments: arguments)
     }
+
+    /// Plural-aware. A count formatted flat renders "1 trips" — and this one is printed on
+    /// the document handed to an accountant.
+    func plural(_ key: String, _ count: Int) -> String {
+        String(format: self(key), locale: Locale(identifier: languageCode), count)
+    }
 }

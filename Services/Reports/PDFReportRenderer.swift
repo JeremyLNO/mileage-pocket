@@ -252,7 +252,7 @@ struct PDFReportRenderer {
         let t = LocalizedStrings(locale: profile.locale)
         drawRule(y: y)
         let cursor = y + 6
-        draw(t.format("pdf.totals", data.businessTripCount), at: CGPoint(x: margin + 5, y: cursor + 4), font: .systemFont(ofSize: 9, weight: .semibold))
+        draw(t.plural("pdf.totals", data.businessTripCount), at: CGPoint(x: margin + 5, y: cursor + 4), font: .systemFont(ofSize: 9, weight: .semibold))
         draw(
             Fmt.distanceValue(meters: data.totalDistanceMeters, unit: profile.unit, locale: profile.locale),
             in: CGRect(x: columnX(4) + 5, y: cursor + 4, width: columns[4] - 10, height: 14),

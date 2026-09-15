@@ -30,7 +30,7 @@ struct ClientsProjectsView: View {
                     } label: {
                         row(
                             title: client.name,
-                            subtitle: L.format("clients.trip.count", dependencies.tripCount(forClient: client.id))
+                            subtitle: L.plural("clients.trip.count", dependencies.tripCount(forClient: client.id))
                         )
                     }
                     .swipeActions {

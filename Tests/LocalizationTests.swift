@@ -206,3 +206,78 @@ final class BundleNameTests: XCTestCase {
         XCTAssertLessThanOrEqual(name.count, 15, "\(name.count) characters — iOS will cut it")
     }
 }
+
+/// Every string that interpolates a count.
+///
+/// Reported from a screenshot: "1 trips to qualify". The same flat format was used in three
+/// other places nobody had looked at yet — including the PDF total, which is printed on the
+/// document handed to an accountant. A count written as `%d` plus a plural noun is right
+/// five times out of six and wrong on the one case a new user sees first.
+final class PluralRuleTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        L.languageCode = "en"
+    }
+
+    override func tearDown() {
+        L.languageCode = "en"
+        super.tearDown()
+    }
+
+    /// The one from the screenshot.
+    func testTheReviewQueueCountIsSingularForOne() {
+        XCTAssertEqual(L.plural("trips.review.count", 1), "1 trip to qualify")
+        XCTAssertEqual(L.plural("trips.review.count", 2), "2 trips to qualify")
+        XCTAssertEqual(L.plural("trips.review.count", 0), "0 trips to qualify")
+    }
+
+    func testTheClientTripCountIsSingularForOne() {
+        XCTAssertEqual(L.plural("clients.trip.count", 1), "1 trip")
+        XCTAssertEqual(L.plural("clients.trip.count", 7), "7 trips")
+    }
+
+    func testTheBlockedCloseNoticeIsSingularForOne() {
+        XCTAssertTrue(L.plural("reports.close.blocked", 1).hasPrefix("1 trip still"))
+        XCTAssertTrue(L.plural("reports.close.blocked", 3).hasPrefix("3 trips still"))
+    }
+
+    /// Printed on the report itself, so this is the one that reaches a third party.
+    func testThePDFTotalIsSingularForOne() {
+        let english = LocalizedStrings(languageCode: "en")
+        XCTAssertEqual(english.plural("pdf.totals", 1), "TOTAL — 1 business trip")
+        XCTAssertEqual(english.plural("pdf.totals", 4), "TOTAL — 4 business trips")
+    }
+
+    /// French puts 0 in the singular form — "0 trajet", not "0 trajets" — which is the whole
+    /// reason this goes through the language's own rule rather than `count == 1`.
+    func testFrenchUsesItsOwnRuleForZeroAndOne() {
+        let french = LocalizedStrings(languageCode: "fr")
+        XCTAssertEqual(french.plural("trips.review.count", 0), "0 trajet à qualifier")
+        XCTAssertEqual(french.plural("trips.review.count", 1), "1 trajet à qualifier")
+        XCTAssertEqual(french.plural("trips.review.count", 2), "2 trajets à qualifier")
+    }
+
+    /// Zero does not belong to the same form in every language, which is the whole reason
+    /// this goes through the language's own rule instead of `count == 1`.
+    ///
+    /// French and Portuguese put 0 with the singular — "0 trajet", "0 viagem". English,
+    /// German, Spanish and Italian put it with the plural. I had Portuguese the other way
+    /// round until this test said otherwise.
+    func testZeroFollowsEachLanguagesOwnRule() {
+        /// The noun alone: comparing whole strings would only ever compare the numbers.
+        func form(_ code: String, _ count: Int) -> String {
+            LocalizedStrings(languageCode: code)
+                .plural("clients.trip.count", count)
+                .trimmingCharacters(in: CharacterSet(charactersIn: "0123456789 "))
+        }
+
+        for code in ["fr", "pt"] {
+            XCTAssertEqual(form(code, 0), form(code, 1), "\(code): zero takes the singular")
+            XCTAssertNotEqual(form(code, 0), form(code, 2), "\(code): and it is not the plural")
+        }
+        for code in ["en", "de", "es", "it"] {
+            XCTAssertEqual(form(code, 0), form(code, 2), "\(code): zero takes the plural")
+            XCTAssertNotEqual(form(code, 0), form(code, 1), "\(code): and it is not the singular")
+        }
+    }
+}

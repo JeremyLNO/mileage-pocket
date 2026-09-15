@@ -131,7 +131,7 @@ struct ReportsView: View {
                             .foregroundStyle(Theme.signal)
                     } else if status.unqualifiedCount > 0 {
                         Label {
-                            Text(verbatim: L.format("reports.close.blocked", status.unqualifiedCount))
+                            Text(verbatim: L.plural("reports.close.blocked", status.unqualifiedCount))
                         } icon: {
                             Image(systemName: "questionmark.circle.fill").foregroundStyle(Theme.signal)
                         }

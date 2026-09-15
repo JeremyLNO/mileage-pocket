@@ -44,7 +44,7 @@ struct TripsView: View {
                     Image(systemName: "questionmark.circle.fill")
                         .foregroundStyle(Theme.signal)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(verbatim: L.format("trips.review.count", awaitingReview.count))
+                        Text(verbatim: L.plural("trips.review.count", awaitingReview.count))
                             .scaledFont(16, relativeTo: .body, weight: .semibold)
                             .foregroundStyle(Theme.textPrimary)
                         Text("trips.review.subtitle")
