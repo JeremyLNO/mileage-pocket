@@ -66,32 +66,53 @@ jobs:
           printf '%s' "$ASC_KEY_P8" > ~/private_keys/AuthKey_${ASC_KEY_ID}.p8
           cp ~/private_keys/AuthKey_${ASC_KEY_ID}.p8 ~/.appstoreconnect/private_keys/
 
-      - name: Import signing certificate
+      - name: Import signing certificates
+        # Les deux, Distribution compris. Le projet est en signature MANUELLE avec
+        # CODE_SIGN_IDENTITY = "Apple Distribution" : sans ce certificat, l'archive
+        # s'arrête sur « No signing certificate "iOS Distribution" found ». Les
+        # certificats sont réutilisés et jamais recréés — un profil se recrée
+        # gratuitement, un certificat compte dans le quota du compte et le sature.
         env:
-          CERT_P12: ${{ secrets.IOS_DEV_CERT_P12 }}
-          CERT_PASSWORD: ${{ secrets.IOS_DEV_CERT_PASSWORD }}
+          DEV_P12: ${{ secrets.IOS_DEV_CERT_P12 }}
+          DEV_PASSWORD: ${{ secrets.IOS_DEV_CERT_PASSWORD }}
+          DIST_P12: ${{ secrets.IOS_DIST_CERT_P12 }}
+          DIST_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/signing.keychain-db"
           KEYCHAIN_PASSWORD=$(uuidgen)
-          echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN_PATH" -P "$CERT_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+
+          import_cert() {
+            local payload="$1" password="$2" label="$3"
+            if [ -z "$payload" ]; then
+              echo "::warning::no $label certificate in secrets, skipping"
+              return
+            fi
+            echo "$payload" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+            if security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN_PATH" -P "$password" \
+              -T /usr/bin/codesign -T /usr/bin/security; then
+              echo "imported $label certificate"
+            else
+              echo "::warning::could not import the $label certificate (wrong password or bad p12 secret)"
+            fi
+            rm -f "$RUNNER_TEMP/cert.p12"
+          }
+          import_cert "$DIST_P12" "$DIST_PASSWORD" distribution
+          import_cert "$DEV_P12" "$DEV_PASSWORD" development
+
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" >/dev/null
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
-          # Without this, xcodebuild's automatic signing does not see the
-          # identity we just imported and quietly mints a BRAND NEW "Apple
-          # Development" certificate on every run, which exhausts the
-          # account-wide certificate quota after a handful of builds and then
-          # breaks archiving for every app on the account.
+          # Sans ça, la signature automatique ne voit pas les identités qu'on vient
+          # d'importer et fabrique un nouveau certificat à chaque run, ce qui sature
+          # le quota du compte et casse l'archive de TOUTES les apps.
           security default-keychain -s "$KEYCHAIN_PATH"
-          rm -f "$RUNNER_TEMP/cert.p12"
-          # Fail loudly rather than let the build "succeed" on a freshly
-          # created certificate.
+          echo "--- signing identities available ---"
           security find-identity -v -p codesigning "$KEYCHAIN_PATH"
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep -q "Apple Development" || {
-            echo "::error::imported certificate is not usable for code signing"
+          # L'import est volontairement non fatal : c'est ce dump qui fait foi.
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep -q "Apple Develop" || {
+            echo "::error::aucune identité de signature utilisable dans le trousseau"
             exit 1
           }
 
@@ -150,6 +171,9 @@ jobs:
               -destination 'generic/platform=iOS' \
               -allowProvisioningUpdates \
               CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+              CODE_SIGN_STYLE=Automatic \
+              CODE_SIGN_IDENTITY="Apple Development" \
+              PROVISIONING_PROFILE_SPECIFIER="" \
               -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
               -authenticationKeyID "$ASC_KEY_ID" \
               -authenticationKeyIssuerID "$ASC_ISSUER_ID"
@@ -165,10 +189,18 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        # ExportOptions.plist du dépôt est en signingStyle=manual avec deux profils
+        # nommés — ils existent sur le Mac, pas sur un runner éphémère. La CI
+        # travaille sur une copie basculée en automatique, que -allowProvisioningUpdates
+        # et la clé ASC savent résoudre seules. Une copie, pas un second fichier :
+        # deux plists finiraient par diverger sans que rien ne le signale.
         run: |
+          cp ExportOptions.plist "$RUNNER_TEMP/ExportOptions-ci.plist"
+          /usr/libexec/PlistBuddy -c "Set :signingStyle automatic" "$RUNNER_TEMP/ExportOptions-ci.plist"
+          /usr/libexec/PlistBuddy -c "Delete :provisioningProfiles" "$RUNNER_TEMP/ExportOptions-ci.plist" || true
           xcodebuild -exportArchive \
             -archivePath build/MileagePocket.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions-ci.plist" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
