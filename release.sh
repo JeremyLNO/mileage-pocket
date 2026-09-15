@@ -2,7 +2,7 @@
 # Archive Mileage Pocket and upload it to TestFlight from this Mac.
 #
 #   export ASC_KEY_ID=88BAZ9XND3
-#   export ASC_ISSUER_ID=***ASC-ISSUER-ID-RETIRE***
+#   export ASC_ISSUER_ID=$(cat ~/.appstoreconnect/issuer_id)
 #   export ASC_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
 #   ./release.sh
 #

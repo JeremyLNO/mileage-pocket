@@ -12,6 +12,7 @@ Usage:
   python3 tools/asc_subscriptions.py            # tout
   python3 tools/asc_subscriptions.py --verify   # verification seule
 """
+import os
 import json, os, sys, time, threading, argparse
 import urllib.request, urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -22,8 +23,23 @@ import jwt
 
 # ---------------------------------------------------------------- config
 
+def _asc_issuer():
+    """Issuer ID App Store Connect — jamais en dur : ces dépôts sont publics.
+    Ordre : $ASC_ISSUER_ID, puis ~/.appstoreconnect/issuer_id (chmod 600)."""
+    value = os.environ.get("ASC_ISSUER_ID")
+    if value:
+        return value.strip()
+    path = os.path.expanduser("~/.appstoreconnect/issuer_id")
+    if os.path.exists(path):
+        return open(path).read().strip()
+    raise SystemExit(
+        "ASC_ISSUER_ID absent : exporter la variable, ou écrire l'issuer ID dans "
+        "~/.appstoreconnect/issuer_id (chmod 600). Il ne doit pas revenir dans le dépôt."
+    )
+
+
 KEY_ID = os.environ.get("ASC_KEY_ID", "88BAZ9XND3")
-ISSUER_ID = os.environ.get("ASC_ISSUER_ID", "***ASC-ISSUER-ID-RETIRE***")
+ISSUER_ID = _asc_issuer()
 KEY_PATH = os.path.expanduser(f"~/.appstoreconnect/private_keys/AuthKey_{KEY_ID}.p8")
 APP_ID = "6811426601"
 BASE = "https://api.appstoreconnect.apple.com"

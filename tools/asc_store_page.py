@@ -21,8 +21,23 @@ import urllib.request
 
 import jwt
 
+def _asc_issuer():
+    """Issuer ID App Store Connect — jamais en dur : ces dépôts sont publics.
+    Ordre : $ASC_ISSUER_ID, puis ~/.appstoreconnect/issuer_id (chmod 600)."""
+    value = os.environ.get("ASC_ISSUER_ID")
+    if value:
+        return value.strip()
+    path = os.path.expanduser("~/.appstoreconnect/issuer_id")
+    if os.path.exists(path):
+        return open(path).read().strip()
+    raise SystemExit(
+        "ASC_ISSUER_ID absent : exporter la variable, ou écrire l'issuer ID dans "
+        "~/.appstoreconnect/issuer_id (chmod 600). Il ne doit pas revenir dans le dépôt."
+    )
+
+
 KEY_ID = "88BAZ9XND3"
-ISSUER = "***ASC-ISSUER-ID-RETIRE***"
+ISSUER = _asc_issuer()
 KEY_PATH = os.path.expanduser("~/.appstoreconnect/private_keys/AuthKey_88BAZ9XND3.p8")
 APP_ID = "6811426601"
 BASE = "https://api.appstoreconnect.apple.com"
