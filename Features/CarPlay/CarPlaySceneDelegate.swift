@@ -59,6 +59,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             isRecording: dependencies.isRecording,
             isPaused: dependencies.isTripPaused,
             canStart: dependencies.canAccess(.startTrip),
+            canRecordFromCar: dependencies.recorder.authorizationStatus == .authorizedAlways,
             distanceMeters: dependencies.activeDistanceMeters,
             startedAt: dependencies.activeStartedAt,
             vehicleName: dependencies.activeVehicleName,

@@ -28,10 +28,18 @@ struct CarPlayTripScreen: Equatable {
     ///   - canStart: whether access allows a new trip. A paywall cannot be shown on a car
     ///     screen, so when it does not, the screen says where to go instead of offering a
     ///     button that would silently fail.
+    ///   - canRecordFromCar: whether location is authorised **Always**.
+    ///
+    ///     This is not a nicety either. "While Using" permits background updates for a
+    ///     session that *began* while the app was in use; a session started from the car
+    ///     screen, phone locked, did not. iOS then withholds every position: the clock runs,
+    ///     the distance stays at 0.0 km, and the app looks like it is working. Offering
+    ///     START in that state is the one thing this screen must not do.
     static func make(
         isRecording: Bool,
         isPaused: Bool,
         canStart: Bool,
+        canRecordFromCar: Bool = true,
         distanceMeters: Double,
         startedAt: Date?,
         vehicleName: String?,
@@ -56,6 +64,15 @@ struct CarPlayTripScreen: Equatable {
             rows.append(Row(
                 title: L.string("detail.duration"),
                 detail: Fmt.duration(elapsed, locale: locale)
+            ))
+        } else if !canRecordFromCar {
+            rows.append(Row(
+                title: L.string("carplay.status"),
+                detail: L.string("carplay.needs.always")
+            ))
+            rows.append(Row(
+                title: "",
+                detail: L.string("carplay.needs.always.detail")
             ))
         } else if canStart {
             rows.append(Row(
@@ -84,7 +101,7 @@ struct CarPlayTripScreen: Equatable {
         if isRecording {
             return CarPlayTripScreen(rows: rows, action: .stop, actionTitle: L.string("activetrip.stop.accessibility"))
         }
-        if canStart {
+        if canStart, canRecordFromCar {
             return CarPlayTripScreen(rows: rows, action: .start, actionTitle: L.string("home.start.accessibility"))
         }
         return CarPlayTripScreen(rows: rows, action: .none, actionTitle: nil)

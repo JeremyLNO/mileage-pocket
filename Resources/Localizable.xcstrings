@@ -411,6 +411,88 @@
         }
       }
     },
+    "carplay.needs.always": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ortung auf „Beim Verwenden\""
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location set to \"While Using\""
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubicación en «Al usar la app»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Localisation sur « Lorsque l'app est active »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posizione su «Mentre usi l'app»"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Localização em «Ao usar a app»"
+          }
+        }
+      }
+    },
+    "carplay.needs.always.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stelle sie am iPhone auf „Immer\" – sonst zeichnet eine im Auto gestartete Fahrt nichts auf"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set it to Always on your iPhone — a trip started from the car records nothing without it"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cámbiala a «Siempre» en tu iPhone: sin eso, un viaje iniciado desde el coche no registra nada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passez-la sur « Toujours » sur votre iPhone — sans cela, un trajet lancé depuis la voiture n'enregistre rien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostala su «Sempre» sul tuo iPhone: senza, un viaggio avviato dall'auto non registra nulla"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Defina-a como «Sempre» no seu iPhone — sem isso, uma viagem iniciada a partir do carro não regista nada"
+          }
+        }
+      }
+    },
     "carplay.paused": {
       "extractionState": "manual",
       "localizations": {
@@ -8351,6 +8433,129 @@
           "stringUnit": {
             "state": "translated",
             "value": "CarPlay"
+          }
+        }
+      }
+    },
+    "settings.carplay.always": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Ortung muss auf „Immer\" stehen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location must be set to Always"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La ubicación debe estar en «Siempre»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La localisation doit être sur « Toujours »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La posizione deve essere su «Sempre»"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A localização tem de estar em «Sempre»"
+          }
+        }
+      }
+    },
+    "settings.carplay.always.action": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Immer\" erlauben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Always"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir «Siempre»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser « Toujours »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consenti «Sempre»"
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir «Sempre»"
+          }
+        }
+      }
+    },
+    "settings.carplay.always.detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS liefert einer im Auto gestarteten App nur dann Positionen, wenn die Ortung auf „Immer\" steht. Bei „Beim Verwenden\" läuft bei einer über CarPlay gestarteten Fahrt nur die Uhr, und es wird keine Strecke aufgezeichnet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS only delivers positions to an app started from the car when location is set to Always. On \"While Using\", a trip started from CarPlay runs a timer and records no distance at all."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS solo entrega posiciones a una app iniciada desde el coche si la ubicación está en «Siempre». Con «Al usar la app», un viaje iniciado desde CarPlay pone en marcha un cronómetro y no registra ninguna distancia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS ne livre les positions à une app lancée depuis la voiture que si la localisation est sur « Toujours ». Sur « Lorsque l'app est active », un trajet lancé depuis CarPlay fait tourner un chrono et n'enregistre aucune distance."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS fornisce le posizioni a un'app avviata dall'auto solo se la posizione è su «Sempre». Con «Mentre usi l'app», un viaggio avviato da CarPlay fa partire un cronometro e non registra alcuna distanza."
+          }
+        },
+        "pt": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O iOS só entrega posições a uma app iniciada a partir do carro se a localização estiver em «Sempre». Com «Ao usar a app», uma viagem iniciada pelo CarPlay põe um cronómetro a correr e não regista qualquer distância."
           }
         }
       }

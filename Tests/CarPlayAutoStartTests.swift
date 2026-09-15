@@ -235,4 +235,29 @@ final class CarPlayAutoStartTests: XCTestCase {
     func testOnlyACarPlayRouteCountsAsACar() {
         XCTAssertFalse(CarConnectionMonitor.isCarRoute(AVAudioSession.sharedInstance().currentRoute))
     }
+
+    /// The same rule on the connection path. A trip begun the moment the phone is plugged in,
+    /// with location on "While Using", receives no positions at all — the clock runs and the
+    /// distance stays at zero. Not starting is the honest outcome.
+    func testPluggingInStartsNothingWithoutAlwaysAuthorisation() throws {
+        let rig = try makeRig(autoStart: true)
+        rig.recorder.authorizationStatus = .authorizedWhenInUse
+
+        rig.car.plugIn()
+
+        XCTAssertEqual(
+            rig.recorder.startCount, 0,
+            "a trip that cannot receive a single position must not be started"
+        )
+        XCTAssertFalse(rig.dependencies.isRecording)
+    }
+
+    func testPluggingInStartsTheTripWhenAlwaysIsGranted() throws {
+        let rig = try makeRig(autoStart: true)
+        rig.recorder.authorizationStatus = .authorizedAlways
+
+        rig.car.plugIn()
+
+        XCTAssertEqual(rig.recorder.startCount, 1)
+    }
 }

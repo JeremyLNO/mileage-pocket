@@ -19,6 +19,7 @@ final class CarPlayScreenTests: XCTestCase {
         isRecording: Bool = false,
         isPaused: Bool = false,
         canStart: Bool = true,
+        canRecordFromCar: Bool = true,
         distanceMeters: Double = 0,
         startedAt: Date? = nil,
         vehicleName: String? = "Tesla Model 3",
@@ -28,6 +29,7 @@ final class CarPlayScreenTests: XCTestCase {
             isRecording: isRecording,
             isPaused: isPaused,
             canStart: canStart,
+            canRecordFromCar: canRecordFromCar,
             distanceMeters: distanceMeters,
             startedAt: startedAt,
             vehicleName: vehicleName,
@@ -115,5 +117,34 @@ final class CarPlayScreenTests: XCTestCase {
         let second = screen(isRecording: true, distanceMeters: 24_400, startedAt: start)
         XCTAssertNotEqual(first, second)
         XCTAssertEqual(first, screen(isRecording: true, distanceMeters: 24_300, startedAt: start))
+    }
+
+    // MARK: - The permission the car screen cannot ask for
+
+    /// "While Using" permits background updates for a session that *began* while the app was
+    /// in use. One begun from the car screen, phone locked, did not — iOS withholds every
+    /// position, the clock runs, and the distance stays at 0.0 km for the whole drive.
+    ///
+    /// Reported from the road: a trip started from CarPlay sat at 0.0 km for three minutes.
+    /// Offering START in that state is the one thing this screen must not do.
+    func testWithoutAlwaysThereIsNoStartButton() {
+        let screen = screen(canRecordFromCar: false)
+        XCTAssertEqual(screen.action, CarPlayTripScreen.Action.none)
+        XCTAssertNil(screen.actionTitle, "a START that records nothing is worse than no START")
+        XCTAssertEqual(screen.rows.first?.detail, "Location set to \"While Using\"")
+        XCTAssertTrue(
+            screen.rows.contains { $0.detail.contains("Set it to Always") },
+            "the screen has to say what to do, not merely refuse"
+        )
+    }
+
+    /// A trip that is already running was started from the phone, in use, so its session is
+    /// live and its positions are arriving. It must still be stoppable from the car.
+    func testATripAlreadyRunningIsUnaffectedByTheAlwaysCheck() {
+        let screen = screen(
+            isRecording: true, canRecordFromCar: false, distanceMeters: 5_000, startedAt: start
+        )
+        XCTAssertEqual(screen.action, .stop)
+        XCTAssertNotNil(screen.actionTitle)
     }
 }

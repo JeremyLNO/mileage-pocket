@@ -237,6 +237,13 @@ final class AppDependencies {
     /// theirs to end, and unplugging at a petrol station must not decide otherwise.
     private(set) var tripWasAutoStarted = false
 
+    /// Whether a trip begun from the car will actually receive positions.
+    ///
+    /// Always, and only Always. See `carPlayConnectionChanged` for why.
+    var canRecordFromCar: Bool {
+        recorder.authorizationStatus == .authorizedAlways
+    }
+
     func carPlayConnectionChanged(_ connected: Bool) {
         let settings = settingsStore.settings
         if connected {
@@ -244,6 +251,11 @@ final class AppDependencies {
             // drive.
             cancelPendingAutoStop()
             guard settings.autoStartOnCarPlay, !isRecording, canAccess(.startTrip) else { return }
+            // Nothing is started without Always. "While Using" permits background updates
+            // only for a session that began while the app was in use; one begun on a CarPlay
+            // connection, phone locked, gets no positions at all — a running clock over a
+            // 0.0 km trip, which is worse than not starting.
+            guard canRecordFromCar else { return }
             startTrip()
             // Only if it actually started: a refused permission leaves nothing running, and
             // marking it automatic would arm a stop for a trip that does not exist.
