@@ -129,6 +129,11 @@ jobs:
             -scheme MileagePocket
 
       - name: Compute build number
+        env:
+          # Le dépôt est public : l'issuer ID n'est plus en dur dans le script,
+          # il arrive par cette variable (le .p8, lui, est déjà écrit sur disque
+          # par l'étape précédente, à l'emplacement que le script attend).
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         # tools/next_build_number.py signe un JWT ES256 : il lui faut pyjwt et
         # cryptography, absents du runner. Dans un venv plutôt qu'en pip système,
         # que les images macOS refusent (externally-managed-environment).
