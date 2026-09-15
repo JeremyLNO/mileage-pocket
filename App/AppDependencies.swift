@@ -169,6 +169,8 @@ final class AppDependencies {
         recorder.onAuthorizationChange = { [weak self] status in
             guard let self else { return }
             locationRefused = (status == .denied || status == .restricted) && isRecording
+            // The answer to the first prompt is the only moment iOS will show the second.
+            escalateToAlwaysIfNeeded()
             // Always may have just been granted — or withdrawn in Settings. The standing
             // watch exists only under Always, so it is re-decided here rather than assumed
             // from what was true at launch.
@@ -779,8 +781,46 @@ final class AppDependencies {
 
     // MARK: - Permissions
 
+    private enum LocationPermissionKey {
+        static let askedForAlways = "location.askedForAlways"
+    }
+
+    /// Whether iOS has already been asked to upgrade "While Using" to "Always".
+    ///
+    /// It shows that prompt **once**. Every later call to
+    /// `requestAlwaysAuthorization()` returns silently, so a button that offers to ask again
+    /// would do nothing at all — the only way through from there is iOS Settings, and the UI
+    /// has to send the driver there instead of pretending.
+    var hasAskedForAlwaysAuthorization: Bool {
+        UserDefaults.standard.bool(forKey: LocationPermissionKey.askedForAlways)
+    }
+
+    /// True when asking again can still produce a system prompt.
+    var canStillAskForAlways: Bool {
+        switch recorder.authorizationStatus {
+        case .notDetermined: return true
+        case .authorizedWhenInUse: return !hasAskedForAlwaysAuthorization
+        default: return false
+        }
+    }
+
     func requestLocationPermission() {
+        if recorder.authorizationStatus == .authorizedWhenInUse {
+            UserDefaults.standard.set(true, forKey: LocationPermissionKey.askedForAlways)
+        }
         recorder.requestPermission()
+    }
+
+    /// Escalates to Always the moment "While Using" is granted.
+    ///
+    /// iOS refuses to jump straight to Always: the first prompt can only ever be the
+    /// While-Using one, and the upgrade has to be a second request. Without this second step
+    /// the app sat on "While Using" forever — which records a drive begun from the phone and
+    /// records **nothing at all** from a drive begun on the car's screen.
+    private func escalateToAlwaysIfNeeded() {
+        guard recorder.authorizationStatus == .authorizedWhenInUse,
+              !hasAskedForAlwaysAuthorization else { return }
+        requestLocationPermission()
     }
 
     func requestNotificationPermission() async {

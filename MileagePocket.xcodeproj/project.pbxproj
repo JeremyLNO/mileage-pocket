@@ -106,6 +106,7 @@
 		63FA1168F6F86336DE2D605A /* FormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D05E528024AA1A7F594A935 /* FormattingTests.swift */; };
 		B77BCC1AF35F759FDE1BCF97 /* FrequentLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC138E8272380521D281E57 /* FrequentLocationTests.swift */; };
 		60D431B3BDA8A9C02CA1BB97 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 130EC405E03FC44301BC91F3 /* LocalizationTests.swift */; };
+		01AF36E74071FB716480BAF8 /* LocationEscalationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C4CCEE50CAD87F3C098D36 /* LocationEscalationTests.swift */; };
 		79FCA43F1C7D1DEDE5260888 /* LocationFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E637C1349819DD9FE88137 /* LocationFilterTests.swift */; };
 		504EA073300EB6D94E80C926 /* MileageCalculationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C9D22F98FBAA9A7C7EF9230 /* MileageCalculationTests.swift */; };
 		145EC27889B7E30012061E8D /* PeriodClosingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C6217B15913F05B13B01FC /* PeriodClosingTests.swift */; };
@@ -256,6 +257,7 @@
 		7D05E528024AA1A7F594A935 /* FormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FormattingTests.swift"; sourceTree = "<group>"; };
 		BFC138E8272380521D281E57 /* FrequentLocationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FrequentLocationTests.swift"; sourceTree = "<group>"; };
 		130EC405E03FC44301BC91F3 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizationTests.swift"; sourceTree = "<group>"; };
+		75C4CCEE50CAD87F3C098D36 /* LocationEscalationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocationEscalationTests.swift"; sourceTree = "<group>"; };
 		61E637C1349819DD9FE88137 /* LocationFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocationFilterTests.swift"; sourceTree = "<group>"; };
 		7C9D22F98FBAA9A7C7EF9230 /* MileageCalculationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileageCalculationTests.swift"; sourceTree = "<group>"; };
 		16C6217B15913F05B13B01FC /* PeriodClosingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PeriodClosingTests.swift"; sourceTree = "<group>"; };
@@ -702,6 +704,7 @@
 				7D05E528024AA1A7F594A935 /* FormattingTests.swift */,
 				BFC138E8272380521D281E57 /* FrequentLocationTests.swift */,
 				130EC405E03FC44301BC91F3 /* LocalizationTests.swift */,
+				75C4CCEE50CAD87F3C098D36 /* LocationEscalationTests.swift */,
 				61E637C1349819DD9FE88137 /* LocationFilterTests.swift */,
 				7C9D22F98FBAA9A7C7EF9230 /* MileageCalculationTests.swift */,
 				16C6217B15913F05B13B01FC /* PeriodClosingTests.swift */,
@@ -1126,6 +1129,7 @@
 				63FA1168F6F86336DE2D605A /* FormattingTests.swift in Sources */,
 				B77BCC1AF35F759FDE1BCF97 /* FrequentLocationTests.swift in Sources */,
 				60D431B3BDA8A9C02CA1BB97 /* LocalizationTests.swift in Sources */,
+				01AF36E74071FB716480BAF8 /* LocationEscalationTests.swift in Sources */,
 				79FCA43F1C7D1DEDE5260888 /* LocationFilterTests.swift in Sources */,
 				504EA073300EB6D94E80C926 /* MileageCalculationTests.swift in Sources */,
 				145EC27889B7E30012061E8D /* PeriodClosingTests.swift in Sources */,
