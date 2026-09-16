@@ -525,6 +525,8 @@ extension AppDependencies {
         let settings = settingsStore.settings
         let trips = (try? context.fetch(FetchDescriptor<Trip>())) ?? []
         let data = ReportBuilder.build(trips: trips, period: .current(), fallbackCurrency: settings.currencyCode)
+        let awaiting = tripsAwaitingReview
+        let carried = carriedPendingTrips(from: awaiting)
         WidgetSnapshotStore.write(
             WidgetSnapshot(
                 monthLabel: Date.now.formatted(.dateTime.month(.wide).locale(localization.locale)),
@@ -537,11 +539,74 @@ extension AppDependencies {
                 updatedAt: .now,
                 tripStartedAt: isRecording ? activeStartedAt : nil,
                 tripDistanceMeters: isRecording ? activeDistanceMeters : nil,
-                tripsAwaitingReview: tripsAwaitingReview.count,
-                languageCode: L.languageCode
+                tripsAwaitingReview: awaiting.count,
+                languageCode: L.languageCode,
+                pendingTrips: carried
             )
         )
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    /// The head of the review queue, named well enough for the home screen to ask about it.
+    ///
+    /// Named, not just counted: the widget's buttons act on one trip, and "Business or
+    /// personal?" over a drive the reader cannot identify is a question nobody can answer.
+    /// The order is the app's own, so the trip the widget asks about is the trip the queue
+    /// inside the app puts first — two different orders would be two different queues.
+    func carriedPendingTrips(from awaiting: [Trip]) -> [PendingTrip] {
+        let settings = settingsStore.settings
+        return awaiting.prefix(WidgetSnapshot.carriedPendingTrips).map { trip in
+            let labels = endpointLabels(for: trip)
+            return PendingTrip(
+                id: trip.id,
+                label: "\(labels.start) \u{2192} \(labels.end)",
+                distanceText: DistanceDisplay.text(
+                    meters: trip.distanceMeters,
+                    unit: settings.distanceUnit,
+                    locale: localization.locale
+                )
+            )
+        }
+    }
+
+    /// Carries out what was decided on the home screen.
+    ///
+    /// The widget cannot classify a trip or end a drive itself — it records that the user
+    /// asked for it. This is where those requests become real, in the one process that owns
+    /// the store, the rule engine and the location manager. It runs at launch and on every
+    /// return to the foreground, and it is idempotent: the inbox is emptied as it is read.
+    ///
+    /// Order matters. Qualifications are applied before the snapshot is rewritten, so the
+    /// widget never briefly shows again a question that has just been answered.
+    func applyPendingWidgetActions(inbox: SharedInbox = .shared) {
+        let decisions = inbox.drainQualifications()
+        if !decisions.isEmpty {
+            let byID = Dictionary(
+                (try? context.fetch(FetchDescriptor<Trip>()))?.map { ($0.id, $0) } ?? [],
+                uniquingKeysWith: { first, _ in first }
+            )
+            for decision in decisions {
+                // A trip deleted, or already answered for inside the app, is not re-decided:
+                // the app's own answer is the later one and wins.
+                guard let trip = byID[decision.tripID], !trip.isReviewed else { continue }
+                reviewTrip(trip, as: decision.tripType)
+            }
+        }
+
+        if let stop = inbox.takeStopRequest(), isRecording, matchesActiveTrip(stop) {
+            stopTrip()
+        }
+    }
+
+    /// A stop asked for from the home screen names the drive it was drawn for. Anything else
+    /// running now is a different drive, and stopping it is not what anyone asked for.
+    ///
+    /// The tolerance absorbs the round trip through JSON and the intent's own encoding, not
+    /// an interval in which a second trip could plausibly have begun.
+    private func matchesActiveTrip(_ stop: PendingStop) -> Bool {
+        guard let requested = stop.tripStartedAt else { return true }
+        guard let current = activeStartedAt else { return false }
+        return abs(current.timeIntervalSince(requested)) < 1
     }
 
     func subscriptionDescription() -> String {

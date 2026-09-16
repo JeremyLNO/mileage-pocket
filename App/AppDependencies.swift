@@ -197,6 +197,10 @@ final class AppDependencies {
         subscriptions.start()
         adoptTripInProgress()
         syncRecorderState()
+        // What was decided on the home screen while the app was not running. Before the
+        // snapshot below, so a launch never rewrites a question the user already answered.
+        WidgetActionBridge.applyPendingActions = { [weak self] in self?.applyPendingWidgetActions() }
+        applyPendingWidgetActions()
         // Written at every launch, not only when a trip ends. Otherwise the widget of someone
         // who installs the update stays blank until their next finished drive — with a store
         // full of trips it could have been describing all along.
@@ -447,9 +451,12 @@ final class AppDependencies {
             if settingsStore.settings.notificationsEnabled, settingsStore.settings.tripReminderEnabled {
                 notifications.scheduleTripStillRunningReminder()
             }
-            // The widget's whole job while a trip runs is to say that one is running.
-            refreshWidgetSnapshot()
+            // After `syncRecorderState`, never before it. The snapshot is built from
+            // `isRecording` and `activeStartedAt`, and those are set *there* — refreshing
+            // first wrote "no trip in progress" at the exact moment one began, and the
+            // widget then said nothing was happening for the whole drive.
             syncRecorderState()
+            refreshWidgetSnapshot()
         } catch RecorderError.locationUnavailable {
             // Recording without location produced a running timer over a 0 m trip and said
             // nothing at all. Refuse visibly instead.
@@ -481,12 +488,14 @@ final class AppDependencies {
             applyCalculation(to: trip)
             try? context.save()
             recalculateCumulativeYear(containing: trip.startedAt, countryCode: trip.countryCode)
-            refreshWidgetSnapshot()
             // The addresses are fetched after the trip is on screen. Reverse-geocoding is two
             // network calls with no deadline of their own; making STOP wait for them meant a
             // driver pressing Stop and watching a frozen screen for several seconds.
             Task { [recorder] in
                 await recorder.attachPlaces(to: trip)
+                // Again once the addresses are in: the widget names the trip it asks about
+                // by where it went, and at the moment STOP was pressed nothing knew that yet.
+                refreshWidgetSnapshot()
                 invalidate()
             }
         } catch {
@@ -509,6 +518,10 @@ final class AppDependencies {
         // a separate promise and has to survive it.
         applyBackgroundWatch()
         syncRecorderState()
+        // Same ordering as `startTrip`, for the same reason: written before this, the
+        // snapshot still carried `isRecording == true` and the old start date, so the home
+        // screen kept counting a drive that had just ended — with a STOP on it.
+        refreshWidgetSnapshot()
     }
 
     /// Arms or disarms the watch that lets iOS relaunch the app at the start of a drive.

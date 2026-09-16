@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct MileagePocketApp: App {
     @State private var dependencies: AppDependencies
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         // iCloud is read from UserDefaults rather than the store, because the store cannot be
@@ -29,6 +30,14 @@ struct MileagePocketApp: App {
                 .environment(dependencies)
                 .modelContainer(dependencies.container)
                 .task { dependencies.bootstrap() }
+                .onChange(of: scenePhase) { _, phase in
+                    // A widget button tapped while the app sat in the background reaches a
+                    // process that will not bootstrap again. This is the other half of that
+                    // pair — without it, a trip classified from the home screen would stay
+                    // classified only in the widget until the app was killed and relaunched.
+                    guard phase == .active else { return }
+                    dependencies.applyPendingWidgetActions()
+                }
                 .onOpenURL { url in
                     // The widget lands the reader where its own headline pointed: a drive
                     // under way opens the driving screen, a queue opens the queue, and

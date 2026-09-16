@@ -1,5 +1,15 @@
 import Foundation
 
+/// A finished trip the app has never been told the nature of, named well enough for the
+/// home screen to ask about it.
+struct PendingTrip: Codable, Sendable, Equatable, Identifiable {
+    let id: UUID
+    /// "Paris → Orly", already resolved in the app's language.
+    let label: String
+    /// "24.3 km", in the unit the user chose.
+    let distanceText: String
+}
+
 /// The little the home screen widget needs: this month's figures and whether a trip is
 /// running. Written by the app into the shared App Group container whenever a trip ends,
 /// read by the widget — which has no access to the app's SwiftData store.
@@ -22,6 +32,21 @@ struct WidgetSnapshot: Codable, Sendable, Equatable {
     /// strings against the system language by default, which would have put the home screen
     /// in one language and the app in another.
     var languageCode: String
+    /// The head of that queue, in the app's own order, carried so the widget can ask about
+    /// a named trip rather than about a number — and can move to the next one on its own
+    /// after a tap, without waiting for the app to run.
+    ///
+    /// Optional, and deliberately so: a snapshot written by an earlier build has no such key,
+    /// and a non-optional property would fail to decode and leave the widget blank until the
+    /// next launch rewrote it.
+    var pendingTrips: [PendingTrip]? = nil
+
+    /// How many are carried. Fewer than `tripsAwaitingReview` when the queue is long — the
+    /// widget asks about the ones it knows and stops asking when it runs out, rather than
+    /// inventing a trip.
+    static let carriedPendingTrips = 4
+
+    var pending: [PendingTrip] { pendingTrips ?? [] }
 
     var unit: DistanceUnit { DistanceUnit(rawValue: unitRaw) ?? .kilometers }
 
@@ -48,6 +73,19 @@ struct WidgetSnapshot: Codable, Sendable, Equatable {
         }
     }
 
+    /// The snapshot as it reads once a trip has been answered for on the home screen.
+    ///
+    /// Applied by the widget extension the moment the button is tapped, so the face changes
+    /// under the finger instead of waiting for the app to be opened. The count falls by one
+    /// whether or not that trip was among the carried few, and never below zero — the
+    /// authoritative figure is rewritten by the app the next time it runs.
+    func answering(_ tripID: UUID) -> WidgetSnapshot {
+        var copy = self
+        copy.pendingTrips = pending.filter { $0.id != tripID }
+        copy.tripsAwaitingReview = max(0, tripsAwaitingReview - 1)
+        return copy
+    }
+
     static let placeholder = WidgetSnapshot(
         monthLabel: "September",
         distanceMeters: 486_000,
@@ -58,7 +96,8 @@ struct WidgetSnapshot: Codable, Sendable, Equatable {
         tripStartedAt: nil,
         tripDistanceMeters: nil,
         tripsAwaitingReview: 0,
-        languageCode: "en"
+        languageCode: "en",
+        pendingTrips: nil
     )
 }
 
@@ -66,10 +105,12 @@ enum WidgetSnapshotStore {
     static let appGroupIdentifier = "group.company.lno.mileage"
     private static let fileName = "widget-snapshot.json"
 
+    static var containerURL: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)
+    }
+
     private static var fileURL: URL? {
-        FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)?
-            .appendingPathComponent(fileName)
+        containerURL?.appendingPathComponent(fileName)
     }
 
     static func write(_ snapshot: WidgetSnapshot) {
