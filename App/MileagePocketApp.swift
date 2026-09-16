@@ -30,10 +30,23 @@ struct MileagePocketApp: App {
                 .modelContainer(dependencies.container)
                 .task { dependencies.bootstrap() }
                 .onOpenURL { url in
-                    // mileagepocket://start — the widget's Start Trip action.
-                    guard url.host == "start" || url.path == "/start" else { return }
-                    if dependencies.canAccess(.startTrip), !dependencies.isRecording {
-                        dependencies.startTrip()
+                    // The widget lands the reader where its own headline pointed: a drive
+                    // under way opens the driving screen, a queue opens the queue, and
+                    // otherwise the tap starts a trip. Sending every tap to Home made the
+                    // widget a decoration with a shortcut attached.
+                    switch url.host {
+                    case "start":
+                        if dependencies.canAccess(.startTrip), !dependencies.isRecording {
+                            dependencies.startTrip()
+                        }
+                    case "review":
+                        dependencies.pendingDeepLink = .reviewQueue
+                    case "trip":
+                        // `isRecording` already puts `ActiveTripView` on screen; opening the
+                        // app is the whole action.
+                        break
+                    default:
+                        break
                     }
                 }
         }

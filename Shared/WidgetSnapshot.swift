@@ -10,8 +10,43 @@ struct WidgetSnapshot: Codable, Sendable, Equatable {
     var formattedAmount: String?
     var isTripInProgress: Bool
     var updatedAt: Date
+    /// When the trip in progress began, so the widget can run its own clock instead of
+    /// showing a duration frozen at whatever the last write happened to be.
+    var tripStartedAt: Date?
+    /// Distance of the trip in progress, as of the last write.
+    var tripDistanceMeters: Double?
+    /// How many finished trips are still waiting to be called business or personal. This is
+    /// the one thing the app asks of its user, and the only number here worth acting on.
+    var tripsAwaitingReview: Int
+    /// The language chosen *in the app*, so the widget speaks it too. A widget resolves
+    /// strings against the system language by default, which would have put the home screen
+    /// in one language and the app in another.
+    var languageCode: String
 
     var unit: DistanceUnit { DistanceUnit(rawValue: unitRaw) ?? .kilometers }
+
+    /// What the widget should put in front of the reader, in priority order: a drive under
+    /// way beats a queue, and a queue beats a monthly total nobody taps.
+    enum Focus: Equatable {
+        case recording
+        case awaitingReview(Int)
+        case month
+    }
+
+    var focus: Focus {
+        if isTripInProgress { return .recording }
+        if tripsAwaitingReview > 0 { return .awaitingReview(tripsAwaitingReview) }
+        return .month
+    }
+
+    /// Where a tap should land, given that focus.
+    var destination: URL? {
+        switch focus {
+        case .recording: return URL(string: "mileagepocket://trip")
+        case .awaitingReview: return URL(string: "mileagepocket://review")
+        case .month: return URL(string: "mileagepocket://start")
+        }
+    }
 
     static let placeholder = WidgetSnapshot(
         monthLabel: "September",
@@ -19,7 +54,11 @@ struct WidgetSnapshot: Codable, Sendable, Equatable {
         unitRaw: DistanceUnit.kilometers.rawValue,
         formattedAmount: nil,
         isTripInProgress: false,
-        updatedAt: .now
+        updatedAt: .now,
+        tripStartedAt: nil,
+        tripDistanceMeters: nil,
+        tripsAwaitingReview: 0,
+        languageCode: "en"
     )
 }
 

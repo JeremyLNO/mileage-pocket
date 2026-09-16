@@ -75,6 +75,14 @@ final class AppDependencies {
     private(set) var activeStartedAt: Date?
     /// The schedule the figure above changes on: every 100 m, or every 5 s.
     private var broadcast = DistanceBroadcast()
+    /// Where a widget tap asked the app to go, honoured once by whichever screen owns it.
+    ///
+    /// A deep link cannot push a view from the app's entry point — the tab and its
+    /// navigation stack belong to `MainTabView` and `TripsView`. So the intent is parked
+    /// here and consumed there.
+    enum DeepLink: Equatable { case reviewQueue }
+    var pendingDeepLink: DeepLink?
+
     /// Set when a trip could not start because location is off or refused. The view shows it;
     /// before, the app opened its driving screen and recorded nothing, saying nothing.
     var locationRefused = false
@@ -189,6 +197,10 @@ final class AppDependencies {
         subscriptions.start()
         adoptTripInProgress()
         syncRecorderState()
+        // Written at every launch, not only when a trip ends. Otherwise the widget of someone
+        // who installs the update stays blank until their next finished drive — with a store
+        // full of trips it could have been describing all along.
+        refreshWidgetSnapshot()
         startWatchingForCarPlay()
         applyBackgroundWatch()
         applyDriveDetection()
@@ -435,6 +447,8 @@ final class AppDependencies {
             if settingsStore.settings.notificationsEnabled, settingsStore.settings.tripReminderEnabled {
                 notifications.scheduleTripStillRunningReminder()
             }
+            // The widget's whole job while a trip runs is to say that one is running.
+            refreshWidgetSnapshot()
             syncRecorderState()
         } catch RecorderError.locationUnavailable {
             // Recording without location produced a running timer over a 0 m trip and said
@@ -571,6 +585,8 @@ final class AppDependencies {
             if settingsStore.settings.notificationsEnabled, settingsStore.settings.tripReminderEnabled {
                 notifications.scheduleTripStillRunningReminder()
             }
+            // The widget's whole job while a trip runs is to say that one is running.
+            refreshWidgetSnapshot()
             syncRecorderState()
         } catch RecorderError.locationUnavailable {
             locationRefused = true

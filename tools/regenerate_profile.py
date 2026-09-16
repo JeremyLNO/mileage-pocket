@@ -106,11 +106,24 @@ def main():
     uuid = install(created)
     print(f"recreated: {created['attributes']['profileState']} uuid={uuid}")
 
-    # Read back the entitlements the profile actually carries, rather than trusting the POST.
+    # Read back what the profile actually carries, rather than trusting the POST. Each
+    # profile is checked against what *it* needs: the widget has neither CarPlay nor push,
+    # and reporting those as MISSING trained the eye to ignore the word.
     content = base64.b64decode(created["attributes"]["profileContent"])
     text = content.decode("utf-8", errors="ignore")
-    for needle in ["carplay-driving-task", "application-identifier", "aps-environment"]:
+    expected = {
+        "MileagePocket AppStore": [
+            "application-identifier", "aps-environment",
+            "carplay-driving-task", "application-groups",
+        ],
+        "MileageWidgets AppStore": ["application-identifier", "application-groups"],
+    }.get(name, ["application-identifier"])
+
+    missing = [needle for needle in expected if needle not in text]
+    for needle in expected:
         print(f"  {'carries' if needle in text else 'MISSING'}: {needle}")
+    if missing:
+        raise SystemExit(f"{name}: profile is missing {missing} — signing will fail")
 
 
 if __name__ == "__main__":

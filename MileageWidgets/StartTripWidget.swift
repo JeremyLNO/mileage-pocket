@@ -29,71 +29,19 @@ struct StartTripProvider: TimelineProvider {
     }
 }
 
-/// A small widget with one job: get the user into a running trip before they pull away.
+/// The app on the home screen.
+///
+/// Small and medium: the same three faces, the medium one with room for the month's figures
+/// alongside whatever is being asked. `.systemSmall` alone meant the queue count and the
+/// month total could never appear together.
 struct StartTripWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "StartTripWidget", provider: StartTripProvider()) { entry in
-            StartTripWidgetView(entry: entry)
+            TripStatusWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("app.name")
         .description("widget.start.trip")
-        .supportedFamilies([.systemSmall])
-    }
-}
-
-struct StartTripWidgetView: View {
-    let entry: StartTripEntry
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 6) {
-                Image(systemName: entry.snapshot?.isTripInProgress == true ? "record.circle" : "car.side.fill")
-                    .font(.system(size: 13, weight: .semibold))
-                Text(entry.snapshot?.isTripInProgress == true ? "activity.title" : "widget.start.trip")
-                    .font(.system(size: 13, weight: .semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-            .foregroundStyle(.orange)
-
-            Spacer(minLength: 6)
-
-            if let snapshot = entry.snapshot {
-                Text(snapshot.monthLabel)
-                    .font(.system(size: 11, weight: .medium))
-                    .textCase(.uppercase)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text(value(for: snapshot))
-                        .font(.system(size: 30, weight: .medium, design: .monospaced))
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
-                    Text(snapshot.unit == .kilometers ? "km" : "mi")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                }
-
-                if let amount = snapshot.formattedAmount {
-                    Text(amount)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            } else {
-                Text("home.empty.title")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .widgetURL(URL(string: "mileagepocket://start"))
-    }
-
-    private func value(for snapshot: WidgetSnapshot) -> String {
-        let distance = snapshot.unit.value(fromMeters: snapshot.distanceMeters)
-        return distance.formatted(.number.precision(.fractionLength(0)))
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

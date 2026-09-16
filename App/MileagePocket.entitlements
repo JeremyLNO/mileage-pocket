@@ -16,19 +16,23 @@
 	<key>com.apple.developer.carplay-driving-task</key>
 	<true/>
 	<!--
-	  iCloud (com.apple.developer.icloud-*) and the App Group are intentionally absent from
-	  this build.
+	  The container the widget reads. Created in the developer portal on 2026-09-16 and
+	  assigned to both App IDs — the app's and the widget extension's — which is what makes
+	  `containerURL(forSecurityApplicationGroupIdentifier:)` return a URL instead of nil.
 
-	  Creating an App Group identifier and a CloudKit container is not possible through the
-	  App Store Connect API — only the developer portal or a Xcode signed in with an Apple
-	  account can do it, and this machine has neither. The provisioning profile therefore
-	  authorises those capabilities with *empty* lists, and naming a container the profile
-	  does not grant fails code signing outright.
-
-	  The app already handles their absence: the store falls back to a local one
-	  (PersistenceController.makeContainerWithFallback) and the widget simply shows its
-	  button without the month's figures. Re-add both keys as soon as the group
-	  `group.company.lno.mileage` and the container `iCloud.company.lno.mileage` exist.
+	  Until then the whole snapshot mechanism was inert on every device: the app never wrote
+	  it, the widget never read it, and the widget rendered its empty state forever while the
+	  code that draws the month's figures was never reached.
+	-->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.company.lno.mileage</string>
+	</array>
+	<!--
+	  iCloud (com.apple.developer.icloud-*) stays absent: the container
+	  `iCloud.company.lno.mileage` does not exist yet, and naming one the profile does not
+	  grant fails code signing outright. The store falls back to a local one — see
+	  `PersistenceController.openStore`.
 	-->
 </dict>
 </plist>

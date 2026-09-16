@@ -23,7 +23,6 @@
 		6A6D00F8BBCDEFF5273AA7F5 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FFD3C21306BED536A83EA9 /* AppLanguage.swift */; };
 		6C07FB9F5362170E7C3C4EE2 /* LanguageResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6425EE3746E22689C0E15B /* LanguageResolver.swift */; };
 		5746F1CD8149E292DCF88676 /* LocalizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A58779428C78D83799E0D4D /* LocalizationService.swift */; };
-		49B4418C51F9DBC8BEBF288D /* LocalizedBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D972B62C7AF7E62FD373A27 /* LocalizedBundle.swift */; };
 		1E1F8E202DC1CAFEB54653A6 /* CloudKitAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10628472297CCA24928CB7C0 /* CloudKitAvailability.swift */; };
 		DFB9952C70002583613E6AAF /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3562E45B9EA991C75310170 /* DeviceIdentity.swift */; };
 		2F14CA0D691B2FCE4E62F32A /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 059EB25E2825B69058176ABB /* PersistenceController.swift */; };
@@ -91,6 +90,7 @@
 		4729C85245778FE6CB6FB03B /* VehiclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115CF5DF4B729AEBE4111D18 /* VehiclesView.swift */; };
 		1BFB40805AF64504BB58D9E9 /* DistanceDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7E0B96AA11DAB7A40DC68D /* DistanceDisplay.swift */; };
 		BD1B87C04C8A0DCEAD2B7605 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE67A88587942CD6869C134A /* Enums.swift */; };
+		8394FD95D9FD0E0CFD81E95D /* LocalizedBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A652AFC44D30C5E309CAE09 /* LocalizedBundle.swift */; };
 		AF0E610812D4C691BD950FDB /* TripAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C20DA7A0342F6845231BEAC /* TripAttributes.swift */; };
 		5458DCE7E46C41FAAC383229 /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F084A37211B7023A9F906223 /* WidgetSnapshot.swift */; };
 		3FEE178C5A0526B3AF075A11 /* AccessPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC69304BE399BD369A7729E /* AccessPolicyTests.swift */; };
@@ -124,6 +124,7 @@
 		1068DB8C9B49E708FC261DF1 /* TripEndpointLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D73395EA8332DDD92A4C45D /* TripEndpointLabelTests.swift */; };
 		4EBFCC94CE9B21EB8ECD38E0 /* TripGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */; };
 		6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */; };
+		2719A6D3391D22B368A0C887 /* WidgetSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBEE21C2914C4F4EB5985739 /* WidgetSnapshotTests.swift */; };
 		547BCB0E5CF93F5A6F0F4116 /* RouteFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B87813E46E7FAA074042AE /* RouteFixtures.swift */; };
 		F0025C42060801CFFFC5E033 /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90E39E390D840036CEECC96 /* LaunchUITests.swift */; };
 		D40B5893CDDDB9BB012E05AB /* PaywallUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F10061DFC9A55731D6762AC /* PaywallUITests.swift */; };
@@ -134,8 +135,10 @@
 		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
 		CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */; };
 		F98F180A21F88E7E9433F27E /* TripLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E9038CCAF678F8ABC8DF7D /* TripLiveActivity.swift */; };
+		4334D4AB2D76A147E6BA9F90 /* TripStatusWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB1BC809075C1A793CE77AD /* TripStatusWidgetView.swift */; };
 		11447D84E3979883412DE9BD /* DistanceDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B7E0B96AA11DAB7A40DC68D /* DistanceDisplay.swift */; };
 		797A21C09AFA98EFD138FE24 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE67A88587942CD6869C134A /* Enums.swift */; };
+		6C69A39E288AD96D746F0E1D /* LocalizedBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A652AFC44D30C5E309CAE09 /* LocalizedBundle.swift */; };
 		8131563D57E013CEA28FA5E6 /* TripAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C20DA7A0342F6845231BEAC /* TripAttributes.swift */; };
 		4922DC7AE90B54D2AA40B76F /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F084A37211B7023A9F906223 /* WidgetSnapshot.swift */; };
 		6DD9C133694F74FB87B20B01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8D7172619DB15AD08404D409 /* Assets.xcassets */; };
@@ -170,7 +173,6 @@
 		22FFD3C21306BED536A83EA9 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppLanguage.swift"; sourceTree = "<group>"; };
 		5A6425EE3746E22689C0E15B /* LanguageResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LanguageResolver.swift"; sourceTree = "<group>"; };
 		2A58779428C78D83799E0D4D /* LocalizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizationService.swift"; sourceTree = "<group>"; };
-		8D972B62C7AF7E62FD373A27 /* LocalizedBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizedBundle.swift"; sourceTree = "<group>"; };
 		10628472297CCA24928CB7C0 /* CloudKitAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CloudKitAvailability.swift"; sourceTree = "<group>"; };
 		C3562E45B9EA991C75310170 /* DeviceIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeviceIdentity.swift"; sourceTree = "<group>"; };
 		059EB25E2825B69058176ABB /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceController.swift"; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 		E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MileageWidgetsBundle.swift"; sourceTree = "<group>"; };
 		6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StartTripWidget.swift"; sourceTree = "<group>"; };
 		03E9038CCAF678F8ABC8DF7D /* TripLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripLiveActivity.swift"; sourceTree = "<group>"; };
+		5DB1BC809075C1A793CE77AD /* TripStatusWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripStatusWidgetView.swift"; sourceTree = "<group>"; };
 		AF587376844F462C750F5D09 /* ActiveTripState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActiveTripState.swift"; sourceTree = "<group>"; };
 		5FF8A4CC5730DBB3815159AD /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Client.swift"; sourceTree = "<group>"; };
 		2F6AF9F195732EDEB9C76B08 /* ClosedPeriod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClosedPeriod.swift"; sourceTree = "<group>"; };
@@ -241,6 +244,7 @@
 		5A44AC26404B222C6226D04B /* TripPatternMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripPatternMatcher.swift"; sourceTree = "<group>"; };
 		7B7E0B96AA11DAB7A40DC68D /* DistanceDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DistanceDisplay.swift"; sourceTree = "<group>"; };
 		FE67A88587942CD6869C134A /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Enums.swift"; sourceTree = "<group>"; };
+		8A652AFC44D30C5E309CAE09 /* LocalizedBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizedBundle.swift"; sourceTree = "<group>"; };
 		1C20DA7A0342F6845231BEAC /* TripAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripAttributes.swift"; sourceTree = "<group>"; };
 		F084A37211B7023A9F906223 /* WidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetSnapshot.swift"; sourceTree = "<group>"; };
 		0AC69304BE399BD369A7729E /* AccessPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessPolicyTests.swift"; sourceTree = "<group>"; };
@@ -275,6 +279,7 @@
 		1D73395EA8332DDD92A4C45D /* TripEndpointLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripEndpointLabelTests.swift"; sourceTree = "<group>"; };
 		20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripGroupingTests.swift"; sourceTree = "<group>"; };
 		4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripRecorderTests.swift"; sourceTree = "<group>"; };
+		DBEE21C2914C4F4EB5985739 /* WidgetSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetSnapshotTests.swift"; sourceTree = "<group>"; };
 		E90E39E390D840036CEECC96 /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchUITests.swift"; sourceTree = "<group>"; };
 		6F10061DFC9A55731D6762AC /* PaywallUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PaywallUITests.swift"; sourceTree = "<group>"; };
 		772E7A8B996007A055835216 /* RawKeyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RawKeyUITests.swift"; sourceTree = "<group>"; };
@@ -404,7 +409,6 @@
 				22FFD3C21306BED536A83EA9 /* AppLanguage.swift */,
 				5A6425EE3746E22689C0E15B /* LanguageResolver.swift */,
 				2A58779428C78D83799E0D4D /* LocalizationService.swift */,
-				8D972B62C7AF7E62FD373A27 /* LocalizedBundle.swift */,
 			);
 			path = Localization;
 			sourceTree = "<group>";
@@ -673,6 +677,7 @@
 			children = (
 				7B7E0B96AA11DAB7A40DC68D /* DistanceDisplay.swift */,
 				FE67A88587942CD6869C134A /* Enums.swift */,
+				8A652AFC44D30C5E309CAE09 /* LocalizedBundle.swift */,
 				1C20DA7A0342F6845231BEAC /* TripAttributes.swift */,
 				F084A37211B7023A9F906223 /* WidgetSnapshot.swift */,
 			);
@@ -722,6 +727,7 @@
 				1D73395EA8332DDD92A4C45D /* TripEndpointLabelTests.swift */,
 				20EF891AE43EE400CA3F13DB /* TripGroupingTests.swift */,
 				4D284F0718C875BEBC8A389A /* TripRecorderTests.swift */,
+				DBEE21C2914C4F4EB5985739 /* WidgetSnapshotTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -747,6 +753,7 @@
 				E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */,
 				6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */,
 				03E9038CCAF678F8ABC8DF7D /* TripLiveActivity.swift */,
+				5DB1BC809075C1A793CE77AD /* TripStatusWidgetView.swift */,
 			);
 			path = MileageWidgets;
 			sourceTree = "<group>";
@@ -1039,7 +1046,6 @@
 				6A6D00F8BBCDEFF5273AA7F5 /* AppLanguage.swift in Sources */,
 				6C07FB9F5362170E7C3C4EE2 /* LanguageResolver.swift in Sources */,
 				5746F1CD8149E292DCF88676 /* LocalizationService.swift in Sources */,
-				49B4418C51F9DBC8BEBF288D /* LocalizedBundle.swift in Sources */,
 				1E1F8E202DC1CAFEB54653A6 /* CloudKitAvailability.swift in Sources */,
 				DFB9952C70002583613E6AAF /* DeviceIdentity.swift in Sources */,
 				2F14CA0D691B2FCE4E62F32A /* PersistenceController.swift in Sources */,
@@ -1107,6 +1113,7 @@
 				4729C85245778FE6CB6FB03B /* VehiclesView.swift in Sources */,
 				1BFB40805AF64504BB58D9E9 /* DistanceDisplay.swift in Sources */,
 				BD1B87C04C8A0DCEAD2B7605 /* Enums.swift in Sources */,
+				8394FD95D9FD0E0CFD81E95D /* LocalizedBundle.swift in Sources */,
 				AF0E610812D4C691BD950FDB /* TripAttributes.swift in Sources */,
 				5458DCE7E46C41FAAC383229 /* WidgetSnapshot.swift in Sources */,
 			);
@@ -1147,6 +1154,7 @@
 				1068DB8C9B49E708FC261DF1 /* TripEndpointLabelTests.swift in Sources */,
 				4EBFCC94CE9B21EB8ECD38E0 /* TripGroupingTests.swift in Sources */,
 				6047EEDF4BBBB862A9F44E5A /* TripRecorderTests.swift in Sources */,
+				2719A6D3391D22B368A0C887 /* WidgetSnapshotTests.swift in Sources */,
 				547BCB0E5CF93F5A6F0F4116 /* RouteFixtures.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1171,8 +1179,10 @@
 				B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */,
 				CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */,
 				F98F180A21F88E7E9433F27E /* TripLiveActivity.swift in Sources */,
+				4334D4AB2D76A147E6BA9F90 /* TripStatusWidgetView.swift in Sources */,
 				11447D84E3979883412DE9BD /* DistanceDisplay.swift in Sources */,
 				797A21C09AFA98EFD138FE24 /* Enums.swift in Sources */,
+				6C69A39E288AD96D746F0E1D /* LocalizedBundle.swift in Sources */,
 				8131563D57E013CEA28FA5E6 /* TripAttributes.swift in Sources */,
 				4922DC7AE90B54D2AA40B76F /* WidgetSnapshot.swift in Sources */,
 			);

@@ -88,6 +88,13 @@ struct TripsView: View {
                 }
             }
             .navigationDestination(for: ReviewQueueRoute.self) { _ in ReviewQueueView() }
+            // Consumed once, then cleared: a link left standing would push the queue again
+            // every time this view came back.
+            .onChange(of: dependencies.pendingDeepLink) { _, link in
+                guard link == .reviewQueue else { return }
+                path.append(ReviewQueueRoute())
+                dependencies.pendingDeepLink = nil
+            }
             .navigationDestination(for: Trip.ID.self) { id in
                 if let trip = filtered.first(where: { $0.id == id }) {
                     TripDetailView(trip: trip)

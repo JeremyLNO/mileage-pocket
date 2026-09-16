@@ -14,7 +14,9 @@ struct MainTabView: View {
     private var awaitingReview: [Trip]
 
     var body: some View {
-        TabView(selection: $selection) {
+        @Bindable var dependencies = dependencies
+
+        return TabView(selection: $selection) {
             Tab("tab.home", systemImage: "car.fill", value: "home") {
                 HomeView()
             }
@@ -30,5 +32,10 @@ struct MainTabView: View {
             }
         }
         .tint(Theme.signal)
+        // A widget tap asking for the queue has to select the tab that owns it before
+        // `TripsView` can push anything.
+        .onChange(of: dependencies.pendingDeepLink) { _, link in
+            if link == .reviewQueue { selection = "trips" }
+        }
     }
 }

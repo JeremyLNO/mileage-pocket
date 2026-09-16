@@ -2,6 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- See App/MileagePocket.entitlements: the App Group is not provisioned for this build. -->
+	<!--
+	  The same group as the app. Both sides need it: the container is only shared between
+	  bundles that both name it.
+	-->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.company.lno.mileage</string>
+	</array>
 </dict>
 </plist>

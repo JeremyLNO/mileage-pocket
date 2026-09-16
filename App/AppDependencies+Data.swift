@@ -534,7 +534,11 @@ extension AppDependencies {
                     ? Fmt.money(data.totalAmount, currencyCode: data.currencyCode, locale: localization.locale)
                     : nil,
                 isTripInProgress: isRecording,
-                updatedAt: .now
+                updatedAt: .now,
+                tripStartedAt: isRecording ? activeStartedAt : nil,
+                tripDistanceMeters: isRecording ? activeDistanceMeters : nil,
+                tripsAwaitingReview: tripsAwaitingReview.count,
+                languageCode: L.languageCode
             )
         )
         WidgetCenter.shared.reloadAllTimelines()
