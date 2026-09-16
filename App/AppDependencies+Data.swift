@@ -527,6 +527,7 @@ extension AppDependencies {
         let data = ReportBuilder.build(trips: trips, period: .current(), fallbackCurrency: settings.currencyCode)
         let awaiting = tripsAwaitingReview
         let carried = carriedPendingTrips(from: awaiting)
+        let figures = widgetFigures(from: trips)
         WidgetSnapshotStore.write(
             WidgetSnapshot(
                 monthLabel: Date.now.formatted(.dateTime.month(.wide).locale(localization.locale)),
@@ -541,10 +542,80 @@ extension AppDependencies {
                 tripDistanceMeters: isRecording ? activeDistanceMeters : nil,
                 tripsAwaitingReview: awaiting.count,
                 languageCode: L.languageCode,
-                pendingTrips: carried
+                localeIdentifier: localization.locale.identifier,
+                pendingTrips: carried,
+                figures: figures
             )
         )
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    /// The month, the day and the last drive, as the home screen shows them.
+    ///
+    /// Computed here and handed over already formatted: the widget has no locale, no
+    /// currency and no mileage rule, and the one time two processes each formatted the same
+    /// distance the phone and the lock screen disagreed about how far the driver had gone.
+    ///
+    /// A trip still running is left out of every figure. Its distance is moving and the
+    /// snapshot is only written when something happens, so counting it would put a number on
+    /// the home screen that was true for a moment and then quietly was not — and the drive
+    /// already has a face of its own.
+    func widgetFigures(from trips: [Trip], now: Date = .now, calendar: Calendar = .current) -> WidgetFigures {
+        let settings = settingsStore.settings
+        let finished = trips.filter { $0.endedAt != nil }
+
+        let today = calendar.startOfDay(for: now)
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today) ?? today
+        func distance(on day: Date) -> Double {
+            finished
+                .filter { calendar.isDate($0.startedAt, inSameDayAs: day) }
+                .reduce(0) { $0 + $1.distanceMeters }
+        }
+
+        let month = ReportPeriod.current(calendar: calendar, now: now).range(calendar: calendar)
+        let inMonth = finished.filter { month.contains($0.startedAt) }
+        let business = inMonth.filter { $0.tripType == .business }
+
+        return WidgetFigures(
+            todayDistanceMeters: distance(on: today),
+            yesterdayDistanceMeters: distance(on: yesterday),
+            monthBusinessMeters: business.reduce(0) { $0 + $1.distanceMeters },
+            monthPersonalMeters: inMonth.filter { $0.tripType != .business }.reduce(0) { $0 + $1.distanceMeters },
+            monthTripCount: inMonth.count,
+            formattedRate: singleRate(across: business, fallbackCurrency: settings.currencyCode),
+            lastTrip: lastTripFigure(from: finished)
+        )
+    }
+
+    /// The month's rate, but only if there is one.
+    ///
+    /// France prices by tranches and by fiscal horsepower; Ireland by bands. Where the scale
+    /// moves, no single rate multiplied by the month's distance gives the month's total, and
+    /// printing one under that total invites the reader to check an arithmetic that was never
+    /// performed. Two distinct rates, or none, and the line is simply absent.
+    private func singleRate(across trips: [Trip], fallbackCurrency: String) -> String? {
+        let rates = Set(trips.compactMap(\.mileageRate).filter { $0 > 0 })
+        guard rates.count == 1, let rate = rates.first else { return nil }
+        let currency = trips.compactMap(\.currencyCode).first ?? fallbackCurrency
+        let unit = trips.compactMap(\.mileageUnit).first ?? settingsStore.settings.distanceUnit
+        let amount = Fmt.rateAmount(rate, currencyCode: currency, locale: localization.locale)
+        return "\(amount)/\(DistanceDisplay.unitAbbreviation(unit, locale: localization.locale))"
+    }
+
+    private func lastTripFigure(from finished: [Trip]) -> WidgetFigures.LastTrip? {
+        guard let trip = finished.max(by: { $0.startedAt < $1.startedAt }) else { return nil }
+        let labels = endpointLabels(for: trip)
+        return WidgetFigures.LastTrip(
+            start: labels.start,
+            end: labels.end,
+            distanceText: DistanceDisplay.text(
+                meters: trip.distanceMeters,
+                unit: settingsStore.settings.distanceUnit,
+                locale: localization.locale
+            ),
+            durationText: Fmt.duration(trip.duration, locale: localization.locale),
+            isBusiness: trip.tripType == .business
+        )
     }
 
     /// The head of the review queue, named well enough for the home screen to ask about it.

@@ -1,11 +1,6 @@
 import SwiftUI
 import WidgetKit
 
-struct StartTripEntry: TimelineEntry {
-    let date: Date
-    let snapshot: WidgetSnapshot?
-}
-
 struct StartTripProvider: TimelineProvider {
     func placeholder(in context: Context) -> StartTripEntry {
         StartTripEntry(date: .now, snapshot: .placeholder)
@@ -31,17 +26,18 @@ struct StartTripProvider: TimelineProvider {
 
 /// The app on the home screen.
 ///
-/// Small and medium: the same three faces, the medium one with room for the month's figures
-/// alongside whatever is being asked. `.systemSmall` alone meant the queue count and the
-/// month total could never appear together.
+/// Three sizes, one design: the small face carries the day, the medium one the month and its
+/// split, the large one the whole dashboard — today, the month, what it is worth and where
+/// the last drive went. Each keeps the same priority: a drive under way, then a trip waiting
+/// to be classified, then the figures.
 struct StartTripWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "StartTripWidget", provider: StartTripProvider()) { entry in
             TripStatusWidgetView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(Theme.background, for: .widget)
         }
         .configurationDisplayName("app.name")
         .description("widget.start.trip")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

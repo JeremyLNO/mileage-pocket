@@ -8,6 +8,10 @@ import SwiftUI
 ///
 /// Colours are defined once here as dynamic (light/dark) values rather than in the asset
 /// catalog, so a palette change is one file and every surface follows.
+///
+/// In `Shared/` rather than `Core/DesignSystem/` because the widget extension is a second
+/// process that draws the same product. It used to pick its own greys and reds, which is how
+/// a home screen ends up looking like a different app than the one it opens.
 enum Theme {
     // MARK: - Palette
 
