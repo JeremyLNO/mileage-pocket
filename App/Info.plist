@@ -4,8 +4,13 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<!--
+	  Le nom court : c'est ce que l'écran d'accueil affiche sous l'icône, et il n'a pas de
+	  place à perdre. Voir APP_SHORT_NAME dans Config/Base.xcconfig — la marque complète
+	  « Mileage Pocket » reste sur la fiche App Store et dans l'app elle-même (`app.name`).
+	-->
 	<key>CFBundleDisplayName</key>
-	<string>$(APP_NAME)</string>
+	<string>$(APP_SHORT_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,13 +18,14 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<!--
-	  The product name has no space in it — it is a target name, not a brand. CFBundleName is
-	  what the system falls back to wherever CFBundleDisplayName is not consulted, so leaving
-	  it as $(PRODUCT_NAME) showed "MileagePocket" in those places while every other surface
-	  said "Mileage Pocket".
+	  CFBundleName est *par définition* le nom court du bundle (15 caractères au plus) : il
+	  porte donc la même valeur que le display name. Il valait $(PRODUCT_NAME) — un nom de
+	  cible, sans espace — et c'est ce que le système reprenait partout où il ne consulte pas
+	  le display name : l'écran d'accueil disait « Mileage Pocket » pendant que ces
+	  endroits-là disaient « MileagePocket ».
 	-->
 	<key>CFBundleName</key>
-	<string>$(APP_NAME)</string>
+	<string>$(APP_SHORT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

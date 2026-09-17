@@ -186,24 +186,48 @@ final class RuntimeLocalizationKeyTests: XCTestCase {
     }
 }
 
-/// The app's name, everywhere the system can read it.
+/// Two names, on purpose.
 ///
-/// `CFBundleName` defaulted to `$(PRODUCT_NAME)` — a *target* name, with no space in it —
-/// and it is what iOS falls back to wherever `CFBundleDisplayName` is not consulted. So the
-/// home screen said "Mileage Pocket" while those places said "MileagePocket".
+/// "Mileage Pocket" is the brand: the App Store listing, every screen inside the app, the
+/// widget gallery. "Mileage" is what goes under the icon, and only there — because that one
+/// label has no margin to spare. SpringBoard strips the spaces out of a label that is
+/// slightly too wide *before* it truncates, and a TestFlight install puts an orange dot in
+/// front of the name which takes exactly the margin "Mileage Pocket" had. Same build, same
+/// phone: "Mileage Pocket" installed from Xcode, "MileagePocket" installed from TestFlight —
+/// which is also why no simulator install ever reproduced it.
 final class BundleNameTests: XCTestCase {
-    func testEveryNameTheSystemReadsCarriesTheSpace() throws {
+    func testTheTwoKeysTheSystemReadsCarryTheShortName() throws {
         let info = try XCTUnwrap(Bundle.main.infoDictionary)
         for key in ["CFBundleDisplayName", "CFBundleName"] {
             let value = try XCTUnwrap(info[key] as? String, "\(key) is missing")
-            XCTAssertEqual(value, "Mileage Pocket", "\(key) is the brand, not the target name")
+            XCTAssertEqual(value, "Mileage", "\(key) must be APP_SHORT_NAME, not the brand")
         }
+    }
+
+    /// One word, and that is the whole point: a label with no space in it cannot have its
+    /// space taken away. A character count would be a false proxy — the compression is a
+    /// *width*, and it moves with the phone, with Display Zoom and with the TestFlight dot.
+    /// Only "no space at all" is an invariant.
+    func testTheShortNameCannotLoseASpaceBecauseItHasNone() throws {
+        let name = try XCTUnwrap(Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String)
+        XCTAssertFalse(name.contains(" "), "\(name) still has a space the home screen can remove")
     }
 
     /// Apple truncates a `CFBundleName` past 15 characters.
     func testTheNameFitsWhatTheSystemWillShow() throws {
         let name = try XCTUnwrap(Bundle.main.infoDictionary?["CFBundleName"] as? String)
         XCTAssertLessThanOrEqual(name.count, 15, "\(name.count) characters — iOS will cut it")
+    }
+
+    /// And the brand is untouched. Shortening the icon label must not shorten the product:
+    /// this is the string the app puts on its own screens and the widget on its gallery card.
+    func testTheBrandKeepsItsFullNameEverywhereElse() {
+        for language in ["en", "fr", "de", "es", "it", "pt"] {
+            XCTAssertEqual(
+                LocalizedStrings(languageCode: language)("app.name"), "Mileage Pocket",
+                "the brand lost its full name in \(language)"
+            )
+        }
     }
 }
 

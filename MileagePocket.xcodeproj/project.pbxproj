@@ -122,6 +122,7 @@
 		996305294A1DD93E6593CD58 /* RulePackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */; };
 		F8B5BBFA10483956BFBE983F /* RulePackUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F06CA12FCDAA706F44E5ADE /* RulePackUpdateTests.swift */; };
 		29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */; };
+		959E5A876441E2C46BF3793E /* StoreUpgradeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEDC14060A615694C016048 /* StoreUpgradeTests.swift */; };
 		4ABED5DA3350D8C5A2B9CDC9 /* SubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289B64711928B877FD8DDEEC /* SubscriptionTests.swift */; };
 		CBF3B6758DF970C00DB25CB0 /* TaxYearAndCapsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 789B254A5C1E205D289C8960 /* TaxYearAndCapsTests.swift */; };
 		755588AC2A96A74D4392693B /* TestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CBECF3DABA2783CD00B0FEF /* TestDoubles.swift */; };
@@ -287,6 +288,7 @@
 		769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RulePackTests.swift"; sourceTree = "<group>"; };
 		3F06CA12FCDAA706F44E5ADE /* RulePackUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RulePackUpdateTests.swift"; sourceTree = "<group>"; };
 		B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmokeTests.swift"; sourceTree = "<group>"; };
+		3CEDC14060A615694C016048 /* StoreUpgradeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StoreUpgradeTests.swift"; sourceTree = "<group>"; };
 		289B64711928B877FD8DDEEC /* SubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionTests.swift"; sourceTree = "<group>"; };
 		789B254A5C1E205D289C8960 /* TaxYearAndCapsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaxYearAndCapsTests.swift"; sourceTree = "<group>"; };
 		7CBECF3DABA2783CD00B0FEF /* TestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TestDoubles.swift"; sourceTree = "<group>"; };
@@ -742,6 +744,7 @@
 				769B5FC4DF790C16FCACEDF2 /* RulePackTests.swift */,
 				3F06CA12FCDAA706F44E5ADE /* RulePackUpdateTests.swift */,
 				B68DB5E72AFF428F5E3086EA /* SmokeTests.swift */,
+				3CEDC14060A615694C016048 /* StoreUpgradeTests.swift */,
 				289B64711928B877FD8DDEEC /* SubscriptionTests.swift */,
 				789B254A5C1E205D289C8960 /* TaxYearAndCapsTests.swift */,
 				7CBECF3DABA2783CD00B0FEF /* TestDoubles.swift */,
@@ -1175,6 +1178,7 @@
 				996305294A1DD93E6593CD58 /* RulePackTests.swift in Sources */,
 				F8B5BBFA10483956BFBE983F /* RulePackUpdateTests.swift in Sources */,
 				29A5868AA8CEC5A213EE6942 /* SmokeTests.swift in Sources */,
+				959E5A876441E2C46BF3793E /* StoreUpgradeTests.swift in Sources */,
 				4ABED5DA3350D8C5A2B9CDC9 /* SubscriptionTests.swift in Sources */,
 				CBF3B6758DF970C00DB25CB0 /* TaxYearAndCapsTests.swift in Sources */,
 				755588AC2A96A74D4392693B /* TestDoubles.swift in Sources */,

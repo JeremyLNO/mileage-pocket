@@ -8,6 +8,16 @@
 
 SLASH = /
 APP_NAME = Mileage Pocket
+
+// Le libellé sous l'icône, et lui seul. La marque reste « Mileage Pocket » partout ailleurs :
+// fiche App Store, écran d'accueil de l'app, galerie de widgets, textes d'autorisation.
+//
+// Pourquoi deux noms : SpringBoard retire les espaces d'un libellé trop large avant de le
+// tronquer, et « Mileage Pocket » passe de justesse. Une install TestFlight ajoute une
+// pastille orange devant le nom, qui prend cette marge — le même build lit « Mileage Pocket »
+// installé par Xcode et « MileagePocket » installé par TestFlight. Un nom court n'a pas de
+// marge à perdre.
+APP_SHORT_NAME = Mileage
 BUNDLE_IDENTIFIER = Mileage.lno.company
 
 APP_STORE_ID = 6811426601
