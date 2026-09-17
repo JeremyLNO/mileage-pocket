@@ -8,8 +8,16 @@ import SwiftData
 enum DemoMode {
     #if DEBUG
     static var isEnabled: Bool {
-        CommandLine.arguments.contains("--demo") || CommandLine.arguments.contains("--demo-data-only")
+        CommandLine.arguments.contains("--demo")
+            || CommandLine.arguments.contains("--demo-data-only")
+            || seedsNothing
     }
+
+    /// `--empty` termine l'onboarding et ne sème rien : l'état de quelqu'un qui vient
+    /// d'installer l'app, n'a pas encore ajouté de voiture et n'a pas encore roulé. C'est
+    /// précisément l'état que les données de démo cachent, et celui où l'app a le plus à
+    /// prouver — un écran vide doit donner le geste suivant, pas seulement le nommer.
+    static var seedsNothing: Bool { CommandLine.arguments.contains("--empty") }
 
     /// `--tab=trips` opens straight onto a tab, so a screenshot run needs no taps.
     static var initialTab: String? { value(forArgument: "--tab") }
@@ -66,6 +74,7 @@ enum DemoMode {
     static var resetsFreePeriod: Bool { false }
     static var opensLastTrip: Bool { false }
     static var resetsData: Bool { false }
+    static var seedsNothing: Bool { false }
     #endif
 
     private static func value(forArgument name: String) -> String? {
@@ -89,6 +98,22 @@ enum DemoMode {
             for client in (try? context.fetch(FetchDescriptor<Client>())) ?? [] { context.delete(client) }
             try? context.save()
         }
+        if seedsNothing {
+            // Wipes first, unconditionally. A simulator keeps its store between launches, so
+            // "seed nothing" has to mean "leave nothing" — otherwise the flag is a no-op on
+            // every machine that has already run the demo once, which is every machine.
+            for trip in (try? context.fetch(FetchDescriptor<Trip>())) ?? [] { context.delete(trip) }
+            for vehicle in (try? context.fetch(FetchDescriptor<Vehicle>())) ?? [] { context.delete(vehicle) }
+            for client in (try? context.fetch(FetchDescriptor<Client>())) ?? [] { context.delete(client) }
+            settings.defaultVehicleID = nil
+            settings.hasCompletedOnboarding = true
+            settings.countryCode = "FR"
+            settings.currencyCode = "EUR"
+            settings.distanceUnit = .kilometers
+            try? context.save()
+            return false
+        }
+
         let existing = (try? context.fetch(FetchDescriptor<Trip>())) ?? []
         guard existing.isEmpty else { return false }
 

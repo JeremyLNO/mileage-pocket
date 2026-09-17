@@ -153,10 +153,20 @@ struct VehicleEditor: View {
 }
 
 /// Quick switcher shown from Home, so changing car before setting off is one tap and a tap.
+///
+/// With no vehicle it was a dead end: the empty state said "add the car you drive for work"
+/// and offered nothing to add it with. Reading what to do and being unable to do it is worse
+/// than an empty list — the screen names the gesture, so it has to carry it.
 struct VehiclePickerSheet: View {
+    @Environment(AppDependencies.self) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \Vehicle.createdAt) private var vehicles: [Vehicle]
     @Binding var selection: UUID?
+
+    @State private var adding: Vehicle?
+    /// Kept across the editor's lifetime so its outcome can be read from the store rather
+    /// than from a flag the sheet would have to keep in sync.
+    @State private var addedID: UUID?
 
     var body: some View {
         NavigationStack {
@@ -178,9 +188,44 @@ struct VehiclePickerSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .overlay {
                 if vehicles.isEmpty {
-                    EmptyStateView(systemImage: "car.2", title: "vehicles.empty.title", message: "vehicles.empty.message")
+                    VStack(spacing: 4) {
+                        EmptyStateView(
+                            systemImage: "car.2",
+                            title: "vehicles.empty.title",
+                            message: "vehicles.empty.message"
+                        )
+                        SecondaryButton(title: "vehicles.add", titleColor: Theme.signal) {
+                            // No paywall here, and none needed: the first vehicle is always
+                            // free, and this button only exists when there are none.
+                            let vehicle = dependencies.makeVehicle()
+                            addedID = vehicle.id
+                            adding = vehicle
+                        }
+                        .accessibilityIdentifier("addVehicleFromPicker")
+                        .padding(.horizontal, 24)
+                    }
                 }
             }
+            .sheet(item: $adding, onDismiss: selectIfSaved) { vehicle in
+                VehicleEditor(vehicle: vehicle)
+            }
         }
+    }
+
+    /// The editor inserts on Save and nothing at all on Cancel, so the store is what says
+    /// which of the two happened. Read from the context rather than from `@Query`, whose
+    /// snapshot may not have caught up by the time the sheet finishes dismissing — and a
+    /// stale read here would silently skip the selection.
+    private func selectIfSaved() {
+        guard let addedID, dependencies.vehicle(for: addedID) != nil else { return }
+        // They opened this sheet to choose a car and have just created one. Choosing it for
+        // them and standing aside is the whole of what they came for.
+        //
+        // The first vehicle is saved as the default, so `saveVehicle` has already written the
+        // same id into settings and this line changes nothing today. It stays because the
+        // picker's contract is to set its own binding — not to rely on a side effect of the
+        // editor that would quietly stop holding if the default ever moved.
+        selection = addedID
+        dismiss()
     }
 }

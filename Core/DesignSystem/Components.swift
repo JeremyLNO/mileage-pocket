@@ -85,6 +85,9 @@ struct PrimaryButton: View {
 
 struct SecondaryButton: View {
     let title: LocalizedStringKey
+    /// Ink by default. Tinted when the button is the one thing an empty screen is asking
+    /// for — grey on grey there reads as a control that is switched off.
+    var titleColor: Color = Theme.textPrimary
     let action: () -> Void
 
     var body: some View {
@@ -92,7 +95,7 @@ struct SecondaryButton: View {
             Text(title)
                 .scaledFont(16, relativeTo: .body, weight: .medium)
                 .frame(maxWidth: .infinity, minHeight: 50)
-                .foregroundStyle(Theme.textPrimary)
+                .foregroundStyle(titleColor)
                 .background(Theme.surfaceRaised, in: RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)

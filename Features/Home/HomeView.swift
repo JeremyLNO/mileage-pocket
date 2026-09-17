@@ -120,6 +120,7 @@ struct HomeView: View {
                 .scaledFont(15, relativeTo: .subheadline, weight: .medium)
                 .foregroundStyle(Theme.textSecondary)
             }
+            .accessibilityIdentifier("vehiclePicker")
         }
         .padding(.vertical, 8)
     }

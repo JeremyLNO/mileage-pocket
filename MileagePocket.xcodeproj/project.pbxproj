@@ -140,6 +140,7 @@
 		2DDC6CA1E9143B5E60C91066 /* TripDeletionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30594C9B775BABE7D4D0B9D8 /* TripDeletionUITests.swift */; };
 		D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */; };
 		CFE5743C0B854222020EBF4E /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670A6678249D2849C2BC6FA4 /* UITestSupport.swift */; };
+		F71069DB98B9F9AF93148A2E /* VehicleEmptyStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEA3991467ED057A4D35940 /* VehicleEmptyStateUITests.swift */; };
 		B60875E6FC9F564EB3F1FECC /* MileageWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0334A110FC805D6538BA821 /* MileageWidgetsBundle.swift */; };
 		CFCD64957A5A8FF1031E8E99 /* StartTripWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80905CB586F9F3FB844AAD /* StartTripWidget.swift */; };
 		F98F180A21F88E7E9433F27E /* TripLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E9038CCAF678F8ABC8DF7D /* TripLiveActivity.swift */; };
@@ -305,6 +306,7 @@
 		30594C9B775BABE7D4D0B9D8 /* TripDeletionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripDeletionUITests.swift"; sourceTree = "<group>"; };
 		8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TripFlowUITests.swift"; sourceTree = "<group>"; };
 		670A6678249D2849C2BC6FA4 /* UITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITestSupport.swift"; sourceTree = "<group>"; };
+		AEEA3991467ED057A4D35940 /* VehicleEmptyStateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VehicleEmptyStateUITests.swift"; sourceTree = "<group>"; };
 		8D7172619DB15AD08404D409 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4A32475C0821BB76773C2A37 /* MileageRules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MileageRules; sourceTree = "<group>"; };
 		2E88A5130923D54E34C2E978 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -768,6 +770,7 @@
 				30594C9B775BABE7D4D0B9D8 /* TripDeletionUITests.swift */,
 				8752E4FB332B0063209B8F57 /* TripFlowUITests.swift */,
 				670A6678249D2849C2BC6FA4 /* UITestSupport.swift */,
+				AEEA3991467ED057A4D35940 /* VehicleEmptyStateUITests.swift */,
 			);
 			path = UITests;
 			sourceTree = "<group>";
@@ -1203,6 +1206,7 @@
 				2DDC6CA1E9143B5E60C91066 /* TripDeletionUITests.swift in Sources */,
 				D553574BDD7371DCAEDE6529 /* TripFlowUITests.swift in Sources */,
 				CFE5743C0B854222020EBF4E /* UITestSupport.swift in Sources */,
+				F71069DB98B9F9AF93148A2E /* VehicleEmptyStateUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
