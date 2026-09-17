@@ -29,10 +29,28 @@
 		<string>group.company.lno.mileage</string>
 	</array>
 	<!--
-	  iCloud (com.apple.developer.icloud-*) stays absent: the container
-	  `iCloud.company.lno.mileage` does not exist yet, and naming one the profile does not
-	  grant fails code signing outright. The store falls back to a local one — see
-	  `PersistenceController.openStore`.
+	  iCloud. Le conteneur `iCloud.company.lno.mileage` a été créé au portail développeur le
+	  2026-09-17 et rattaché à l'App ID (« Enabled iCloud Containers (1) ») — c'est ce
+	  rattachement, et lui seul, qui rend ces deux clés signables : nommer un conteneur que le
+	  profil n'accorde pas fait échouer la signature, pas le lancement.
+
+	  Le store ne bascule pas tout seul pour autant, et c'est voulu : CLOUDKIT_AVAILABLE est
+	  encore NO tant que le schéma CloudKit n'est pas déployé en Production — voir le
+	  commentaire dans Config/Base.xcconfig. Ces entitlements sont donc inertes aujourd'hui,
+	  et c'est un état utile : ils prouvent que la signature passe, sans allumer un
+	  interrupteur de synchronisation qui n'aurait rien à synchroniser.
+
+	  Vérifié par ailleurs : ouvrir un store existant avec CloudKit attaché ne perd rien,
+	  même sans compte iCloud (`StoreUpgradeTests`). Un compte absent coûte la
+	  synchronisation, jamais les trajets.
 	-->
+	<key>com.apple.developer.icloud-container-identifiers</key>
+	<array>
+		<string>iCloud.company.lno.mileage</string>
+	</array>
+	<key>com.apple.developer.icloud-services</key>
+	<array>
+		<string>CloudKit</string>
+	</array>
 </dict>
 </plist>

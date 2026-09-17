@@ -115,6 +115,10 @@ def main():
         "MileagePocket AppStore": [
             "application-identifier", "aps-environment",
             "carplay-driving-task", "application-groups",
+            # iCloud depuis le 2026-09-17. Le conteneur est rattaché à l'App ID, pas au
+            # profil : une régénération qui le perdrait produirait un profil valide, et la
+            # signature échouerait bien plus loin sur un message qui ne parle pas de lui.
+            "icloud-container-identifiers", "icloud-services",
         ],
         "MileageWidgets AppStore": ["application-identifier", "application-groups"],
     }.get(name, ["application-identifier"])

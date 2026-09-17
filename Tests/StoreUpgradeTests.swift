@@ -56,6 +56,40 @@ final class StoreUpgradeTests: XCTestCase {
         XCTAssertTrue(trips.contains { $0.distanceMeters > 0 })
     }
 
+    /// The migration that is about to happen on every phone that already has the app.
+    ///
+    /// iCloud went from off to on. On the next launch, a store full of local trips is opened
+    /// with the CloudKit database attached for the first time — and if that fails,
+    /// `openStore` sets the file aside and opens an empty one. The user would see a working
+    /// app with nothing in it, having done nothing but install an update.
+    func testTurningICloudOnDoesNotCostTheTripsAlreadyRecorded() throws {
+        let directory = URL.temporaryDirectory.appending(path: "cloud-upgrade-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let copy = directory.appending(path: "default.store")
+        try FileManager.default.copyItem(at: fixture, to: copy)
+
+        let configuration = ModelConfiguration(
+            schema: PersistenceController.schema,
+            url: copy,
+            cloudKitDatabase: .private(PersistenceController.cloudKitContainerIdentifier)
+        )
+        let container = try ModelContainer(for: PersistenceController.schema, configurations: [configuration])
+        let trips = try ModelContext(container).fetch(FetchDescriptor<Trip>())
+
+        XCTAssertEqual(trips.count, 8, "turning iCloud on emptied a store that had trips in it")
+    }
+
+    /// The container is named in two places. A typo in either is not a crash and not a build
+    /// error — it is sync that never happens, on a switch the user has turned on.
+    func testTheContainerIsNamedTheSameInBothPlaces() {
+        XCTAssertEqual(
+            PersistenceController.cloudKitContainerIdentifier,
+            CloudKitAvailability.containerIdentifier
+        )
+        XCTAssertEqual(PersistenceController.cloudKitContainerIdentifier, "iCloud.company.lno.mileage")
+    }
+
     /// The store's location is part of the contract with every phone that already has one.
     ///
     /// Moving it — into the App Group, for instance, which was proposed so the widget could

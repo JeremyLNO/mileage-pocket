@@ -29,10 +29,23 @@ SUPPORT_URL = https:$(SLASH)$(SLASH)crazybeelabs.com/support/
 // Endpoint de mise à jour des barèmes — pas encore déployé en V1 : l'échec est silencieux.
 RULE_PACK_URL = https:$(SLASH)$(SLASH)www.crazybeelabs.com/api/mileage-rules/v1
 
-// NO while the App Group and the CloudKit container do not exist on the developer portal:
-// the provisioning profile authorises iCloud with an empty container list, so naming the
-// container fails code signing, and opening a CloudKit store without it crashes at launch.
-// Flip to YES in the same commit that re-adds the container to App/MileagePocket.entitlements.
+// Encore NO, et plus pour la même raison qu'avant.
+//
+// Ce qui est fait (2026-09-17) : le conteneur `iCloud.company.lno.mileage` existe au portail,
+// il est rattaché à l'App ID, les entitlements iCloud sont dans
+// App/MileagePocket.entitlements et le profil régénéré les porte — la signature est prouvée.
+//
+// Ce qui manque : le **schéma CloudKit n'est pas déployé en Production**. Un build TestFlight
+// ou App Store parle à l'environnement Production ; un build de développement parle à
+// Development, où les types d'enregistrement se créent tout seuls. Passer ce drapeau à YES
+// aujourd'hui donnerait donc un interrupteur « Synchronisation iCloud » allumé par défaut,
+// au-dessus d'une synchronisation qui échoue en silence faute de schéma — exactement ce que
+// le commentaire de SettingsView refuse : « un interrupteur qui ment sur la synchronisation,
+// c'est ainsi qu'on perd des données qu'on croyait sauvegardées ».
+//
+// L'ordre : (1) lancer un build de développement sur un appareil connecté à iCloud, ce qui
+// crée le schéma en Development ; (2) CloudKit Console → Deploy Schema to Production ;
+// (3) passer ce drapeau à YES. Les trois dans cet ordre, et pas avant.
 CLOUDKIT_AVAILABLE = NO
 
 DEVELOPMENT_TEAM = 2E6D4Q69QB
