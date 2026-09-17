@@ -15,6 +15,7 @@
 		5C3DC335B9A9F6E534FAE8FE /* AccessPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3177FF925968B75A0261A88 /* AccessPolicy.swift */; };
 		16B6F9E629335424C93EE433 /* InstallDateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 680A7F8730B76831AE6DF07D /* InstallDateStore.swift */; };
 		E46D0B7516DC3E3796E7EC0B /* CountryCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3B54F4C9D267DE9456BEB5 /* CountryCatalog.swift */; };
+		B004084BA5CDCE134CFCD70C /* CloudKitSchemaSeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88B7C86DB5CAEEA987238C1 /* CloudKitSchemaSeed.swift */; };
 		47DC2F36564B3FF750CDF14B /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92914F57925F3DFE070C7DF2 /* DemoMode.swift */; };
 		1A0DBB9334581BB5FC6198D4 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2C042AACAE1B575F399224 /* Components.swift */; };
 		5486E0F2B4402DBE935D608E /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40B94BE13BC451928C72F457 /* Typography.swift */; };
@@ -178,6 +179,7 @@
 		D3177FF925968B75A0261A88 /* AccessPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessPolicy.swift"; sourceTree = "<group>"; };
 		680A7F8730B76831AE6DF07D /* InstallDateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InstallDateStore.swift"; sourceTree = "<group>"; };
 		8D3B54F4C9D267DE9456BEB5 /* CountryCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CountryCatalog.swift"; sourceTree = "<group>"; };
+		A88B7C86DB5CAEEA987238C1 /* CloudKitSchemaSeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CloudKitSchemaSeed.swift"; sourceTree = "<group>"; };
 		92914F57925F3DFE070C7DF2 /* DemoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DemoMode.swift"; sourceTree = "<group>"; };
 		9F2C042AACAE1B575F399224 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components.swift"; sourceTree = "<group>"; };
 		40B94BE13BC451928C72F457 /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Typography.swift"; sourceTree = "<group>"; };
@@ -401,6 +403,7 @@
 		C976A5929DB90F8840BADC85 /* Debug */ = {
 			isa = PBXGroup;
 			children = (
+				A88B7C86DB5CAEEA987238C1 /* CloudKitSchemaSeed.swift */,
 				92914F57925F3DFE070C7DF2 /* DemoMode.swift */,
 			);
 			path = Debug;
@@ -1067,6 +1070,7 @@
 				5C3DC335B9A9F6E534FAE8FE /* AccessPolicy.swift in Sources */,
 				16B6F9E629335424C93EE433 /* InstallDateStore.swift in Sources */,
 				E46D0B7516DC3E3796E7EC0B /* CountryCatalog.swift in Sources */,
+				B004084BA5CDCE134CFCD70C /* CloudKitSchemaSeed.swift in Sources */,
 				47DC2F36564B3FF750CDF14B /* DemoMode.swift in Sources */,
 				1A0DBB9334581BB5FC6198D4 /* Components.swift in Sources */,
 				5486E0F2B4402DBE935D608E /* Typography.swift in Sources */,

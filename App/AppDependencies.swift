@@ -193,6 +193,12 @@ final class AppDependencies {
             }
             try? context.save()
         }
+        #if DEBUG
+        // Avant tout le reste : ces objets n'existent que pour que CloudKit fabrique leur
+        // type d'enregistrement, et ils repartent au lancement suivant.
+        if CloudKitSchemaSeed.isRequested { CloudKitSchemaSeed.insertOneOfEachModel(context: context) }
+        if CloudKitSchemaSeed.isCleanupRequested { CloudKitSchemaSeed.removeSeed(context: context) }
+        #endif
         applyDebugOnboardingState()
         subscriptions.start()
         adoptTripInProgress()

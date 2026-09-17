@@ -106,3 +106,29 @@ final class StoreUpgradeTests: XCTestCase {
         )
     }
 }
+
+/// Le schéma CloudKit ne se déploie complet que si quelque chose a produit un enregistrement
+/// de **chaque** modèle.
+///
+/// CloudKit ne crée un type que lorsqu'il a un objet à exporter. Au premier essai, un
+/// lancement de démonstration n'en a produit que quatre sur neuf : déployer là aurait donné
+/// une Production où la première `Project` d'un utilisateur ne se synchronise jamais — pour
+/// lui seul, sans erreur visible nulle part.
+final class CloudKitSchemaCoverageTests: XCTestCase {
+    /// Les neuf modèles couverts au 2026-09-17 : quatre par les données de démo, cinq par
+    /// `CloudKitSchemaSeed`. Ce test ne sait pas *lesquels* manquent — il sait que le compte
+    /// a changé, ce qui suffit à arrêter quelqu'un qui ajoute un modèle sans le semer.
+    func testEveryModelIsCoveredBySomethingThatCreatesARecord() {
+        let entities = PersistenceController.schema.entities.map(\.name).sorted()
+        XCTAssertEqual(
+            entities.count, 9,
+            """
+            Le schéma compte \(entities.count) modèles (\(entities.joined(separator: ", "))), \
+            pas 9. Si c'est un ajout : il faut aussi qu'un objet de ce modèle existe au moment \
+            où l'on pousse le schéma CloudKit, sinon son type n'est pas créé et sa \
+            synchronisation échouera en silence en Production. Voir CloudKitSchemaSeed, puis \
+            remonter ce compte.
+            """
+        )
+    }
+}

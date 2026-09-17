@@ -34,15 +34,10 @@
 	  rattachement, et lui seul, qui rend ces deux clés signables : nommer un conteneur que le
 	  profil n'accorde pas fait échouer la signature, pas le lancement.
 
-	  Le store ne bascule pas tout seul pour autant, et c'est voulu : CLOUDKIT_AVAILABLE est
-	  encore NO tant que le schéma CloudKit n'est pas déployé en Production — voir le
-	  commentaire dans Config/Base.xcconfig. Ces entitlements sont donc inertes aujourd'hui,
-	  et c'est un état utile : ils prouvent que la signature passe, sans allumer un
-	  interrupteur de synchronisation qui n'aurait rien à synchroniser.
-
-	  Vérifié par ailleurs : ouvrir un store existant avec CloudKit attaché ne perd rien,
-	  même sans compte iCloud (`StoreUpgradeTests`). Un compte absent coûte la
-	  synchronisation, jamais les trajets.
+	  Vérifié : ouvrir un store existant avec CloudKit attaché ne perd rien, même sans compte
+	  iCloud (`StoreUpgradeTests`). Un compte absent coûte la synchronisation, jamais les
+	  trajets — et c'est aussi ce qui rend `openStore` sûr, puisqu'il retombe sur un store
+	  local si CloudKit refuse de s'ouvrir.
 	-->
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
