@@ -236,3 +236,60 @@ final class StubURLProtocol: URLProtocol {
 
     override func stopLoading() {}
 }
+
+/// Le bundle réellement publié, passé par le vrai chemin de l'app.
+///
+/// `tools/check_rule_pack_endpoint.py` prouve que la signature de ce qui est en ligne passe —
+/// mais il le prouve avec la crypto de Python, pas avec le décodeur de l'app. Or c'est là que
+/// se cache le refus silencieux qui resterait : un format de date que `RulePack.decoder()`
+/// n'accepte pas fait échouer `refresh()` sans que rien ne l'écrive nulle part, ni côté app ni
+/// côté serveur. Le 200 serait vert, la signature valide, et aucun barème ne serait jamais
+/// appliqué.
+///
+/// La fixture est une copie prise **sur l'endpoint en production**, pas un bundle refabriqué
+/// ici : c'est ce que les téléphones téléchargent. Le script, lui, vérifie que ce qui est en
+/// ligne est toujours ces octets-là — les deux ensemble ferment la boucle.
+final class PublishedRulePackTests: XCTestCase {
+    private var directory: URL!
+
+    override func setUpWithError() throws {
+        directory = FileManager.default.temporaryDirectory
+            .appending(path: "published-rulepack-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        StubURLProtocol.response = nil
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: directory)
+        StubURLProtocol.response = nil
+    }
+
+    func testTheBundleServedInProductionIsAcceptedByTheShippingKeyAndDecoder() async throws {
+        let fixture = URL(filePath: #filePath)
+            .deletingLastPathComponent()
+            .appending(path: "Fixtures/PublishedRulePacks/mileage-rules-v1.json")
+        StubURLProtocol.response = (try Data(contentsOf: fixture), 200)
+
+        // La clé qui part réellement dans l'app, pas une paire fabriquée pour le test.
+        let shippingKey = try XCTUnwrap(RulePackVerifier.defaultPublicKey())
+        let store = RulePackStore(bundle: Bundle(for: PublishedRulePackTests.self), cacheDirectory: directory)
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [StubURLProtocol.self]
+        let updater = RulePackUpdater(
+            endpoint: URL(string: "https://www.crazybeelabs.com/api/mileage-rules/v1")!,
+            store: store,
+            session: URLSession(configuration: configuration),
+            cacheDirectory: directory,
+            publicKey: shippingKey
+        )
+
+        let applied = await updater.refresh()
+
+        XCTAssertTrue(applied, "l'app refuserait le bundle publié — signature, enveloppe ou décodage")
+        // Les douze pays, pas seulement « quelque chose a été appliqué » : un décodage qui
+        // s'arrêterait au premier paquet passerait une assertion plus faible.
+        for country in ["AU", "BE", "CA", "CH", "DE", "ES", "FR", "GB", "IE", "NL", "PT", "US"] {
+            XCTAssertNotNil(store.pack(country: country, on: .now), "\(country) manque après la mise à jour")
+        }
+    }
+}
